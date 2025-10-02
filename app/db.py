@@ -6,32 +6,34 @@ engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 SCHEMA_SQL = """
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS articles (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   url TEXT UNIQUE,
   source TEXT,
   title TEXT,
   summary_raw TEXT,
   content TEXT,
-  published_at TEXT,
-  fetched_at TEXT DEFAULT (datetime('now')),
+  published_at TIMESTAMPTZ,
+  fetched_at TIMESTAMPTZ DEFAULT NOW(),
   canonical_hash TEXT,
-  embedding BLOB,
+  embedding BYTEA,
   lang TEXT,
   paywalled BOOLEAN DEFAULT FALSE,
   status TEXT DEFAULT 'new' -- new, scored, selected, discarded
 );
 
 CREATE TABLE IF NOT EXISTS article_scores (
-  article_id TEXT PRIMARY KEY REFERENCES articles(id) ON DELETE CASCADE,
+  article_id UUID PRIMARY KEY REFERENCES articles(id) ON DELETE CASCADE,
   rel_building_practices INT,
   rel_market INT,
   rel_design_business INT,
   importance_multiplier REAL,
   freshness_bonus REAL,
   composite_score REAL,
-  topics TEXT, -- JSON array as text for SQLite
-  geography TEXT, -- JSON array as text for SQLite  
+  topics TEXT[], -- PostgreSQL array
+  geography TEXT[], -- PostgreSQL array
   macro_flag BOOLEAN,
   summary2 TEXT,
   why1 TEXT,
@@ -41,16 +43,16 @@ CREATE TABLE IF NOT EXISTS article_scores (
 );
 
 CREATE TABLE IF NOT EXISTS issues (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   issue_date TEXT UNIQUE,
   slug TEXT UNIQUE,
   html TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS issue_items (
-  issue_id TEXT REFERENCES issues(id) ON DELETE CASCADE,
-  article_id TEXT REFERENCES articles(id) ON DELETE CASCADE,
+  issue_id UUID REFERENCES issues(id) ON DELETE CASCADE,
+  article_id UUID REFERENCES articles(id) ON DELETE CASCADE,
   rank INT,
   section TEXT,
   PRIMARY KEY (issue_id, article_id)
@@ -70,4 +72,3 @@ def init_db():
         for statement in statements:
             if statement:
                 conn.execute(text(statement))
-
