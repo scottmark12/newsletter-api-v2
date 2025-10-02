@@ -1,0 +1,103 @@
+{
+  "tier_1_sources": [
+    "https://www.enr.com/rss/all",
+    "https://www.construction.com/news/rss",
+    "https://commercialobserver.com/feed/",
+    "https://www.bisnow.com/rss/all-markets/all-sectors",
+    "https://urbanland.uli.org/feed/",
+    "https://www.constructiondive.com/feeds/news/",
+    "https://therealdeal.com/feed/"
+  ],
+  "cities_smart": [
+    "https://www.smartcitiesdive.com/feeds/news/",
+    "https://www.bloomberg.com/citylab",
+    "https://www.brookings.edu/topics/cities-communities/feed/"
+  ],
+  "cre_research_firms": [
+    "https://www.jll.com/insights",
+    "https://www.cbre.com/insights",
+    "https://www.cushmanwakefield.com/en/insights",
+    "https://www.savills.com/insight-and-opinion/",
+    "https://www.colliers.com/en/research"
+  ],
+  "design_tech": [
+    "https://www.dezeen.com/technology/feed/"
+  ],
+  "finance_policy": [
+    "https://www.freddiemac.com/research",
+    "https://www.fanniemae.com/research-and-insights",
+    "https://www.huduser.gov/portal/publications/pdrpubli/affordable-housing.html",
+    "https://www.huduser.gov/portal/publications/pdrpubli/Community-and-Economic-Development.html",
+    "https://www.huduser.gov/portal/publications/pdrpubli/Housing-Finance.html",
+    "https://www.huduser.gov/portal/publications/pdrpubli/Housing-Production-and-Technology.html"
+  ],
+  "home_buyer_seller_renter": [
+    "https://www.realtor.com/news/real-estate-news/feed/",
+    "https://www.realtor.com/news/trends/feed/",
+    "https://www.realtor.com/advice/buy/",
+    "https://www.realtor.com/advice/sell/",
+    "https://www.realtor.com/advice/rent/"
+  ],
+  "housing_market_data": [
+    "https://www.zillow.com/research/feed/",
+    "https://www.redfin.com/news/feed/",
+    "https://www.apartmentlist.com/research",
+    "https://www.realpage.com/analytics/",
+    "https://www.yardimatrix.com/blog/"
+  ],
+  "industry_construction": [
+    "https://www.constructiondive.com/feeds/news/",
+    "https://www.bdcnetwork.com/rss.xml",
+    "https://www.archpaper.com/category/subject/development/feed/",
+    "https://www.archpaper.com/category/subject/urbanism/feed/"
+  ],
+  "investor_insights": [
+    "https://www.blackstone.com/insights/"
+  ],
+  "priority_sites": [
+    "https://www.constructiondive.com/feeds/news/",
+    "https://www.smartcitiesdive.com/feeds/news/",
+    "https://therealdeal.com/feed/",
+    "https://www.bdcnetwork.com/rss.xml",
+    "https://www.zillow.com/research/feed/",
+    "https://www.redfin.com/news/feed/",
+    "https://www.brookings.edu/feed/",
+    "https://www.urban.org/rss.xml",
+    "https://rmi.org/feed/",
+    "https://www.dezeen.com/technology/feed/"
+  ],
+  "real_estate_news": [
+    "https://therealdeal.com/feed/",
+    "https://therealdeal.com/miami/feed/",
+    "https://therealdeal.com/new-york/feed/",
+    "https://therealdeal.com/la/feed/",
+    "https://therealdeal.com/national/feed/",
+    "https://www.foxbusiness.com/category/personal-real-estate",
+    "https://www.foxbusiness.com/category/commercial-real-estate",
+    "https://www.foxbusiness.com/category/luxury-properties"
+  ],
+  "sustainability_buildings": [
+    "https://rmi.org/feed/",
+    "https://architecture2030.org/feed/",
+    "https://carbonleadershipforum.org/feed/",
+    "https://passivehouseaccelerator.com/articles",
+    "https://www.buildinggreen.com/"
+  ],
+  "tech_methods": [
+    "https://builtworlds.com/news/feed/",
+    "https://aecmag.com/feed/",
+    "https://www.constructiondive.com/feeds/news/"
+  ],
+  "youtube_channels": [
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC6x-dVzO-0q_VEy3G69V2Dw",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC0intLFzLaudFG-xAvUEO-A",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCAL3JXZSzSm8AlZyD3nQdBA",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCsdc8rQI5k2d2uWI2BjxJ6A"
+  ],
+  "urban_policy_housing": [
+    "https://www.bloomberg.com/citylab",
+    "https://www.brookings.edu/topics/housing/feed/",
+    "https://www.urban.org/rss.xml"
+  ]
+}
