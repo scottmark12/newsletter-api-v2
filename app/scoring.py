@@ -72,9 +72,9 @@ def save_scores(article_id: str, scores: Dict[str, Any]) -> None:
     try:
         import json
         
-        # Convert lists to JSON strings for SQLite compatibility
-        topics_json = json.dumps(scores.get("topics", []))
-        geography_json = json.dumps(scores.get("geography", []))
+        # For PostgreSQL, we can use arrays directly
+        topics_array = scores.get("topics", [])
+        geography_array = scores.get("geography", [])
         
         db.execute(text("""
             INSERT INTO article_scores (
@@ -109,8 +109,8 @@ def save_scores(article_id: str, scores: Dict[str, Any]) -> None:
             "imp": scores.get("importance_multiplier", 1.0),
             "fresh": scores.get("freshness_bonus", 0.0),
             "comp": scores.get("composite_score", 0.0),
-            "topics": topics_json,
-            "geo": geography_json,
+            "topics": topics_array,
+            "geo": geography_array,
             "macro": scores.get("macro_flag", False),
             "summary2": scores.get("summary2", None),
             "why1": scores.get("why1", None),
@@ -343,7 +343,7 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
     word_count = len((row.get("content") or "").split())
     if word_count > 300:
         composite_score += min(word_count / 500.0, 3.0)  # Up to +3 points
-    
+
     topics = _tag_categories(text_blob)
     project_stage = _detect_project_stage(text_blob)
     media_type = _detect_media_type(row.get("url", ""), row.get("title", ""), row.get("content", ""))
