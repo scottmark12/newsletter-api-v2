@@ -3,7 +3,7 @@ services:
     name: newsletter-api-v2
     env: python
     plan: free
-    buildCommand: "python3.11 -m pip install -r requirements.txt"
+    buildCommand: "chmod +x build.sh && ./build.sh"
     startCommand: "python3.11 -m uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
     preDeployCommand: "which python3.11 || (echo 'Installing Python 3.11...' && apt-get update && apt-get install -y python3.11 python3.11-pip python3.11-venv)"
     envVars:
