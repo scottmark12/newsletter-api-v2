@@ -1,9 +1,11 @@
 services:
   - type: web
     name: newsletter-api-v2
-    env: docker
+    env: python
     plan: free
-    dockerfilePath: ./Dockerfile
+    buildCommand: "python3.11 -m pip install -r requirements.txt"
+    startCommand: "python3.11 -m uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
+    preDeployCommand: "which python3.11 || (echo 'Installing Python 3.11...' && apt-get update && apt-get install -y python3.11 python3.11-pip python3.11-venv)"
     envVars:
       - key: DATABASE_URL
         sync: false  # You'll set this manually with your PostgreSQL URL
