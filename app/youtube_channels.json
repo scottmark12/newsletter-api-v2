@@ -1,0 +1,60 @@
+{
+  "construction_tech": [
+    {
+      "name": "The B1M",
+      "channel_id": "UC6x-dVzO-0q_VEy3G69V2Dw",
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6x-dVzO-0q_VEy3G69V2Dw",
+      "description": "Construction and architecture insights",
+      "tier": 1
+    },
+    {
+      "name": "Veritasium",
+      "channel_id": "UCHnyfMqiRRG1u-2MsSQLbXA", 
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA",
+      "description": "Science and engineering content",
+      "tier": 2
+    },
+    {
+      "name": "Practical Engineering",
+      "channel_id": "UCMOqf8ab-42UUQIdVoKwjlQ",
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCMOqf8ab-42UUQIdVoKwjlQ",
+      "description": "Civil engineering explanations",
+      "tier": 1
+    }
+  ],
+  "architecture_design": [
+    {
+      "name": "Isaac Arthur",
+      "channel_id": "UCZFipeZtQM5CKUjx6grh54g",
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZFipeZtQM5CKUjx6grh54g",
+      "description": "Future construction and megaprojects",
+      "tier": 2
+    },
+    {
+      "name": "City Beautiful",
+      "channel_id": "UCGc8ZVCsrR3dAuhvUbkbToQ",
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCGc8ZVCsrR3dAuhvUbkbToQ",
+      "description": "Urban planning and design",
+      "tier": 1
+    }
+  ],
+  "real_estate_business": [
+    {
+      "name": "Meet Kevin",
+      "channel_id": "UCUvvj5lwue7PspotMDjk5UA",
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCUvvj5lwue7PspotMDjk5UA",
+      "description": "Real estate investing and market analysis",
+      "tier": 2
+    }
+  ],
+  "sustainability": [
+    {
+      "name": "Kirsten Dirksen",
+      "channel_id": "UCDnkJLoxUDvnUwkowNRzVvQ",
+      "rss_url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCDnkJLoxUDvnUwkowNRzVvQ",
+      "description": "Sustainable technology and green building",
+      "tier": 1
+    }
+  ]
+}
+
