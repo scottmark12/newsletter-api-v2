@@ -16,7 +16,7 @@ apscheduler==3.10.4
 python-slugify==8.0.4
 python-dotenv==1.0.1
 pytz==2024.1
-psycopg2-binary==2.9.7
+# psycopg2-binary==2.9.7
 # SQLite alternative (no separate database server needed)
 # Uncomment the line below and comment out psycopg2-binary if you want to use SQLite
-# aiosqlite==0.19.0
+aiosqlite==0.19.0
