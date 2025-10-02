@@ -1,0 +1,9 @@
+# 1. Create a new branch
+git checkout -b initial-upload
+
+# 2. Push to this new branch (this should work)
+git push -u origin initial-upload
+
+# 3. Rename this branch to main and push
+git branch -M initial-upload main
+git push -u origin main
