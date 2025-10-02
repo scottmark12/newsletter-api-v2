@@ -1,0 +1,22 @@
+{
+  "build_tech_keywords": [
+    "3d print","additive manufacturing","modular","prefab","panelized",
+    "mass timber","clt","glulam",
+    "rammed earth","compressed earth blocks","ceb","cob","adobe","earthbag",
+    "straw bale","straw-bale",
+    "hempcrete","hemp-lime",
+    "bamboo structure","bamboo housing",
+    "mycelium","bio-based","biocomposite",
+    "geopolymer","low-carbon concrete","carbon-negative concrete",
+    "adaptive reuse","retrofit","passive house","passivhaus","net-zero"
+  ],
+  "market_keywords": [
+    "fed","fomc","rate cut","rate hike","cpi","pce","jobs report","nonfarm payrolls",
+    "mortgage rate","permits","starts","completions","sales","inventory",
+    "cap rate","rents","zoning","upzoning","tax credit","lihtc","m&a","entitlement"
+  ],
+  "deal_design_keywords": [
+    "entitlement","rezoning","variance","lawsuit","settlement","feasibility",
+    "construction risk","value engineering","cost overrun","case study"
+  ]
+}

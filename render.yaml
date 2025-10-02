@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: newsletter-api
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false  # You'll set this manually in Render dashboard
+      - key: DATABASE_URL
+        value: "sqlite:///newsletter.db"
+      - key: GOOGLE_CSE_API_KEY
+        sync: false  # Optional - set if you want CSE features
+      - key: GOOGLE_CSE_CX_ID
+        sync: false  # Optional - set if you want CSE features
