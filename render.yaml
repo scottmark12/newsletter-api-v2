@@ -3,12 +3,11 @@ services:
     name: newsletter-api-v2
     env: python
     plan: free
-    buildCommand: "chmod +x build.sh && ./build.sh"
-    startCommand: "python3.11 -m uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
-    preDeployCommand: "which python3.11 || (echo 'Installing Python 3.11...' && apt-get update && apt-get install -y python3.11 python3.11-pip python3.11-venv)"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python -m uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: DATABASE_URL
-        sync: false  # You'll set this manually with your PostgreSQL URL
+        value: "sqlite:///newsletter.db"  # Use SQLite instead of PostgreSQL
       - key: OPENAI_API_KEY
         sync: false  # You'll set this manually in Render dashboard
       - key: GOOGLE_CSE_API_KEY
