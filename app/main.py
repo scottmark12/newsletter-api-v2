@@ -461,7 +461,7 @@ def api_newsletter(
                   JOIN article_scores s ON s.article_id = a.id
                   WHERE a.published_at IS NOT NULL
                     AND a.published_at >= :cutoff
-                    AND s.topics LIKE '%' || :cat || '%'
+                    AND :cat = ANY(s.topics)
                     AND a.lang = 'en'
                 ),
                 ranked AS (
