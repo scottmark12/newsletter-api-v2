@@ -46,6 +46,27 @@ KWS = {
         "predictive maintenance","condition monitoring","structural health monitoring",
         "digital fabrication","cnc construction","robotic welding","automated bricklaying",
         
+        # Construction software and technology tools
+        "3d modeling","3d software","bim software","cad software","autocad","revit",
+        "sketchup","rhino","grasshopper","dynamo","navisworks","bentley","microstation",
+        "archicad","vectorworks","lumion","twinmotion","enscape","vray","3ds max",
+        "maya","blender","fusion 360","solidworks","inventor","catia","nx",
+        "construction software","design software","modeling software","visualization",
+        "rendering","simulation","analysis software","project management software",
+        "scheduling software","estimating software","takeoff software","field software",
+        "mobile app","construction app","building app","design app","planning software",
+        
+        # Cost reduction and efficiency technologies
+        "cost reduction","cost savings","efficiency","productivity","automation",
+        "streamline","optimize","optimization","process improvement","workflow",
+        "time savings","labor savings","material savings","waste reduction",
+        "error reduction","accuracy","precision","quality control","qc",
+        "collaboration tools","communication tools","coordination","integration",
+        "cloud computing","saas","software as a service","platform","dashboard",
+        "real-time","live data","instant","immediate","faster","quicker","speed",
+        "ease of use","user-friendly","intuitive","simple","straightforward",
+        "training","learning curve","adoption","implementation","rollout",
+        
         # Entrepreneurial building tech
         "startup","entrepreneur","venture capital","innovation lab","research facility",
         "pilot project","proof of concept","beta testing","prototype","patent",
@@ -108,7 +129,16 @@ KWS = {
         "trend","trending","forecast","outlook","prediction","expectation",
         "news","update","announcement","release","statement","report","results",
         "earnings","revenue","profit","loss","gain","performance","results",
-        "industry","sector","business","company","corporation","firm","organization"
+        "industry","sector","business","company","corporation","firm","organization",
+        
+        # Technology market implications
+        "software market","technology adoption","digital transformation","tech investment",
+        "software licensing","subscription","saas revenue","cloud adoption","platform growth",
+        "market disruption","competitive advantage","market share","industry standard",
+        "technology trend","digital tools","software solutions","tech solutions",
+        "market opportunity","market demand","customer demand","user adoption",
+        "technology investment","software investment","digital investment","tech spending",
+        "roi","return on investment","cost benefit","business case","value proposition"
     },
     "insights": {
         # Market inference and opportunity analysis
@@ -146,7 +176,16 @@ KWS = {
         "strategy","strategic","plan","approach","methodology","framework",
         "model","theory","concept","idea","innovation","solution","opportunity",
         "challenge","problem","issue","trend","pattern","development","evolution",
-        "change","transformation","shift","disruption","impact","effect","influence"
+        "change","transformation","shift","disruption","impact","effect","influence",
+        
+        # Technology and software insights
+        "technology adoption","digital transformation","software implementation","tech strategy",
+        "digital strategy","technology roadmap","innovation strategy","digital tools",
+        "software evaluation","technology assessment","digital readiness","tech integration",
+        "workflow optimization","process automation","efficiency gains","productivity improvements",
+        "competitive advantage","market positioning","technology leadership","digital leadership",
+        "future of construction","construction technology","building technology","proptech",
+        "contech","construction tech","real estate tech","property technology"
     },
     "cutting_edge_development": {
         # Major infrastructure that changes cities
