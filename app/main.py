@@ -657,7 +657,7 @@ def api_feed_bucket(
                   JOIN article_scores s ON s.article_id = a.id
                   WHERE a.published_at IS NOT NULL
                     AND a.published_at >= :cutoff
-                    AND s.topics LIKE '%' || :bucket || '%'
+                    AND :bucket = ANY(s.topics)
                     AND a.lang = 'en'
                     AND s.composite_score > 0
                 )
