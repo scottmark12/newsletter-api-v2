@@ -925,39 +925,39 @@ def api_main_page(
                 LIMIT 1
             """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
         
-        # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
-        with db_engine.connect() as conn:
-            cutting_edge_projects_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND 'cutting_edge_projects' = ANY(s.topics)
-                  AND s.composite_score > 50  -- Only high-quality innovation content
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+               # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
+               with db_engine.connect() as conn:
+                   cutting_edge_projects_rows = conn.execute(text("""
+                       SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                              s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                              s.project_stage, s.needs_fact_check, s.media_type
+                       FROM articles a
+                       JOIN article_scores s ON s.article_id = a.id
+                       WHERE a.status != 'discarded'
+                         AND s.composite_score > 0
+                         AND a.published_at >= :cutoff
+                         AND ('cutting_edge_projects' = ANY(s.topics) OR 'innovation' = ANY(s.topics))
+                         AND s.composite_score > 50  -- Only high-quality innovation content
+                       ORDER BY s.composite_score DESC, a.published_at DESC
+                       LIMIT 3
+                   """), {"cutoff": cutoff.isoformat()}).mappings().all()
         
-        # Get cutting edge development (2-3 major infrastructure/city-changing stories)
-        with db_engine.connect() as conn:
-            cutting_edge_development_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND 'cutting_edge_development' = ANY(s.topics)
-                  AND s.composite_score > 60  -- Only significant major developments
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+               # Get cutting edge development (2-3 major infrastructure/city-changing stories)
+               with db_engine.connect() as conn:
+                   cutting_edge_development_rows = conn.execute(text("""
+                       SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                              s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                              s.project_stage, s.needs_fact_check, s.media_type
+                       FROM articles a
+                       JOIN article_scores s ON s.article_id = a.id
+                       WHERE a.status != 'discarded'
+                         AND s.composite_score > 0
+                         AND a.published_at >= :cutoff
+                         AND ('cutting_edge_development' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
+                         AND s.composite_score > 60  -- Only significant major developments
+                       ORDER BY s.composite_score DESC, a.published_at DESC
+                       LIMIT 3
+                   """), {"cutoff": cutoff.isoformat()}).mappings().all()
         
         # Get market movers (3-4 significant market developments)
         with db_engine.connect() as conn:
@@ -1089,31 +1089,39 @@ def api_categories_top():
     """
     db_engine = _get_engine()
     
-    # Define category mapping: frontend_name -> internal_topic
-    category_mapping = {
-        "market_news": "market_news",
-        "cutting_edge_projects": "cutting_edge_projects", 
-        "cutting_edge_development": "cutting_edge_development",
-        "insights": "insights"
-    }
+           # Define category mapping: frontend_name -> internal_topic (with fallbacks)
+           category_mapping = {
+               "market_news": "market_news",
+               "cutting_edge_projects": ["cutting_edge_projects", "innovation"], 
+               "cutting_edge_development": ["cutting_edge_development", "unique_developments"],
+               "insights": "insights"
+           }
     
     result = {}
     
-    with db_engine.connect() as conn:
-        for frontend_name, internal_topic in category_mapping.items():
-            rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE :topic = ANY(s.topics)
-                  AND s.composite_score > 0
-                  AND a.status != 'discarded'
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {"topic": internal_topic}).mappings().all()
-            result[frontend_name] = [dict(r) for r in rows]
+           with db_engine.connect() as conn:
+               for frontend_name, internal_topic in category_mapping.items():
+                   if isinstance(internal_topic, list):
+                       # Handle multiple topic options
+                       topic_conditions = " OR ".join([f"'{topic}' = ANY(s.topics)" for topic in internal_topic])
+                       where_clause = f"({topic_conditions})"
+                   else:
+                       # Handle single topic
+                       where_clause = f"'{internal_topic}' = ANY(s.topics)"
+                   
+                   rows = conn.execute(text(f"""
+                       SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                              s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                              s.project_stage, s.needs_fact_check, s.media_type
+                       FROM articles a
+                       JOIN article_scores s ON s.article_id = a.id
+                       WHERE {where_clause}
+                         AND s.composite_score > 0
+                         AND a.status != 'discarded'
+                       ORDER BY s.composite_score DESC, a.published_at DESC
+                       LIMIT 3
+                   """)).mappings().all()
+                   result[frontend_name] = [dict(r) for r in rows]
     
     return {"ok": True, "categories": result}
 
