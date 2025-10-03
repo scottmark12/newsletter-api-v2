@@ -739,8 +739,8 @@ def run(limit: int = 50) -> Dict[str, Any]:
                 db.close()
             excluded += 1
         else:
-        save_scores(a["id"], scores)
-        scored += 1
+            save_scores(a["id"], scores)
+            scored += 1
     
     print(f"Scored {scored} developer-relevant articles, excluded {excluded} non-developer articles")
     return {"ok": True, "scored": scored, "excluded": excluded}
