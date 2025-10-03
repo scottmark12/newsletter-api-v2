@@ -936,7 +936,7 @@ def api_main_page(
                        WHERE a.status != 'discarded'
                          AND s.composite_score > 0
                          AND a.published_at >= :cutoff
-                         AND ('cutting_edge_projects' = ANY(s.topics) OR 'innovation' = ANY(s.topics))
+                         AND (s.topics @> '[\"cutting_edge_projects\"]' OR s.topics @> '[\"innovation\"]')
                          AND s.composite_score > 50  -- Only high-quality innovation content
                        ORDER BY s.composite_score DESC, a.published_at DESC
                        LIMIT 3
@@ -953,7 +953,7 @@ def api_main_page(
                        WHERE a.status != 'discarded'
                          AND s.composite_score > 0
                          AND a.published_at >= :cutoff
-                         AND ('cutting_edge_development' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
+                         AND (s.topics @> '[\"cutting_edge_development\"]' OR s.topics @> '[\"unique_developments\"]')
                          AND s.composite_score > 60  -- Only significant major developments
                        ORDER BY s.composite_score DESC, a.published_at DESC
                        LIMIT 3
@@ -1102,12 +1102,12 @@ def api_categories_top():
            with db_engine.connect() as conn:
                for frontend_name, internal_topic in category_mapping.items():
                    if isinstance(internal_topic, list):
-                       # Handle multiple topic options
-                       topic_conditions = " OR ".join([f"'{topic}' = ANY(s.topics)" for topic in internal_topic])
-                       where_clause = f"({topic_conditions})"
+                       # Handle multiple topic options - use ANY with array
+                       topic_array = "{" + ",".join([f'"{topic}"' for topic in internal_topic]) + "}"
+                       where_clause = f"s.topics && '{topic_array}'"
                    else:
                        # Handle single topic
-                       where_clause = f"'{internal_topic}' = ANY(s.topics)"
+                       where_clause = f"s.topics @> '[\"{internal_topic}\"]'"
                    
                    rows = conn.execute(text(f"""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
