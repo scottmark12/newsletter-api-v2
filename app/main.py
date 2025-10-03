@@ -927,8 +927,12 @@ def api_main_page(
         
                # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
                with db_engine.connect() as conn:
-                   # Use simple LIKE queries - much more reliable
-                   topics_condition = "(s.topics LIKE '%\"cutting_edge_projects\"%' OR s.topics LIKE '%\"innovation\"%')"
+                   # Check database type for proper query syntax
+                   from .db import is_postgres
+                   if is_postgres:
+                       topics_condition = "(s.topics @> '[\"cutting_edge_projects\"]' OR s.topics @> '[\"innovation\"]')"
+                   else:
+                       topics_condition = "(s.topics LIKE '%\"cutting_edge_projects\"%' OR s.topics LIKE '%\"innovation\"%')"
                    
                    cutting_edge_projects_rows = conn.execute(text(f"""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -947,8 +951,12 @@ def api_main_page(
         
                # Get cutting edge development (2-3 major infrastructure/city-changing stories)
                with db_engine.connect() as conn:
-                   # Use simple LIKE queries - much more reliable
-                   topics_condition = "(s.topics LIKE '%\"cutting_edge_development\"%' OR s.topics LIKE '%\"unique_developments\"%')"
+                   # Check database type for proper query syntax
+                   from .db import is_postgres
+                   if is_postgres:
+                       topics_condition = "(s.topics @> '[\"cutting_edge_development\"]' OR s.topics @> '[\"unique_developments\"]')"
+                   else:
+                       topics_condition = "(s.topics LIKE '%\"cutting_edge_development\"%' OR s.topics LIKE '%\"unique_developments\"%')"
                    
                    cutting_edge_development_rows = conn.execute(text(f"""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -1098,8 +1106,8 @@ def api_categories_top():
            # Define category mapping: frontend_name -> internal_topic (with fallbacks)
            category_mapping = {
                "market_news": "market_news",
-               "cutting_edge_projects": ["cutting_edge_projects", "innovation"], 
-               "cutting_edge_development": ["cutting_edge_development", "unique_developments"],
+               "cutting_edge_projects": "innovation",  # Map to old topic name
+               "cutting_edge_development": "unique_developments",  # Map to old topic name  
                "insights": "insights"
            }
     
@@ -1107,26 +1115,18 @@ def api_categories_top():
     
            with db_engine.connect() as conn:
                for frontend_name, internal_topic in category_mapping.items():
-                   if isinstance(internal_topic, list):
-                       # Use simple LIKE queries for both database types - much more reliable
-                       topic_conditions = " OR ".join([f"s.topics LIKE '%\"{topic}\"%'" for topic in internal_topic])
-                       where_clause = f"({topic_conditions})"
-                   else:
-                       # Handle single topic with simple LIKE
-                       where_clause = f"s.topics LIKE '%\"{internal_topic}\"%'"
-                   
-                   rows = conn.execute(text(f"""
+                   rows = conn.execute(text("""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                               s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                               s.project_stage, s.needs_fact_check, s.media_type
                        FROM articles a
                        JOIN article_scores s ON s.article_id = a.id
-                       WHERE {where_clause}
+                       WHERE s.topics LIKE :topic_pattern
                          AND s.composite_score > 0
                          AND a.status != 'discarded'
                        ORDER BY s.composite_score DESC, a.published_at DESC
                        LIMIT 3
-                   """)).mappings().all()
+                   """), {"topic_pattern": f"%\"{internal_topic}\"%"}).mappings().all()
                    result[frontend_name] = [dict(r) for r in rows]
     
     return {"ok": True, "categories": result}
