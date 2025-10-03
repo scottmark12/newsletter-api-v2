@@ -119,17 +119,37 @@ def run_cse_backfill(target_per_bucket: int = 5, max_queries_per_run: int = 10) 
             print(f"CSE search failed for '{query}': {e}")
             continue
     
-    # TODO: Process search results into articles
-    # This would involve:
-    # 1. Fetching full content from URLs
-    # 2. Running through scoring pipeline
-    # 3. Inserting into database
-    # For now, just return the raw results
+    # Process search results into articles
+    ingested_count = 0
+    for result in search_results:
+        try:
+            # Use the existing crawler logic to ingest the article
+            from .crawler import maybe_insert_article
+            import httpx
+            
+            with httpx.Client(timeout=30.0, follow_redirects=True) as client:
+                # Try to ingest the article
+                success = maybe_insert_article(
+                    url=result["url"],
+                    client=client,
+                    db=SessionLocal(),
+                    inserted_counter=[0],  # We'll track manually
+                    attempts_counter=[0],
+                    domain_counts={},
+                    cap=10,  # Reasonable cap
+                    now_utc=datetime.utcnow()
+                )
+                if success:
+                    ingested_count += 1
+        except Exception as e:
+            print(f"Failed to ingest CSE result {result['url']}: {e}")
+            continue
     
     return {
         "ok": True,
         "queries_run": len(queries_to_run),
         "results_found": len(search_results),
+        "ingested_count": ingested_count,
         "gaps_before": gaps,
         "quota_after": get_quota_status(),
         "sample_results": search_results[:5]  # First 5 for preview
