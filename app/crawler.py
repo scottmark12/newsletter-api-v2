@@ -106,6 +106,22 @@ def _likely_article(u: str) -> bool:
     path = p.path.lower()
     if any(s in u.lower() for s in SKIP_SUBSTRINGS):
         return False
+    
+    # Skip generic pages and categories
+    generic_patterns = [
+        "/home", "/about", "/contact", "/privacy", "/terms", "/search",
+        "/category/", "/categories/", "/tag/", "/tags/", "/archive/",
+        "/author/", "/authors/", "/staff/", "/team/", "/leadership/",
+        "/careers", "/jobs", "/hiring", "/newsletter", "/subscribe",
+        "/login", "/register", "/account", "/profile", "/settings",
+        "/shop", "/store", "/products", "/services", "/pricing",
+        "/blog/", "/blogs/", "/articles/", "/news/"  # These are category pages, not articles
+    ]
+    
+    if any(pattern in path for pattern in generic_patterns):
+        return False
+    
+    # Must have meaningful path structure
     segs = [s for s in path.strip("/").split("/") if s]
     if not segs:
         return False
@@ -113,8 +129,27 @@ def _likely_article(u: str) -> bool:
         return False
     if len(segs) < 2:
         return False
+    
+    # Skip if it looks like a category or listing page
+    if any(seg in ["category", "categories", "tag", "tags", "archive", "author", "authors"] for seg in segs):
+        return False
+    
+    # Skip if it ends with just a category name (no specific article)
+    if len(segs) == 1 and any(cat in segs[0] for cat in ["news", "blog", "articles", "insights", "research"]):
+        return False
+    
     if path.endswith((".xml", ".rss", ".atom", ".json")):
         return False
+    
+    # Must have some indication it's a specific article (date, slug, or meaningful filename)
+    last_segment = segs[-1]
+    if any(char.isdigit() for char in last_segment):  # Contains date/year
+        return True
+    if len(last_segment) > 20:  # Long slug-like name
+        return True
+    if "-" in last_segment or "_" in last_segment:  # Slug format
+        return True
+    
     return True
 
 def _extract_html(url: str, html: str) -> tuple[str, str]:
@@ -251,14 +286,19 @@ def maybe_insert_article(url: str, client: httpx.Client, db, inserted_counter, a
         title = doc.title()
         body_html = doc.summary()
         
+        # Skip if no meaningful title
+        if not title or len(title.strip()) < 10:
+            print(f"[crawler] insufficient title for {u}; skipping")
+            return False
+        
         # Fallback to trafilatura for content if readability fails or is empty
         if not body_html or len(body_html) < 100: # Arbitrary length check
             body_text = t_extract(r.text, include_comments=False, include_tables=False, no_fallback=False)
         else:
             body_text = BeautifulSoup(body_html, "lxml").get_text(separator="\n")
 
-        if not body_text:
-            print(f"[crawler] no content for {u}; skipping")
+        if not body_text or len(body_text.strip()) < 500:  # Minimum 500 characters of content
+            print(f"[crawler] insufficient content for {u} (length: {len(body_text) if body_text else 0}); skipping")
             return False
 
         # Language detection
