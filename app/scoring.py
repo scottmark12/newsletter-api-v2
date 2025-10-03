@@ -59,7 +59,19 @@ KWS = {
         "structural engineering","civil engineering","building codes","zoning",
         "development process","entitlement","permitting","construction timeline",
         "cost analysis","construction costs","material costs","labor costs",
-        "project delivery","design-build","construction management","general contractor"
+        "project delivery","design-build","construction management","general contractor",
+        # Institutional research and insights
+        "market outlook","market forecast","market analysis","market trends","market intelligence",
+        "quarterly report","annual report","market survey","industry survey","market research",
+        "investment outlook","capital markets","debt markets","equity markets","fundraising",
+        "investment thesis","market dynamics","supply and demand","absorption rates",
+        "cap rates","yield","risk assessment","due diligence","underwriting",
+        "portfolio strategy","asset allocation","investment strategy","risk management",
+        "market commentary","expert opinion","thought leadership","perspective","viewpoint",
+        "white paper","case study","best practices","lessons learned","market study",
+        "economic impact","economic analysis","demographic trends","population growth",
+        "urban planning","city planning","infrastructure investment","public policy",
+        "regulatory environment","government policy","tax policy","incentive programs"
     },
     "unique_developments": {
         # Real development projects and construction milestones
@@ -358,6 +370,28 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
             composite_score += penalty
     
     # 🎯 BONUSES: Developer-specific multipliers
+    
+    # 🏢 INSTITUTIONAL SOURCE BONUS (Blackstone, CBRE, JLL, etc.)
+    institutional_sources = [
+        "blackstone", "cbre", "jll", "cushman", "savills", "colliers",
+        "kkr", "apollo", "carlyle", "brookfield", "tpg", "ares",
+        "morgan stanley", "goldman sachs", "jpmorgan", "bank of america",
+        "wells fargo", "citi", "freddie mac", "fannie mae", "hud",
+        "urban land institute", "uli", "nareit", "ncrc", "u.s. green building council"
+    ]
+    
+    if any(source in t for source in institutional_sources):
+        composite_score *= 1.5  # 50% bonus for institutional research
+    
+    # 📊 RESEARCH & INSIGHTS BONUS
+    research_indicators = [
+        "market outlook", "quarterly report", "annual report", "white paper",
+        "market analysis", "investment outlook", "market forecast", "case study",
+        "market survey", "industry survey", "thought leadership", "expert opinion"
+    ]
+    
+    if any(indicator in t for indicator in research_indicators):
+        composite_score *= 1.3  # 30% bonus for research content
     
     # 💰 BIG PROJECT VALUE MULTIPLIER
     import re

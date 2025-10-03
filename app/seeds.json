@@ -40,7 +40,21 @@
     "https://www.cbre.com/insights",
     "https://www.cushmanwakefield.com/en/insights",
     "https://www.savills.com/insight-and-opinion/",
-    "https://www.colliers.com/en/research"
+    "https://www.colliers.com/en/research",
+    "https://www.blackstone.com/insights/",
+    "https://www.kkr.com/global-perspectives",
+    "https://www.apollo.com/insights",
+    "https://www.carlyle.com/insights",
+    "https://www.brookfield.com/insights",
+    "https://www.tpg.com/insights",
+    "https://www.ares.com/insights",
+    "https://www.kkr.com/insights",
+    "https://www.morganstanley.com/ideas",
+    "https://www.goldmansachs.com/insights",
+    "https://www.jpmorgan.com/insights",
+    "https://www.bankofamerica.com/insights",
+    "https://www.wellsfargo.com/commercial-insights",
+    "https://www.citi.com/commercial-bank/insights"
   ],
   "design_tech": [
     "https://www.dezeen.com/technology/feed/"
@@ -86,7 +100,13 @@
     "https://www.brookings.edu/feed/",
     "https://www.urban.org/rss.xml",
     "https://rmi.org/feed/",
-    "https://www.dezeen.com/technology/feed/"
+    "https://www.dezeen.com/technology/feed/",
+    "https://www.blackstone.com/insights/",
+    "https://www.jll.com/insights",
+    "https://www.cbre.com/insights",
+    "https://www.cushmanwakefield.com/en/insights",
+    "https://www.savills.com/insight-and-opinion/",
+    "https://www.colliers.com/en/research"
   ],
   "real_estate_news": [
     "https://therealdeal.com/feed/",
