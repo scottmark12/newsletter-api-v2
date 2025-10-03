@@ -19,27 +19,8 @@ EXCLUDE_KEYWORDS = {
 }
 
 KWS = {
-    "innovation": {
-        # AI and advanced technology
-        "ai campus","ai factory","hyperscale","data center","robotic","robotics",
-        "3d printed","3d printing","bim","digital twin","prefab","modular",
-        "offsite","automation","computer vision","generative ai","llm","r&d",
-        "breakthrough","pilot program","prototype","patent","innovation","innovative",
-        "smart building","smart city","iot","sensor","blockchain","vr","ar",
-        "machine learning","artificial intelligence","green tech","sustainability",
-        "renewable energy","solar","wind","battery","electric vehicle","ev",
-        "nanotechnology","biotech","fintech","proptech","contech",
-        
-        # Advanced construction technologies
-        "mass timber","cross laminated timber","clt","glulam","engineered wood",
-        "precast concrete","tilt-up","insulated concrete forms","icf",
-        "steel frame","structural steel","cold-formed steel","cf steel",
-        "building envelope","air barrier","vapor barrier","thermal bridge",
-        "heat pump","geothermal","ground source","air source",
-        "building automation","hvac controls","energy management","building controls",
-        "construction technology","contech","construction tech","building tech",
-        
-        # Cutting-edge building processes and materials
+    "cutting_edge_projects": {
+        # Architectural innovation and building science
         "self-healing concrete","carbon fiber","fiber reinforced polymer","frp",
         "aerogel insulation","phase change materials","pcm","smart glass",
         "electrochromic","photovoltaic glass","pv glass","transparent solar",
@@ -49,7 +30,15 @@ KWS = {
         "net zero","carbon negative","passive house","passivhaus",
         "zero energy","energy positive","plus energy",
         
-        # Advanced construction methods
+        # Advanced building systems and controls
+        "microgrid","smart grid","energy storage","battery storage","thermal storage",
+        "district energy","thermal networks","heat recovery","waste heat",
+        "greywater recycling","rainwater harvesting","water treatment",
+        "air purification","indoor air quality","iaq","ventilation systems",
+        "acoustic design","sound masking","noise reduction","vibration control",
+        "building automation","hvac controls","energy management","building controls",
+        
+        # Cutting-edge construction methods
         "drone surveying","lidar scanning","laser scanning","3d scanning",
         "augmented reality","mixed reality","hololens","construction vr",
         "autonomous vehicles","self-driving","robotic construction","exoskeleton",
@@ -57,74 +46,103 @@ KWS = {
         "predictive maintenance","condition monitoring","structural health monitoring",
         "digital fabrication","cnc construction","robotic welding","automated bricklaying",
         
-        # Emerging building systems
-        "microgrid","smart grid","energy storage","battery storage","thermal storage",
-        "district energy","thermal networks","heat recovery","waste heat",
-        "greywater recycling","rainwater harvesting","water treatment",
-        "air purification","indoor air quality","iaq","ventilation systems",
-        "acoustic design","sound masking","noise reduction","vibration control",
+        # Entrepreneurial building tech
+        "startup","entrepreneur","venture capital","innovation lab","research facility",
+        "pilot project","proof of concept","beta testing","prototype","patent",
+        "breakthrough","revolutionary","disruptive","game-changing","next-generation",
+        "emerging technology","cutting-edge","state-of-the-art","advanced materials",
         
-        # Future building concepts
-        "floating buildings","underwater construction","space construction",
-        "modular construction","volumetric construction","kit of parts",
-        "design for manufacturing","dfma","offsite manufacturing",
-        "factory-built","prefabricated","panelized construction",
-        "structural insulated panels","sip","insulated concrete forms","icf",
-        "autoclaved aerated concrete","aac","lightweight concrete",
-        "high-performance concrete","ultra-high performance concrete","uhpc"
+        # Small to medium scale innovations
+        "residential","single-family","townhome","condo","apartment","mixed-use building",
+        "office building","retail space","restaurant","hotel","boutique","flagship",
+        "renovation","retrofit","upgrade","modernization","adaptive reuse"
     },
     "market_news": {
+        # Current market events affecting construction/real estate
+        "interest rates","fed rate","federal reserve","monetary policy","inflation",
+        "recession","economic downturn","market volatility","stock market",
+        "bond yields","treasury rates","mortgage rates","lending standards",
+        
+        # Policy and regulatory changes
+        "legislation","bill passed","congress","senate","house","biden","trump",
+        "infrastructure bill","stimulus","tax policy","tax credits","incentives",
+        "zoning changes","building codes","safety regulations","environmental rules",
+        
+        # Current economic indicators
+        "unemployment","job growth","wage growth","consumer spending","gdp",
+        "construction spending","housing starts","building permits","new home sales",
+        "existing home sales","home prices","rent prices","occupancy rates",
+        
+        # Today's market activity
         "refinance","bond","cmbs","term sheet","bridge loan","construction loan",
         "cap rate","dscr","occupancy","vacancy","absorption","pipeline","starts",
         "transaction","deal","acquisition","raises","funding","yoy","qoq",
         "rent growth","foreclosure","construction financing","development loan",
         "mezzanine loan","construction starts","building permits","housing starts",
+        
+        # Market sectors
         "commercial real estate","cre","multifamily","office","retail","industrial",
         "logistics","warehouse","distribution center","data center","hospitality"
     },
     "insights": {
-        # Building science and construction insights
-        "mass timber","electrification","heat pump","embodied carbon",
-        "operational carbon","leed","passive house","energy code","stretch code",
-        "upzoning","by-right","inclusionary","office-to-residential","conversion",
-        "student housing","life science","industrial","logistics","macro","headwinds",
-        # Developer-relevant insights
-        "building performance","energy efficiency","water efficiency","indoor air quality",
-        "building materials","construction methods","building systems","mep systems",
-        "structural engineering","civil engineering","building codes","zoning",
-        "development process","entitlement","permitting","construction timeline",
-        "cost analysis","construction costs","material costs","labor costs",
-        "project delivery","design-build","construction management","general contractor",
-        # Institutional research and insights
+        # Market inference and opportunity analysis
         "market outlook","market forecast","market analysis","market trends","market intelligence",
-        "quarterly report","annual report","market survey","industry survey","market research",
         "investment outlook","capital markets","debt markets","equity markets","fundraising",
         "investment thesis","market dynamics","supply and demand","absorption rates",
         "cap rates","yield","risk assessment","due diligence","underwriting",
         "portfolio strategy","asset allocation","investment strategy","risk management",
         "market commentary","expert opinion","thought leadership","perspective","viewpoint",
         "white paper","case study","best practices","lessons learned","market study",
+        
+        # Strategic insights and opportunities
+        "emerging markets","growth opportunities","market gaps","underserved markets",
+        "demographic shifts","population growth","migration patterns","urbanization",
+        "workplace trends","remote work","hybrid work","office demand","retail evolution",
+        "logistics boom","e-commerce growth","last-mile delivery","fulfillment centers",
+        
+        # High-level market intelligence
+        "quarterly report","annual report","market survey","industry survey","market research",
         "economic impact","economic analysis","demographic trends","population growth",
         "urban planning","city planning","infrastructure investment","public policy",
-        "regulatory environment","government policy","tax policy","incentive programs"
+        "regulatory environment","government policy","tax policy","incentive programs",
+        
+        # CRE firm insights and analysis
+        "cbre","jll","cushman","colliers","marcus millichap","newmark","savills",
+        "research report","market report","quarterly outlook","annual outlook",
+        "trend analysis","sector analysis","geographic analysis","investment analysis"
     },
-    "unique_developments": {
-        # Real development projects and construction milestones
-        "groundbreaking","opens","topped out","topping out","approved",
-        "wins approval","entitled","rezoned","permits issued","milestone",
-        "first-of-its-kind","world's first","largest","record-breaking",
-        "breaks ground","construction begins","construction started","new development",
-        "development project","mixed-use","tower","high-rise","skyscraper",
-        "campus","complex","facility","center","hub","district","quarter",
-        "master plan","phase","expansion","renovation","redevelopment",
-        "affordable housing","luxury","boutique","flagship","headquarters",
-        # Developer-relevant project types
-        "office building","residential tower","apartment building","condominium",
-        "hotel","hospitality","retail center","shopping center","mall",
-        "industrial park","warehouse","distribution center","manufacturing facility",
-        "data center","research facility","laboratory","medical facility","hospital",
-        "school","university","college","transportation hub","transit oriented",
-        "infrastructure project","bridge","tunnel","highway","transit","rail"
+    "cutting_edge_development": {
+        # Major infrastructure that changes cities
+        "stadium","arena","convention center","conference center","entertainment district",
+        "sports complex","olympic","super bowl","world cup","major league",
+        "nfl","nba","mlb","nhl","soccer","football","baseball","basketball",
+        
+        # Mega projects and city-changing developments
+        "airport","airport expansion","terminal","runway","aviation hub",
+        "transit system","subway","metro","light rail","high-speed rail","bullet train",
+        "bridge","tunnel","highway","interstate","freeway","bypass","ring road",
+        "port","seaport","inland port","logistics hub","freight terminal",
+        
+        # Major urban developments
+        "downtown","city center","central business district","cbd","financial district",
+        "waterfront","riverfront","harbor","bay","lakefront","coastal",
+        "master plan","urban renewal","redevelopment","gentrification","revitalization",
+        "mixed-use development","live-work-play","24/7 district","innovation district",
+        
+        # Record-breaking and first-of-kind projects
+        "world's first","largest","tallest","biggest","record-breaking","unprecedented",
+        "first-of-its-kind","groundbreaking","pioneering","revolutionary","game-changing",
+        "billion dollar","multi-billion","mega project","super project","flagship project",
+        
+        # Major project milestones
+        "groundbreaking","opens","topped out","topping out","approved","wins approval",
+        "entitled","rezoned","permits issued","milestone","construction begins",
+        "construction started","breaks ground","construction milestone",
+        
+        # City-defining infrastructure
+        "headquarters","corporate campus","tech campus","innovation hub","research park",
+        "medical center","hospital complex","university campus","education complex",
+        "cultural district","arts district","museum district","entertainment complex"
     },
 }
 
@@ -721,8 +739,8 @@ def run(limit: int = 50) -> Dict[str, Any]:
                 db.close()
             excluded += 1
         else:
-            save_scores(a["id"], scores)
-            scored += 1
+        save_scores(a["id"], scores)
+        scored += 1
     
     print(f"Scored {scored} developer-relevant articles, excluded {excluded} non-developer articles")
     return {"ok": True, "scored": scored, "excluded": excluded}

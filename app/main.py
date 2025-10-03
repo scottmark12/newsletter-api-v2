@@ -634,8 +634,8 @@ def api_feed_bucket(
     # Map v2 bucket names to current internal names
     bucket_mapping = {
         "market_news": "market_news",
-        "cutting_edge_projects": "innovation", 
-        "cutting_edge_development": "unique_developments",
+        "cutting_edge_projects": "cutting_edge_projects", 
+        "cutting_edge_development": "cutting_edge_development",
         "insights": "insights"
     }
     
@@ -925,7 +925,7 @@ def api_main_page(
                 LIMIT 1
             """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
         
-        # Get cutting edge projects (2-3 innovative technology stories)
+        # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
         with db_engine.connect() as conn:
             cutting_edge_projects_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -936,13 +936,13 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND 'innovation' = ANY(s.topics)
+                  AND 'cutting_edge_projects' = ANY(s.topics)
                   AND s.composite_score > 50  -- Only high-quality innovation content
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
         
-        # Get cutting edge development (2-3 unique development stories)
+        # Get cutting edge development (2-3 major infrastructure/city-changing stories)
         with db_engine.connect() as conn:
             cutting_edge_development_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -953,8 +953,8 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND 'unique_developments' = ANY(s.topics)
-                  AND s.composite_score > 60  -- Only significant unique developments
+                  AND 'cutting_edge_development' = ANY(s.topics)
+                  AND s.composite_score > 60  -- Only significant major developments
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
@@ -1018,12 +1018,12 @@ def api_main_page(
         cutting_edge_projects = [dict(row) for row in cutting_edge_projects_rows]
         for article in cutting_edge_projects:
             article['section'] = 'cutting_edge_projects'
-            article['context'] = 'Revolutionary construction projects and innovative technologies'
+            article['context'] = 'Architectural innovation and entrepreneurial building science'
         
         cutting_edge_development = [dict(row) for row in cutting_edge_development_rows]
         for article in cutting_edge_development:
             article['section'] = 'cutting_edge_development'
-            article['context'] = 'Unique developments and groundbreaking construction milestones'
+            article['context'] = 'Major infrastructure projects that change cities forever'
         
         market_movers = [dict(row) for row in market_rows]
         for article in market_movers:
@@ -1052,22 +1052,22 @@ def api_main_page(
                 },
                 "market_news": {
                     "title": "Market News",
-                    "description": "Financial deals, market trends, and investment insights",
+                    "description": "Today's events affecting construction and real estate",
                     "articles": market_movers
                 },
                 "cutting_edge_projects": {
                     "title": "Cutting Edge Projects", 
-                    "description": "Revolutionary construction projects and innovative technologies",
+                    "description": "Architectural innovation and entrepreneurial building science",
                     "articles": cutting_edge_projects
                 },
                 "cutting_edge_development": {
                     "title": "Cutting Edge Development",
-                    "description": "Unique developments and groundbreaking construction milestones",
+                    "description": "Major infrastructure that changes cities forever",
                     "articles": cutting_edge_development
                 },
                 "insights": {
                     "title": "Insights",
-                    "description": "Deep analysis from major CRE firms and industry leaders", 
+                    "description": "Market intelligence and opportunity analysis", 
                     "articles": insights_analysis
                 },
                 "quick_hits": {
@@ -1092,8 +1092,8 @@ def api_categories_top():
     # Define category mapping: frontend_name -> internal_topic
     category_mapping = {
         "market_news": "market_news",
-        "cutting_edge_projects": "innovation", 
-        "cutting_edge_development": "unique_developments",
+        "cutting_edge_projects": "cutting_edge_projects", 
+        "cutting_edge_development": "cutting_edge_development",
         "insights": "insights"
     }
     
