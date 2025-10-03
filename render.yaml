@@ -7,10 +7,18 @@ services:
     startCommand: "python -m uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: DATABASE_URL
-        value: "sqlite:///newsletter.db"  # Use SQLite instead of PostgreSQL
+        fromDatabase:
+          name: newsletter-api-v2-db
+          property: connectionString
       - key: OPENAI_API_KEY
         sync: false  # You'll set this manually in Render dashboard
       - key: GOOGLE_CSE_API_KEY
         sync: false  # Optional - set if you want CSE features
       - key: GOOGLE_CSE_CX_ID
         sync: false  # Optional - set if you want CSE features
+
+databases:
+  - name: newsletter-api-v2-db
+    plan: free  # or 'starter' for production
+    databaseName: newsletter_api_v2
+    user: newsletter_api_user
