@@ -419,6 +419,9 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
     ])
     t = text_blob.lower()
     
+    # Get topics first before any calculations
+    topics = _tag_categories(text_blob)
+    
     composite_score = 0.0
     
     # 🚀 TIER 1: CUTTING-EDGE BUILDING TECH (15-25 points) - Highest Priority for Developers
@@ -763,9 +766,6 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
     word_count = len((row.get("content") or "").split())
     if word_count > 300:
         composite_score += min(word_count / 500.0, 3.0)  # Up to +3 points
-
-    # Get topics after all calculations are done
-    topics = _tag_categories(text_blob)
     
     # If no topics (excluded content like furniture/experimental architecture), return None
     if not topics:
