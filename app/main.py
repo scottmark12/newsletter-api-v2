@@ -895,3 +895,30 @@ def _generate_ceo_takeaway(article: dict) -> str:
 #         return {"ok": True, "message": "migrated 'trends' -> 'insights'"}
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
+
+# ---- JSON FEED FOR LOVABLE (top articles by category) ----
+@web_app.get("/api/categories/top")
+def api_categories_top():
+    """
+    Returns the top 3 articles for each category.
+    """
+    db_engine = _get_engine()
+    categories = ["market_news", "unique_developments", "insights", "innovation"]
+    result = {}
+    
+    with db_engine.connect() as conn:
+        for category in categories:
+            rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE :category = ANY(s.topics)
+                  AND s.composite_score > 0
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 3
+            """), {"category": category}).mappings().all()
+            result[category] = [dict(r) for r in rows]
+    
+    return {"ok": True, "categories": result}

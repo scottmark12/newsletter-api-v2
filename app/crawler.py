@@ -18,6 +18,7 @@ from sqlalchemy import text
 from .config import USER_AGENT, MAX_ARTICLES_PER_RUN
 from .db import SessionLocal
 from .utils import canonicalize_url, sha1
+from .cse_client import search_construction_news
 
 HEADERS = {"User-Agent": USER_AGENT}
 
@@ -227,6 +228,55 @@ def _is_fresh(published_iso: Optional[str], now_utc: datetime) -> bool:
     except Exception:
         return False
 
+def crawl_google_searches(limit: int = 50) -> int:
+    """Crawl articles using Google search queries"""
+    print(f"[google] Starting Google search crawl, limit={limit}")
+    
+    # Construction and real estate search queries
+    search_queries = [
+        "construction news 2025",
+        "real estate development projects",
+        "commercial real estate deals",
+        "construction technology innovation",
+        "affordable housing development",
+        "office building construction",
+        "residential construction trends",
+        "construction industry news",
+        "real estate investment deals",
+        "construction safety technology",
+        "green building construction",
+        "construction materials innovation",
+        "real estate market trends",
+        "construction workforce development",
+        "smart building technology"
+    ]
+    
+    inserted = 0
+    with httpx.Client(headers=HEADERS, timeout=30.0, follow_redirects=True) as client:
+        for query in search_queries:
+            if inserted >= limit:
+                break
+                
+            try:
+                print(f"[google] Searching: {query}")
+                results = search_construction_news(query, num=5)
+                
+                for result in results:
+                    if inserted >= limit:
+                        break
+                    try:
+                        maybe_insert(result["url"], client)
+                        if inserted % 10 == 0:
+                            print(f"[google] Inserted {inserted} articles so far")
+                    except Exception as e:
+                        print(f"[google] Error processing {result['url']}: {e}")
+                        
+            except Exception as e:
+                print(f"[google] Error searching '{query}': {e}")
+                
+    print(f"[google] Google search crawl complete: {inserted} articles inserted")
+    return inserted
+
 def ingest_run(limit: Optional[int] = None) -> int:
     cap = int(limit or MAX_ARTICLES_PER_RUN)
     now_utc = datetime.now(timezone.utc)
@@ -239,6 +289,12 @@ def ingest_run(limit: Optional[int] = None) -> int:
         seed_cfg = json.load(f)
 
     print(f"[crawler] cap={cap}, seeds={sum(len(v) for v in seed_cfg.values())} lists")
+    
+    # Split the limit between RSS feeds and Google searches
+    rss_limit = int(cap * 0.8)  # 80% RSS feeds
+    google_limit = cap - rss_limit  # 20% Google searches
+    
+    print(f"[crawler] RSS limit: {rss_limit}, Google limit: {google_limit}")
 
     inserted = 0
     attempts = 0
@@ -403,6 +459,11 @@ def ingest_run(limit: Optional[int] = None) -> int:
                 except Exception as e:
                     print(f"[crawler] seed error for {base}: {e}")
                     continue
+
+    # Run Google searches if we haven't reached the RSS limit
+    if inserted < rss_limit:
+        google_inserted = crawl_google_searches(min(google_limit, cap - inserted))
+        inserted += google_inserted
 
     db.commit()
     print(f"[crawler] done: attempts={attempts}, inserted={inserted}, per-domain={domain_counts}")
