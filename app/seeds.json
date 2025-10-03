@@ -8,6 +8,32 @@
     "https://www.constructiondive.com/feeds/news/",
     "https://therealdeal.com/feed/"
   ],
+  "innovation_engineering": [
+    "https://www.constructiondive.com/topic/technology/feed/",
+    "https://www.dezeen.com/architecture/feed/",
+    "https://colliersengineering.com/feed/",
+    "https://www.smartcitiesdive.com/topic/buildings-and-infrastructure/feed/",
+    "https://www.cushmanwakefield.com/en/insights/feed/",
+    "https://www.cushmanwakefield.com/en/insights/technology/feed/"
+  ],
+  "insights_sources": [
+    "https://www.cbre.com/insights/intelligent-investment/feed/",
+    "https://www.foxbusiness.com/real-estate/feed/",
+    "https://www.blackstone.com/insights/feed/",
+    "https://therealdeal.com/national/feed/",
+    "https://www.smartcitiesdive.com/feed/",
+    "https://www.redfin.com/news/housing-market-news/feed/",
+    "https://www.colliers.com/en/research/feed/",
+    "https://www.cushmanwakefield.com/en/insights/industrial-logistics/feed/",
+    "https://www.bloomberg.com/industries/real-estate/feed/"
+  ],
+  "economy_news": [
+    "https://www.redfin.com/news/from-our-economists/feed/",
+    "https://www.zillow.com/research/market-trends/feed/",
+    "https://www.brookings.edu/feed/",
+    "https://www.yardimatrix.com/blog/feed/",
+    "https://www.cushmanwakefield.com/en/insights/economy/feed/"
+  ],
   "cities_smart": [
     "https://www.smartcitiesdive.com/feeds/news/",
     "https://www.bloomberg.com/citylab",

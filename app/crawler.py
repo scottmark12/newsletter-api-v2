@@ -226,34 +226,34 @@ def _is_fresh(published_iso: Optional[str], now_utc: datetime) -> bool:
             return False
         return (now_utc - dt) <= FRESH_WINDOW
     except Exception:
-        return False
+           return False
 
 def crawl_google_searches(limit: int = 50) -> int:
-    """Crawl articles using Google search queries"""
+    """Crawl articles using Google search queries for innovation and opportunities"""
     print(f"[google] Starting Google search crawl, limit={limit}")
     
-    # Construction and real estate search queries
-    search_queries = [
-        "construction news 2025",
-        "real estate development projects",
-        "commercial real estate deals",
-        "construction technology innovation",
-        "affordable housing development",
-        "office building construction",
-        "residential construction trends",
-        "construction industry news",
-        "real estate investment deals",
-        "construction safety technology",
-        "green building construction",
-        "construction materials innovation",
-        "real estate market trends",
-        "construction workforce development",
-        "smart building technology"
+    # Innovation/Engineering search queries
+    innovation_queries = [
+        "3d printed home",
+        "straw homes", 
+        "rammed earth homes",
+        "engineering construction news"
     ]
+    
+    # Opportunities search queries
+    opportunity_queries = [
+        "Real Estate Opportunities News",
+        "3d printed home News",
+        "straw homes News", 
+        "rammed earth homes News",
+        "engineering construction news"
+    ]
+    
+    all_queries = innovation_queries + opportunity_queries
     
     inserted = 0
     with httpx.Client(headers=HEADERS, timeout=30.0, follow_redirects=True) as client:
-        for query in search_queries:
+        for query in all_queries:
             if inserted >= limit:
                 break
                 
@@ -456,19 +456,19 @@ def ingest_run(limit: Optional[int] = None) -> int:
                             if inserted >= cap:
                                 break
 
-                except Exception as e:
-                    print(f"[crawler] seed error for {base}: {e}")
-                    continue
+                       except Exception as e:
+                           print(f"[crawler] seed error for {base}: {e}")
+                           continue
 
-    # Run Google searches if we haven't reached the RSS limit
-    if inserted < rss_limit:
-        google_inserted = crawl_google_searches(min(google_limit, cap - inserted))
-        inserted += google_inserted
+           # Run Google searches if we haven't reached the RSS limit
+           if inserted < rss_limit:
+               google_inserted = crawl_google_searches(min(google_limit, cap - inserted))
+               inserted += google_inserted
 
-    db.commit()
-    print(f"[crawler] done: attempts={attempts}, inserted={inserted}, per-domain={domain_counts}")
-    db.close()
-    return inserted
+           db.commit()
+           print(f"[crawler] done: attempts={attempts}, inserted={inserted}, per-domain={domain_counts}")
+           db.close()
+           return inserted
 
 def run(limit: Optional[int] = None):
     count = ingest_run(limit)
