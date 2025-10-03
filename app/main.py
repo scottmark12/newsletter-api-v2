@@ -900,78 +900,157 @@ def _generate_ceo_takeaway(article: dict) -> str:
 # ---- JSON FEED FOR LOVABLE (top articles by category) ----
 @web_app.get("/api/main")
 def api_main_page(
-    limit: int = Query(15, ge=5, le=25),
     days: int = Query(7, ge=1, le=30)
 ):
     """
-    Main page - returns the most important stories overall based on composite scores.
-    Prioritizes high-impact articles across all categories.
+    Coherent main page with clear narrative flow and curated content sections.
+    Creates a structured, digestible experience rather than scattered articles.
     """
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
     try:
         db_engine = _get_engine()
+        
+        # Get the top story of the day (highest impact)
         with db_engine.connect() as conn:
-            rows = conn.execute(text("""
+            top_story_row = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type,
-                       -- Boost score for articles with multiple relevant topics
-                       s.composite_score * (1 + (array_length(s.topics, 1) - 1) * 0.1) as importance_score
+                       s.project_stage, s.needs_fact_check, s.media_type
                 FROM articles a
                 JOIN article_scores s ON s.article_id = a.id
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND (
-                    -- Prioritize innovation and unique developments
-                    'innovation' = ANY(s.topics) OR 
-                    'unique_developments' = ANY(s.topics) OR
-                    -- Include high-scoring market news and insights
-                    (s.composite_score > 100 AND ('market_news' = ANY(s.topics) OR 'insights' = ANY(s.topics)))
-                  )
-                ORDER BY importance_score DESC, s.composite_score DESC, a.published_at DESC
-                LIMIT :limit
-            """), {"cutoff": cutoff.isoformat(), "limit": limit}).mappings().all()
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 1
+            """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
         
-        articles = []
-        for row in rows:
-            article = dict(row)
-            # Add category classification
-            topics = article.get('topics', [])
-            if 'innovation' in topics:
-                article['primary_category'] = 'innovation'
-            elif 'unique_developments' in topics:
-                article['primary_category'] = 'unique_developments'
-            elif 'market_news' in topics:
-                article['primary_category'] = 'market_news'
-            elif 'insights' in topics:
-                article['primary_category'] = 'insights'
-            else:
-                article['primary_category'] = 'general'
-            
-            articles.append(article)
+        # Get innovation spotlight (2-3 cutting-edge stories)
+        with db_engine.connect() as conn:
+            innovation_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND 'innovation' = ANY(s.topics)
+                  AND s.composite_score > 50  -- Only high-quality innovation content
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 3
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
         
-        # Separate articles by category for better organization
-        innovation_articles = [a for a in articles if a['primary_category'] == 'innovation']
-        unique_dev_articles = [a for a in articles if a['primary_category'] == 'unique_developments']
-        market_articles = [a for a in articles if a['primary_category'] == 'market_news']
-        insight_articles = [a for a in articles if a['primary_category'] == 'insights']
+        # Get market movers (3-4 significant market developments)
+        with db_engine.connect() as conn:
+            market_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND ('market_news' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
+                  AND s.composite_score > 80  -- Only significant market developments
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 4
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
         
-        # Get the top story (highest importance score)
-        top_story = articles[0] if articles else None
+        # Get insights & analysis (2-3 deep-dive pieces)
+        with db_engine.connect() as conn:
+            insights_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND 'insights' = ANY(s.topics)
+                  AND s.composite_score > 60  -- Only substantial insights
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 3
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+        
+        # Get quick hits (4-5 brief updates)
+        with db_engine.connect() as conn:
+            quick_hits_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND s.composite_score BETWEEN 30 AND 80  -- Mid-tier but still relevant
+                ORDER BY a.published_at DESC, s.composite_score DESC
+                LIMIT 5
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+        
+        # Convert rows to dicts and add context
+        top_story = dict(top_story_row) if top_story_row else None
+        if top_story:
+            top_story['section'] = 'top_story'
+            top_story['context'] = 'Today\'s most important story'
+        
+        innovation_spotlight = [dict(row) for row in innovation_rows]
+        for article in innovation_spotlight:
+            article['section'] = 'innovation_spotlight'
+            article['context'] = 'Cutting-edge building technologies and innovations'
+        
+        market_movers = [dict(row) for row in market_rows]
+        for article in market_movers:
+            article['section'] = 'market_movers'
+            article['context'] = 'Significant market developments and major projects'
+        
+        insights_analysis = [dict(row) for row in insights_rows]
+        for article in insights_analysis:
+            article['section'] = 'insights_analysis'
+            article['context'] = 'Deep insights and market analysis'
+        
+        quick_hits = [dict(row) for row in quick_hits_rows]
+        for article in quick_hits:
+            article['section'] = 'quick_hits'
+            article['context'] = 'Quick updates and brief developments'
         
         return {
             "ok": True,
-            "count": len(articles),
-            "top_story": top_story,
-            "by_category": {
-                "innovation": innovation_articles[:5],
-                "unique_developments": unique_dev_articles[:5], 
-                "market_news": market_articles[:5],
-                "insights": insight_articles[:5]
+            "page_title": "Building the Future - Today's Essential News",
+            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "sections": {
+                "top_story": {
+                    "title": "Today's Top Story",
+                    "description": "The most important development in construction and real estate",
+                    "articles": [top_story] if top_story else []
+                },
+                "innovation_spotlight": {
+                    "title": "Innovation Spotlight", 
+                    "description": "Cutting-edge technologies transforming the built environment",
+                    "articles": innovation_spotlight
+                },
+                "market_movers": {
+                    "title": "Market Movers",
+                    "description": "Significant deals, developments, and market shifts",
+                    "articles": market_movers
+                },
+                "insights_analysis": {
+                    "title": "Insights & Analysis",
+                    "description": "Deep dives into trends, policies, and market dynamics", 
+                    "articles": insights_analysis
+                },
+                "quick_hits": {
+                    "title": "Quick Hits",
+                    "description": "Brief updates and noteworthy developments",
+                    "articles": quick_hits
+                }
             },
-            "all_articles": articles,
-            "description": "Most important stories overall, prioritized by composite score and relevance"
+            "total_articles": len(innovation_spotlight) + len(market_movers) + len(insights_analysis) + len(quick_hits) + (1 if top_story else 0),
+            "description": "Curated daily digest of the most important construction and real estate news"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
