@@ -1,11 +1,30 @@
+import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from .config import DATABASE_URL
 
-# Detect if we're using PostgreSQL or SQLite
-is_postgres = DATABASE_URL.startswith('postgresql') or DATABASE_URL.startswith('postgres')
+# Get database URL from environment, with FORCE_SQLITE override
+def _get_database_url():
+    """Get the actual database URL, respecting FORCE_SQLITE"""
+    db_url = os.getenv("DATABASE_URL", "sqlite:///newsletter.db")
+    force_sqlite = os.getenv("FORCE_SQLITE", "").lower() in ("true", "1", "yes")
+    
+    if force_sqlite:
+        # Force SQLite even if DATABASE_URL looks like PostgreSQL
+        return "sqlite:///newsletter.db"
+    else:
+        # Convert postgres:// to postgresql+psycopg:// for Python 3.13 compatibility
+        if db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql+psycopg://', 1)
+        elif db_url.startswith('postgresql://'):
+            db_url = db_url.replace('postgresql://', 'postgresql+psycopg://', 1)
+        return db_url
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+# Get the actual database URL
+actual_db_url = _get_database_url()
+is_postgres = actual_db_url.startswith('postgresql') or actual_db_url.startswith('postgres')
+
+# Create engine with the actual database URL
+engine = create_engine(actual_db_url, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # PostgreSQL schema
@@ -20,8 +39,8 @@ CREATE TABLE IF NOT EXISTS articles (
   title TEXT,
   summary_raw TEXT,
   content TEXT,
-  published_at TIMESTAMP,
-  fetched_at TIMESTAMP DEFAULT NOW(),
+  published_at TIMESTAMPTZ,
+  fetched_at TIMESTAMPTZ DEFAULT NOW(),
   canonical_hash TEXT,
   embedding BYTEA,
   lang TEXT,
@@ -37,8 +56,8 @@ CREATE TABLE IF NOT EXISTS article_scores (
   importance_multiplier REAL,
   freshness_bonus REAL,
   composite_score REAL,
-  topics TEXT, -- JSON string
-  geography TEXT, -- JSON string
+  topics TEXT[], -- PostgreSQL array
+  geography TEXT[], -- PostgreSQL array
   macro_flag BOOLEAN,
   summary2 TEXT,
   why1 TEXT,
@@ -49,10 +68,10 @@ CREATE TABLE IF NOT EXISTS article_scores (
 
 CREATE TABLE IF NOT EXISTS issues (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  issue_date DATE UNIQUE,
+  issue_date TIMESTAMPTZ UNIQUE,
   slug TEXT UNIQUE,
   html TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS issue_items (
