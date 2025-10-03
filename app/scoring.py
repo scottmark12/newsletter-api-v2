@@ -11,7 +11,11 @@ KWS = {
         "ai campus","ai factory","hyperscale","data center","robotic","robotics",
         "3d printed","3d printing","bim","digital twin","prefab","modular",
         "offsite","automation","computer vision","generative ai","llm","r&d",
-        "breakthrough","pilot program","prototype","patent"
+        "breakthrough","pilot program","prototype","patent","innovation","innovative",
+        "smart building","smart city","iot","sensor","blockchain","vr","ar",
+        "machine learning","artificial intelligence","green tech","sustainability",
+        "renewable energy","solar","wind","battery","electric vehicle","ev",
+        "nanotechnology","biotech","fintech","proptech","contech"
     },
     "market_news": {
         "refinance","bond","cmbs","term sheet","bridge loan","construction loan",
@@ -28,7 +32,12 @@ KWS = {
     "unique_developments": {
         "groundbreaking","opens","topped out","topping out","approved",
         "wins approval","entitled","rezoned","permits issued","milestone",
-        "first-of-its-kind","world’s first","largest","record-breaking"
+        "first-of-its-kind","world's first","largest","record-breaking",
+        "breaks ground","construction begins","construction started","new development",
+        "development project","mixed-use","tower","high-rise","skyscraper",
+        "campus","complex","facility","center","hub","district","quarter",
+        "master plan","phase","expansion","renovation","redevelopment",
+        "affordable housing","luxury","boutique","flagship","headquarters"
     },
 }
 
