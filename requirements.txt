@@ -23,3 +23,8 @@ schedule==1.2.0
 celery==5.3.4
 redis==5.0.1
 gunicorn==21.2.0
+
+# New dependencies for intelligence synthesis
+PyPDF2==3.0.1
+pdfplumber==0.11.0
+youtube-transcript-api==0.6.1
