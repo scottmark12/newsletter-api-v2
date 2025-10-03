@@ -87,10 +87,9 @@ def score_run(limit: int = Query(50, ge=1, le=500)):
 SAFE_TABLES = {"articles", "article_scores", "issues"}
 
 def _get_engine():
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        raise HTTPException(status_code=500, detail="DATABASE_URL is not set")
-    return create_engine(db_url)
+    # Use the same database URL logic as app.db
+    from .db import actual_db_url
+    return create_engine(actual_db_url)
 
 # ---- JSON FEED FOR LOVABLE (recent articles) ----
 @web_app.get("/api/articles")
