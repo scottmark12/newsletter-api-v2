@@ -927,7 +927,7 @@ def api_main_page(
         
         # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
         with db_engine.connect() as conn:
-            cutting_edge_projects_rows = conn.execute(text("""
+            all_articles = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                        s.project_stage, s.needs_fact_check, s.media_type
@@ -936,15 +936,20 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND s.topics @> '[\"innovation\"]'
-                  AND s.composite_score > 50  -- Only high-quality innovation content
                 ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            
+            # Filter for innovation articles in Python
+            cutting_edge_projects_rows = []
+            for row in all_articles:
+                article = dict(row)
+                topics = article.get('topics', [])
+                if 'innovation' in topics and len(cutting_edge_projects_rows) < 3 and article.get('composite_score', 0) > 50:
+                    cutting_edge_projects_rows.append(article)
         
         # Get cutting edge development (2-3 major infrastructure/city-changing stories)
         with db_engine.connect() as conn:
-            cutting_edge_development_rows = conn.execute(text("""
+            all_articles_dev = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                        s.project_stage, s.needs_fact_check, s.media_type
@@ -953,11 +958,16 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND s.topics @> '[\"unique_developments\"]'
-                  AND s.composite_score > 60  -- Only significant major developments
                 ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            
+            # Filter for unique_developments articles in Python
+            cutting_edge_development_rows = []
+            for row in all_articles_dev:
+                article = dict(row)
+                topics = article.get('topics', [])
+                if 'unique_developments' in topics and len(cutting_edge_development_rows) < 3 and article.get('composite_score', 0) > 60:
+                    cutting_edge_development_rows.append(article)
         
         # Get market movers (3-4 significant market developments)
         with db_engine.connect() as conn:
@@ -1100,20 +1110,27 @@ def api_categories_top():
     result = {}
     
     with db_engine.connect() as conn:
+        # Get ALL articles and filter in Python - much simpler and more reliable
+        all_rows = conn.execute(text("""
+            SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                   s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                   s.project_stage, s.needs_fact_check, s.media_type
+            FROM articles a
+            JOIN article_scores s ON s.article_id = a.id
+            WHERE s.composite_score > 0
+              AND a.status != 'discarded'
+            ORDER BY s.composite_score DESC, a.published_at DESC
+        """)).mappings().all()
+        
+        # Filter articles by topics in Python
         for frontend_name, internal_topic in category_mapping.items():
-            rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE s.topics @> :topic_array
-                  AND s.composite_score > 0
-                  AND a.status != 'discarded'
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {"topic_array": f'[\"{internal_topic}\"]'}).mappings().all()
-            result[frontend_name] = [dict(r) for r in rows]
+            matching_articles = []
+            for row in all_rows:
+                article = dict(row)
+                topics = article.get('topics', [])
+                if internal_topic in topics and len(matching_articles) < 3:
+                    matching_articles.append(article)
+            result[frontend_name] = matching_articles
     
     return {"ok": True, "categories": result}
 
