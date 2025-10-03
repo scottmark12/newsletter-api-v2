@@ -501,13 +501,13 @@ def ingest_run(limit: Optional[int] = None) -> int:
                 "canonical_hash": sha1(u),
                 "lang": lang,
             })
-        row = res.fetchone()
-        if row:
-            inserted_counter[0] += 1
-            domain_counts[host] = domain_counts.get(host, 0) + 1
-            print(f"[crawler] INSERTED {u} (domain {host}: {domain_counts[host]}/{MAX_PER_DOMAIN_PER_RUN})")
-        else:
-            print(f"[crawler] duplicate/no-op {u}")
+            row = res.fetchone()
+            if row:
+                inserted_counter[0] += 1
+                domain_counts[host] = domain_counts.get(host, 0) + 1
+                print(f"[crawler] INSERTED {u} (domain {host}: {domain_counts[host]}/{MAX_PER_DOMAIN_PER_RUN})")
+            else:
+                print(f"[crawler] duplicate/no-op {u}")
 
         except Exception as e:
             print(f"[crawler] error for {u}: {e}")
@@ -525,89 +525,89 @@ def ingest_run(limit: Optional[int] = None) -> int:
                 for base in seed_cfg[category]:
                     if inserted_counter[0] >= cap:
                         break
-                try:
-                    fp = feedparser.parse(base)
+                    try:
+                        fp = feedparser.parse(base)
 
-                    if fp.bozo or not getattr(fp, "entries", None):
-                        r = client.get(base, follow_redirects=True)
-                        if r.status_code < 400 and r.text:
-                            soup = BeautifulSoup(r.text, "lxml")
-                            base_host = _registrable_domain(urlparse(base).netloc.lower())
+                        if fp.bozo or not getattr(fp, "entries", None):
+                            r = client.get(base, follow_redirects=True)
+                            if r.status_code < 400 and r.text:
+                                soup = BeautifulSoup(r.text, "lxml")
+                                base_host = _registrable_domain(urlparse(base).netloc.lower())
 
-                            candidates = []
-                            pat = SITE_LINK_PATTERNS.get(base_host)
+                                candidates = []
+                                pat = SITE_LINK_PATTERNS.get(base_host)
 
-                            for a in soup.select("a[href]"):
-                                href = a.get("href")
-                                if not href:
+                                for a in soup.select("a[href]"):
+                                    href = a.get("href")
+                                    if not href:
+                                        continue
+                                    absolute = href if href.startswith("http") else urljoin(base, href)
+                                    u_abs = canonicalize_url(absolute)
+                                    if not _likely_article(u_abs):
+                                        continue
+
+                                    cand_host = _registrable_domain(urlparse(u_abs).netloc)
+
+                                    # **CRITICAL**: stay on same registrable domain as seed
+                                    if cand_host != base_host:
+                                        continue
+
+                                    if domain_counts.get(cand_host, 0) >= MAX_PER_DOMAIN_PER_RUN:
+                                        continue
+
+                                    if pat:
+                                        path = urlparse(u_abs).path
+                                        if pat.search(u_abs) or pat.search(path):
+                                            candidates.append(u_abs)
+                                    else:
+                                        if _path_articleish(u_abs):
+                                            candidates.append(u_abs)
+
+                                for u_abs in _first_k_unique(candidates, TOP_K):
+                                    maybe_insert(u_abs, client)
+                                    if inserted_counter[0] >= cap:
+                                        break
+
+                        else:
+                            for e in fp.entries[:TOP_K]:
+                                link = e.get("link")
+                                if not link:
                                     continue
-                                absolute = href if href.startswith("http") else urljoin(base, href)
-                                u_abs = canonicalize_url(absolute)
-                                if not _likely_article(u_abs):
+
+                                fb = e.get("published") or e.get("updated") or e.get("pubDate")
+                                fb_iso = None
+                                try:
+                                    if fb:
+                                        fb_iso = dp.parse(fb).isoformat()
+                                    else:
+                                        tp = e.get("published_parsed") or e.get("updated_parsed")
+                                        if tp:
+                                            fb_iso = datetime.fromtimestamp(
+                                                time.mktime(tp), tz=timezone.utc
+                                            ).isoformat()
+                                except Exception:
+                                    fb_iso = None
+
+                                host_check = _registrable_domain(urlparse(link).netloc)
+                                if domain_counts.get(host_check, 0) >= MAX_PER_DOMAIN_PER_RUN:
                                     continue
 
-                                cand_host = _registrable_domain(urlparse(u_abs).netloc)
-
-                                # **CRITICAL**: stay on same registrable domain as seed
-                                if cand_host != base_host:
-                                    continue
-
-                                if domain_counts.get(cand_host, 0) >= MAX_PER_DOMAIN_PER_RUN:
-                                    continue
-
-                                if pat:
-                                    path = urlparse(u_abs).path
-                                    if pat.search(u_abs) or pat.search(path):
-                                        candidates.append(u_abs)
-                                else:
-                                    if _path_articleish(u_abs):
-                                        candidates.append(u_abs)
-
-                            for u_abs in _first_k_unique(candidates, TOP_K):
-                                maybe_insert(u_abs, client)
-                                if inserted >= cap:
+                                maybe_insert(link, client, fallback_published_iso=fb_iso)
+                                if inserted_counter[0] >= cap:
                                     break
 
-                    else:
-                        for e in fp.entries[:TOP_K]:
-                            link = e.get("link")
-                            if not link:
-                                continue
+                    except Exception as e:
+                        print(f"[crawler] seed error for {base}: {e}")
+                        continue
 
-                            fb = e.get("published") or e.get("updated") or e.get("pubDate")
-                            fb_iso = None
-                            try:
-                                if fb:
-                                    fb_iso = dp.parse(fb).isoformat()
-                                else:
-                                    tp = e.get("published_parsed") or e.get("updated_parsed")
-                                    if tp:
-                                        fb_iso = datetime.fromtimestamp(
-                                            time.mktime(tp), tz=timezone.utc
-                                        ).isoformat()
-                            except Exception:
-                                fb_iso = None
+        # Run Google searches if we haven't reached the RSS limit
+        if inserted_counter[0] < rss_limit:
+            google_inserted = crawl_google_searches(min(google_limit, cap - inserted_counter[0]), db, inserted_counter, attempts_counter, domain_counts, cap, now_utc)
 
-                            host_check = _registrable_domain(urlparse(link).netloc)
-                            if domain_counts.get(host_check, 0) >= MAX_PER_DOMAIN_PER_RUN:
-                                continue
-
-                            maybe_insert(link, client, fallback_published_iso=fb_iso)
-                            if inserted >= cap:
-                                break
-
-                       except Exception as e:
-                           print(f"[crawler] seed error for {base}: {e}")
-                           continue
-
-           # Run Google searches if we haven't reached the RSS limit
-           if inserted_counter[0] < rss_limit:
-               google_inserted = crawl_google_searches(min(google_limit, cap - inserted_counter[0]), db, inserted_counter, attempts_counter, domain_counts, cap, now_utc)
-
-           db.commit()
-           print(f"[crawler] done: attempts={attempts_counter[0]}, inserted={inserted_counter[0]}, per-domain={domain_counts}")
-           db.close()
-           return inserted_counter[0]
+        db.commit()
+        print(f"[crawler] done: attempts={attempts_counter[0]}, inserted={inserted_counter[0]}, per-domain={domain_counts}")
+        db.close()
+        return inserted_counter[0]
 
 def run(limit: Optional[int] = None):
     count = ingest_run(limit)
