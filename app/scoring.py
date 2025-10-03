@@ -433,11 +433,34 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
         "breakthrough", "pilot program", "prototype", "patent", "first-of-its-kind",
         "world's first", "cutting-edge", "next-generation", "revolutionary",
         "groundbreaking", "innovative", "advanced technology", "emerging technology",
-        "new technology", "latest technology", "state-of-the-art", "bleeding edge"
+        "new technology", "latest technology", "state-of-the-art", "bleeding edge",
+        "ai-powered", "machine learning", "artificial intelligence", "robotics",
+        "automation", "digital twin", "3d printing", "additive manufacturing",
+        "smart materials", "self-healing", "carbon fiber", "aerogel",
+        "phase change materials", "electrochromic", "photovoltaic glass",
+        "biomimetic", "bio-based", "circular construction", "net zero energy",
+        "passive house", "energy positive", "drone surveying", "lidar scanning",
+        "augmented reality", "mixed reality", "construction vr", "exoskeleton",
+        "wearable tech", "smart hardhat", "construction iot", "predictive maintenance",
+        "digital fabrication", "cnc construction", "robotic welding", "automated bricklaying"
     ]
     
     if any(indicator in t for indicator in innovation_indicators):
         composite_score *= 1.4  # 40% bonus for innovation content
+    
+    # 🏢 GENERAL DEVELOPMENT PENALTY (reduce innovation scores for generic development news)
+    general_dev_terms = [
+        "construction loan", "financing", "refinance", "acquisition", "development project",
+        "groundbreaking", "topped out", "opens", "approved", "city council", "planning board",
+        "luxury rental", "apartment complex", "mixed-use", "retail center", "office building"
+    ]
+    
+    # If it's tagged as innovation but contains mostly general development terms, reduce the score
+    if "innovation" in topics and any(term in t for term in general_dev_terms):
+        # Only apply penalty if there are no strong innovation indicators
+        strong_innovation = any(indicator in t for indicator in innovation_indicators[:20])  # First 20 are strongest
+        if not strong_innovation:
+            composite_score *= 0.7  # 30% penalty for generic development news tagged as innovation
     
     # 💰 BIG PROJECT VALUE MULTIPLIER
     import re
@@ -557,8 +580,8 @@ def run(limit: int = 50) -> Dict[str, Any]:
                 db.close()
             excluded += 1
         else:
-            save_scores(a["id"], scores)
-            scored += 1
+        save_scores(a["id"], scores)
+        scored += 1
     
     print(f"Scored {scored} developer-relevant articles, excluded {excluded} non-developer articles")
     return {"ok": True, "scored": scored, "excluded": excluded}
