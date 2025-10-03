@@ -936,7 +936,7 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND s.topics LIKE '%"innovation"%'
+                  AND s.topics @> '["innovation"]'
                   AND s.composite_score > 50  -- Only high-quality innovation content
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
@@ -953,7 +953,7 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND s.topics LIKE '%"unique_developments"%'
+                  AND s.topics @> '["unique_developments"]'
                   AND s.composite_score > 60  -- Only significant major developments
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
@@ -1107,12 +1107,12 @@ def api_categories_top():
                        s.project_stage, s.needs_fact_check, s.media_type
                 FROM articles a
                 JOIN article_scores s ON s.article_id = a.id
-                WHERE s.topics LIKE :topic_pattern
+                WHERE s.topics @> :topic_array
                   AND s.composite_score > 0
                   AND a.status != 'discarded'
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
-            """), {"topic_pattern": f"%\"{internal_topic}\"%"}).mappings().all()
+            """), {"topic_array": f'["{internal_topic}"]'}).mappings().all()
             result[frontend_name] = [dict(r) for r in rows]
     
     return {"ok": True, "categories": result}
