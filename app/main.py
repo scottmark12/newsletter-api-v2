@@ -898,6 +898,84 @@ def _generate_ceo_takeaway(article: dict) -> str:
 #         raise HTTPException(status_code=500, detail=str(e))
 
 # ---- JSON FEED FOR LOVABLE (top articles by category) ----
+@web_app.get("/api/main")
+def api_main_page(
+    limit: int = Query(15, ge=5, le=25),
+    days: int = Query(7, ge=1, le=30)
+):
+    """
+    Main page - returns the most important stories overall based on composite scores.
+    Prioritizes high-impact articles across all categories.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    try:
+        db_engine = _get_engine()
+        with db_engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type,
+                       -- Boost score for articles with multiple relevant topics
+                       s.composite_score * (1 + (array_length(s.topics, 1) - 1) * 0.1) as importance_score
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND (
+                    -- Prioritize innovation and unique developments
+                    'innovation' = ANY(s.topics) OR 
+                    'unique_developments' = ANY(s.topics) OR
+                    -- Include high-scoring market news and insights
+                    (s.composite_score > 100 AND ('market_news' = ANY(s.topics) OR 'insights' = ANY(s.topics)))
+                  )
+                ORDER BY importance_score DESC, s.composite_score DESC, a.published_at DESC
+                LIMIT :limit
+            """), {"cutoff": cutoff.isoformat(), "limit": limit}).mappings().all()
+        
+        articles = []
+        for row in rows:
+            article = dict(row)
+            # Add category classification
+            topics = article.get('topics', [])
+            if 'innovation' in topics:
+                article['primary_category'] = 'innovation'
+            elif 'unique_developments' in topics:
+                article['primary_category'] = 'unique_developments'
+            elif 'market_news' in topics:
+                article['primary_category'] = 'market_news'
+            elif 'insights' in topics:
+                article['primary_category'] = 'insights'
+            else:
+                article['primary_category'] = 'general'
+            
+            articles.append(article)
+        
+        # Separate articles by category for better organization
+        innovation_articles = [a for a in articles if a['primary_category'] == 'innovation']
+        unique_dev_articles = [a for a in articles if a['primary_category'] == 'unique_developments']
+        market_articles = [a for a in articles if a['primary_category'] == 'market_news']
+        insight_articles = [a for a in articles if a['primary_category'] == 'insights']
+        
+        # Get the top story (highest importance score)
+        top_story = articles[0] if articles else None
+        
+        return {
+            "ok": True,
+            "count": len(articles),
+            "top_story": top_story,
+            "by_category": {
+                "innovation": innovation_articles[:5],
+                "unique_developments": unique_dev_articles[:5], 
+                "market_news": market_articles[:5],
+                "insights": insight_articles[:5]
+            },
+            "all_articles": articles,
+            "description": "Most important stories overall, prioritized by composite score and relevance"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @web_app.get("/api/categories/top")
 def api_categories_top():
     """
