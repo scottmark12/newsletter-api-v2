@@ -113,7 +113,7 @@ def api_articles(
                            s.summary2, s.why1, s.project_stage, s.needs_fact_check, s.media_type
                     FROM articles a
                     LEFT JOIN article_scores s ON s.article_id = a.id
-                    WHERE (
+                    WHERE a.status != 'discarded' AND (
                         (a.published_at IS NOT NULL AND a.published_at >= :cutoff)
                         OR
                         (a.published_at IS NULL AND a.fetched_at >= :cutoff)
@@ -163,7 +163,8 @@ def api_articles_capped(
                          COALESCE(s.composite_score, 0) AS composite_score
                   FROM articles a
                   LEFT JOIN article_scores s ON s.article_id = a.id
-                  WHERE a.published_at IS NOT NULL
+                  WHERE a.status != 'discarded'
+                    AND a.published_at IS NOT NULL
                     AND a.published_at >= :cutoff
                 ),
                 ranked AS (

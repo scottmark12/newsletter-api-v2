@@ -4,10 +4,23 @@ from sqlalchemy.exc import SQLAlchemyError
 from .db import SessionLocal
 
 # -------- Category keyword sets --------
+# Developer-focused content: practical, actionable building processes and technologies
 # We tag each article with one or more of these:
 # "innovation", "market_news", "insights", "unique_developments"
+
+# Keywords that indicate non-developer content (furniture, experimental architecture, etc.)
+EXCLUDE_KEYWORDS = {
+    "furniture","chair","table","desk","sofa","couch","lamp","lighting fixture",
+    "interior design","decor","decoration","aesthetic","artistic","conceptual",
+    "installation","exhibition","museum","gallery","art","sculpture","painting",
+    "fashion","clothing","textile","fabric","wallpaper","paint color","color scheme",
+    "experimental architecture","avant-garde","theoretical","philosophical",
+    "student project","academic","research paper","thesis","dissertation"
+}
+
 KWS = {
     "innovation": {
+        # Construction technology and processes
         "ai campus","ai factory","hyperscale","data center","robotic","robotics",
         "3d printed","3d printing","bim","digital twin","prefab","modular",
         "offsite","automation","computer vision","generative ai","llm","r&d",
@@ -15,21 +28,41 @@ KWS = {
         "smart building","smart city","iot","sensor","blockchain","vr","ar",
         "machine learning","artificial intelligence","green tech","sustainability",
         "renewable energy","solar","wind","battery","electric vehicle","ev",
-        "nanotechnology","biotech","fintech","proptech","contech"
+        "nanotechnology","biotech","fintech","proptech","contech",
+        # Developer-relevant building technologies
+        "mass timber","cross laminated timber","clt","glulam","engineered wood",
+        "precast concrete","tilt-up","insulated concrete forms","icf",
+        "steel frame","structural steel","cold-formed steel","cf steel",
+        "building envelope","air barrier","vapor barrier","thermal bridge",
+        "heat pump","geothermal","ground source","air source",
+        "building automation","hvac controls","energy management","building controls",
+        "construction technology","contech","construction tech","building tech"
     },
     "market_news": {
         "refinance","bond","cmbs","term sheet","bridge loan","construction loan",
         "cap rate","dscr","occupancy","vacancy","absorption","pipeline","starts",
         "transaction","deal","acquisition","raises","funding","yoy","qoq",
-        "rent growth","foreclosure"
+        "rent growth","foreclosure","construction financing","development loan",
+        "mezzanine loan","construction starts","building permits","housing starts",
+        "commercial real estate","cre","multifamily","office","retail","industrial",
+        "logistics","warehouse","distribution center","data center","hospitality"
     },
-    "insights": {   # <— renamed from "trends"
+    "insights": {
+        # Building science and construction insights
         "mass timber","electrification","heat pump","embodied carbon",
         "operational carbon","leed","passive house","energy code","stretch code",
         "upzoning","by-right","inclusionary","office-to-residential","conversion",
-        "student housing","life science","industrial","logistics","macro","headwinds"
+        "student housing","life science","industrial","logistics","macro","headwinds",
+        # Developer-relevant insights
+        "building performance","energy efficiency","water efficiency","indoor air quality",
+        "building materials","construction methods","building systems","mep systems",
+        "structural engineering","civil engineering","building codes","zoning",
+        "development process","entitlement","permitting","construction timeline",
+        "cost analysis","construction costs","material costs","labor costs",
+        "project delivery","design-build","construction management","general contractor"
     },
     "unique_developments": {
+        # Real development projects and construction milestones
         "groundbreaking","opens","topped out","topping out","approved",
         "wins approval","entitled","rezoned","permits issued","milestone",
         "first-of-its-kind","world's first","largest","record-breaking",
@@ -37,16 +70,29 @@ KWS = {
         "development project","mixed-use","tower","high-rise","skyscraper",
         "campus","complex","facility","center","hub","district","quarter",
         "master plan","phase","expansion","renovation","redevelopment",
-        "affordable housing","luxury","boutique","flagship","headquarters"
+        "affordable housing","luxury","boutique","flagship","headquarters",
+        # Developer-relevant project types
+        "office building","residential tower","apartment building","condominium",
+        "hotel","hospitality","retail center","shopping center","mall",
+        "industrial park","warehouse","distribution center","manufacturing facility",
+        "data center","research facility","laboratory","medical facility","hospital",
+        "school","university","college","transportation hub","transit oriented",
+        "infrastructure project","bridge","tunnel","highway","transit","rail"
     },
 }
 
 def _tag_categories(text_blob: str) -> list[str]:
     t = (text_blob or "").lower()
+    
+    # First check if content should be excluded (furniture, experimental architecture, etc.)
+    if any(exclude_word in t for exclude_word in EXCLUDE_KEYWORDS):
+        return []  # Return empty tags for excluded content
+    
     tags = []
     for cat, words in KWS.items():
         if any(w in t for w in words):
             tags.append(cat)
+    
     # de-duplicate while preserving order
     seen = set()
     out = []
@@ -364,6 +410,11 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
         composite_score += min(word_count / 500.0, 3.0)  # Up to +3 points
 
     topics = _tag_categories(text_blob)
+    
+    # If no topics (excluded content like furniture/experimental architecture), return None
+    if not topics:
+        return None  # This will signal to skip scoring this article
+    
     project_stage = _detect_project_stage(text_blob)
     media_type = _detect_media_type(row.get("url", ""), row.get("title", ""), row.get("content", ""))
     needs_fact_check = _assess_fact_check_need(text_blob, composite_score)
@@ -408,9 +459,26 @@ def naive_score(row: Dict[str, Any]) -> Dict[str, Any]:
 def run(limit: int = 50) -> Dict[str, Any]:
     arts = fetch_new_articles(limit=limit)
     scored = 0
+    excluded = 0
+    
     for a in arts:
         # scores = score_article_with_llm(...)
         scores = naive_score(a)
+        
+        # If scores is None, the article was excluded (furniture/experimental architecture)
+        if scores is None:
+            print(f"Excluding non-developer content: {a.get('title', 'No title')[:60]}...")
+            # Mark article as discarded
+            db = SessionLocal()
+            try:
+                db.execute(text("UPDATE articles SET status='discarded' WHERE id=:id"), {"id": a["id"]})
+                db.commit()
+            finally:
+                db.close()
+            excluded += 1
+        else:
         save_scores(a["id"], scores)
         scored += 1
-    return {"ok": True, "scored": scored}
+    
+    print(f"Scored {scored} developer-relevant articles, excluded {excluded} non-developer articles")
+    return {"ok": True, "scored": scored, "excluded": excluded}
