@@ -107,15 +107,18 @@ def api_articles(
         with engine.connect() as conn:
             rows = conn.execute(
                 text("""
-                    SELECT id, url, source, title, summary_raw, content,
-                           published_at, fetched_at, lang
-                    FROM articles
+                    SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.content,
+                           a.published_at, a.fetched_at, a.lang,
+                           s.composite_score, s.topics, s.geography, s.macro_flag,
+                           s.summary2, s.why1, s.project_stage, s.needs_fact_check, s.media_type
+                    FROM articles a
+                    LEFT JOIN article_scores s ON s.article_id = a.id
                     WHERE (
-                        (published_at IS NOT NULL AND published_at >= :cutoff)
+                        (a.published_at IS NOT NULL AND a.published_at >= :cutoff)
                         OR
-                        (published_at IS NULL AND fetched_at >= :cutoff)
+                        (a.published_at IS NULL AND a.fetched_at >= :cutoff)
                     )
-                    ORDER BY COALESCE(published_at, fetched_at) DESC
+                    ORDER BY COALESCE(s.composite_score, 0) DESC, COALESCE(a.published_at, a.fetched_at) DESC
                     LIMIT :limit
                 """),
                 {"cutoff": cutoff.isoformat(), "limit": limit},
