@@ -927,12 +927,8 @@ def api_main_page(
         
                # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
                with db_engine.connect() as conn:
-                   # Check database type for proper query syntax
-                   from .db import is_postgres
-                   if is_postgres:
-                       topics_condition = "(s.topics @> '[\"cutting_edge_projects\"]' OR s.topics @> '[\"innovation\"]')"
-                   else:
-                       topics_condition = "(s.topics LIKE '%\"cutting_edge_projects\"%' OR s.topics LIKE '%\"innovation\"%')"
+                   # Use simple LIKE queries - much more reliable
+                   topics_condition = "(s.topics LIKE '%\"cutting_edge_projects\"%' OR s.topics LIKE '%\"innovation\"%')"
                    
                    cutting_edge_projects_rows = conn.execute(text(f"""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -951,12 +947,8 @@ def api_main_page(
         
                # Get cutting edge development (2-3 major infrastructure/city-changing stories)
                with db_engine.connect() as conn:
-                   # Check database type for proper query syntax
-                   from .db import is_postgres
-                   if is_postgres:
-                       topics_condition = "(s.topics @> '[\"cutting_edge_development\"]' OR s.topics @> '[\"unique_developments\"]')"
-                   else:
-                       topics_condition = "(s.topics LIKE '%\"cutting_edge_development\"%' OR s.topics LIKE '%\"unique_developments\"%')"
+                   # Use simple LIKE queries - much more reliable
+                   topics_condition = "(s.topics LIKE '%\"cutting_edge_development\"%' OR s.topics LIKE '%\"unique_developments\"%')"
                    
                    cutting_edge_development_rows = conn.execute(text(f"""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -1116,23 +1108,12 @@ def api_categories_top():
            with db_engine.connect() as conn:
                for frontend_name, internal_topic in category_mapping.items():
                    if isinstance(internal_topic, list):
-                       # Handle multiple topic options - check if database is PostgreSQL
-                       from .db import is_postgres
-                       if is_postgres:
-                           topic_conditions = " OR ".join([f"s.topics @> '[\"{topic}\"]'" for topic in internal_topic])
-                           where_clause = f"({topic_conditions})"
-                       else:
-                           # SQLite - topics is JSON string
-                           topic_conditions = " OR ".join([f"s.topics LIKE '%\"{topic}\"%'" for topic in internal_topic])
-                           where_clause = f"({topic_conditions})"
+                       # Use simple LIKE queries for both database types - much more reliable
+                       topic_conditions = " OR ".join([f"s.topics LIKE '%\"{topic}\"%'" for topic in internal_topic])
+                       where_clause = f"({topic_conditions})"
                    else:
-                       # Handle single topic
-                       from .db import is_postgres
-                       if is_postgres:
-                           where_clause = f"s.topics @> '[\"{internal_topic}\"]'"
-                       else:
-                           # SQLite - topics is JSON string
-                           where_clause = f"s.topics LIKE '%\"{internal_topic}\"%'"
+                       # Handle single topic with simple LIKE
+                       where_clause = f"s.topics LIKE '%\"{internal_topic}\"%'"
                    
                    rows = conn.execute(text(f"""
                        SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
