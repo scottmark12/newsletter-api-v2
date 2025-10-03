@@ -678,9 +678,6 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
     if any(indicator in t for indicator in project_indicators):
         composite_score *= 1.4  # 40% bonus for real, completed projects
     
-    # Get topics first before using them
-    topics = _tag_categories(text_blob)
-    
     # 🏢 GENERAL DEVELOPMENT PENALTY (reduce innovation scores for generic development news)
     general_dev_terms = [
         "construction loan", "financing", "refinance", "acquisition", "development project",
@@ -766,6 +763,9 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
     word_count = len((row.get("content") or "").split())
     if word_count > 300:
         composite_score += min(word_count / 500.0, 3.0)  # Up to +3 points
+
+    # Get topics after all calculations are done
+    topics = _tag_categories(text_blob)
     
     # If no topics (excluded content like furniture/experimental architecture), return None
     if not topics:
