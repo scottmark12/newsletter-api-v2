@@ -1,31 +1,29 @@
 #!/bin/bash
 
-# Force Python 3.11 installation and usage
-echo "=== FORCING PYTHON 3.11 INSTALLATION ==="
+echo "=== Starting build process ==="
 
-# Update package lists
-apt-get update
-
-# Install Python 3.11 and related packages
-echo "Installing Python 3.11..."
-apt-get install -y python3.11 python3.11-pip python3.11-venv python3.11-dev
-
-# Create symlinks to make python3.11 the default python3
-ln -sf /usr/bin/python3.11 /usr/bin/python3
-ln -sf /usr/bin/python3.11 /usr/bin/python
-
-# Verify Python version
-echo "Python version after installation:"
-python --version
+# Check Python version
+echo "Current Python version:"
 python3 --version
-python3.11 --version
 
-# Install pip for Python 3.11
-python3.11 -m ensurepip --upgrade
+# Create virtual environment to avoid system package conflicts
+echo "Creating virtual environment..."
+python3 -m venv venv
 
-# Install requirements using Python 3.11
-echo "Installing Python packages with Python 3.11..."
-python3.11 -m pip install --upgrade pip
-python3.11 -m pip install -r requirements.txt
+# Activate virtual environment
+echo "Activating virtual environment..."
+source venv/bin/activate
 
-echo "=== BUILD COMPLETE WITH PYTHON 3.11 ==="
+# Upgrade pip in virtual environment
+echo "Upgrading pip..."
+pip install --upgrade pip
+
+# Install requirements in virtual environment
+echo "Installing requirements..."
+pip install -r requirements.txt
+
+echo "=== Build complete ==="
+
+# List installed packages for verification
+echo "Installed packages:"
+pip list | grep -E "(psycopg2|fastapi|uvicorn|sqlalchemy)"
