@@ -228,7 +228,102 @@ def _is_fresh(published_iso: Optional[str], now_utc: datetime) -> bool:
     except Exception:
            return False
 
-def crawl_google_searches(limit: int = 50) -> int:
+def maybe_insert_article(url: str, client: httpx.Client, db, inserted_counter, attempts_counter, domain_counts, cap, now_utc, fallback_published_iso: Optional[str] = None):
+    """Helper function to insert an article if it meets criteria"""
+    if inserted_counter[0] >= cap:
+        return False
+
+    u = canonicalize_url(url)
+    host_raw = urlparse(u).netloc
+    host = _registrable_domain(host_raw)
+
+    if domain_counts.get(host, 0) >= MAX_PER_DOMAIN_PER_RUN:
+        print(f"[crawler] domain-cap reached for {host}; skipping {u}")
+        return False
+
+    attempts_counter[0] += 1
+    try:
+        r = client.get(u, follow_redirects=True)
+        r.raise_for_status()
+        
+        # Use readability to extract main content
+        doc = Document(r.text)
+        title = doc.title()
+        body_html = doc.summary()
+        
+        # Fallback to trafilatura for content if readability fails or is empty
+        if not body_html or len(body_html) < 100: # Arbitrary length check
+            body_text = t_extract(r.text, include_comments=False, include_tables=False, no_fallback=False)
+        else:
+            body_text = BeautifulSoup(body_html, "lxml").get_text(separator="\n")
+
+        if not body_text:
+            print(f"[crawler] no content for {u}; skipping")
+            return False
+
+        # Language detection
+        lang = "en"
+        try:
+            lang = detect(body_text[:1000]) # Detect language from first 1000 chars
+        except Exception:
+            pass # Default to 'en' if detection fails
+
+        # Published date extraction
+        published_iso = fallback_published_iso
+        if not published_iso:
+            # Try to get from meta tags
+            soup = BeautifulSoup(r.text, "lxml")
+            pub_time_tag = soup.find("meta", {"property": "article:published_time"}) or \
+                           soup.find("meta", {"name": "date"})
+            if pub_time_tag and pub_time_tag.get("content"):
+                try:
+                    published_iso = dp.parse(pub_time_tag["content"]).isoformat()
+                except Exception:
+                    pass
+        
+        if not published_iso:
+            # Fallback to current time if no published date found
+            published_iso = now_utc.isoformat()
+
+        # Check freshness
+        if not _is_fresh(dp.parse(published_iso), now_utc):
+            print(f"[crawler] stale {u}; skipping")
+            return False
+
+        sql = text("""
+            INSERT INTO articles
+              (url, source, title, summary_raw, content, published_at, canonical_hash, lang)
+            VALUES
+              (:url, :source, :title, :summary_raw, :content, :published_at, :canonical_hash, :lang)
+            ON CONFLICT (url) DO NOTHING
+            RETURNING id
+        """)
+        res = db.execute(sql, {
+            "url": u,
+            "source": (soup.find("meta", {"property": "og:site_name"}) or {}).get("content")
+                      or (urlparse(u).netloc),
+            "title": (title or "")[:500],
+            "summary_raw": ((soup.find("meta", {"name": "description"}) or {}).get("content", ""))[:1000],
+            "content": body_text[:50000],
+            "published_at": published_iso,
+            "canonical_hash": sha1(u),
+            "lang": lang,
+        })
+        row = res.fetchone()
+        if row:
+            inserted_counter[0] += 1
+            domain_counts[host] = domain_counts.get(host, 0) + 1
+            print(f"[crawler] INSERTED {u} (domain {host}: {domain_counts[host]}/{MAX_PER_DOMAIN_PER_RUN})")
+            return True
+        else:
+            print(f"[crawler] duplicate/no-op {u}")
+            return False
+
+    except Exception as e:
+        print(f"[crawler] error for {u}: {e}")
+        return False
+
+def crawl_google_searches(limit: int, db, inserted_counter, attempts_counter, domain_counts, cap, now_utc) -> int:
     """Crawl articles using Google search queries for innovation and opportunities"""
     print(f"[google] Starting Google search crawl, limit={limit}")
     
@@ -251,10 +346,9 @@ def crawl_google_searches(limit: int = 50) -> int:
     
     all_queries = innovation_queries + opportunity_queries
     
-    inserted = 0
     with httpx.Client(headers=HEADERS, timeout=30.0, follow_redirects=True) as client:
         for query in all_queries:
-            if inserted >= limit:
+            if inserted_counter[0] >= limit:
                 break
                 
             try:
@@ -262,20 +356,20 @@ def crawl_google_searches(limit: int = 50) -> int:
                 results = search_construction_news(query, num=5)
                 
                 for result in results:
-                    if inserted >= limit:
+                    if inserted_counter[0] >= limit:
                         break
                     try:
-                        maybe_insert(result["url"], client)
-                        if inserted % 10 == 0:
-                            print(f"[google] Inserted {inserted} articles so far")
+                        maybe_insert_article(result["url"], client, db, inserted_counter, attempts_counter, domain_counts, cap, now_utc)
+                        if inserted_counter[0] % 10 == 0:
+                            print(f"[google] Inserted {inserted_counter[0]} articles so far")
                     except Exception as e:
                         print(f"[google] Error processing {result['url']}: {e}")
                         
             except Exception as e:
                 print(f"[google] Error searching '{query}': {e}")
                 
-    print(f"[google] Google search crawl complete: {inserted} articles inserted")
-    return inserted
+    print(f"[google] Google search crawl complete: {inserted_counter[0]} articles inserted")
+    return inserted_counter[0]
 
 def ingest_run(limit: Optional[int] = None) -> int:
     cap = int(limit or MAX_ARTICLES_PER_RUN)
@@ -296,13 +390,12 @@ def ingest_run(limit: Optional[int] = None) -> int:
     
     print(f"[crawler] RSS limit: {rss_limit}, Google limit: {google_limit}")
 
-    inserted = 0
-    attempts = 0
+    inserted_counter = [0]  # Use list to allow modification in nested functions
+    attempts_counter = [0]
     domain_counts: dict[str, int] = {}
 
     def maybe_insert(url: str, client: httpx.Client, fallback_published_iso: Optional[str] = None):
-        nonlocal inserted, attempts, domain_counts
-        if inserted >= cap:
+        if inserted_counter[0] >= cap:
             return
 
         u = canonicalize_url(url)
@@ -317,7 +410,7 @@ def ingest_run(limit: Optional[int] = None) -> int:
             print(f"[crawler] skip non-article-url {u}")
             return
 
-        attempts += 1
+        attempts_counter[0] += 1
         try:
             r = client.get(u, follow_redirects=True, timeout=20)
             if r.status_code >= 400 or not r.text:
@@ -368,13 +461,13 @@ def ingest_run(limit: Optional[int] = None) -> int:
                 "canonical_hash": sha1(u),
                 "lang": lang,
             })
-            row = res.fetchone()
-            if row:
-                inserted += 1
-                domain_counts[host] = domain_counts.get(host, 0) + 1
-                print(f"[crawler] INSERTED {u} (domain {host}: {domain_counts[host]}/{MAX_PER_DOMAIN_PER_RUN})")
-            else:
-                print(f"[crawler] duplicate/no-op {u}")
+        row = res.fetchone()
+        if row:
+            inserted_counter[0] += 1
+            domain_counts[host] = domain_counts.get(host, 0) + 1
+            print(f"[crawler] INSERTED {u} (domain {host}: {domain_counts[host]}/{MAX_PER_DOMAIN_PER_RUN})")
+        else:
+            print(f"[crawler] duplicate/no-op {u}")
 
         except Exception as e:
             print(f"[crawler] error for {u}: {e}")
@@ -461,14 +554,13 @@ def ingest_run(limit: Optional[int] = None) -> int:
                            continue
 
            # Run Google searches if we haven't reached the RSS limit
-           if inserted < rss_limit:
-               google_inserted = crawl_google_searches(min(google_limit, cap - inserted))
-               inserted += google_inserted
+           if inserted_counter[0] < rss_limit:
+               google_inserted = crawl_google_searches(min(google_limit, cap - inserted_counter[0]), db, inserted_counter, attempts_counter, domain_counts, cap, now_utc)
 
            db.commit()
-           print(f"[crawler] done: attempts={attempts}, inserted={inserted}, per-domain={domain_counts}")
+           print(f"[crawler] done: attempts={attempts_counter[0]}, inserted={inserted_counter[0]}, per-domain={domain_counts}")
            db.close()
-           return inserted
+           return inserted_counter[0]
 
 def run(limit: Optional[int] = None):
     count = ingest_run(limit)
