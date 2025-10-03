@@ -688,8 +688,8 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
         "luxury rental", "apartment complex", "mixed-use", "retail center", "office building"
     ]
     
-    # If it's tagged as innovation but contains mostly general development terms, reduce the score
-    if "innovation" in topics and any(term in t for term in general_dev_terms):
+    # If it's tagged as cutting_edge_projects but contains mostly general development terms, reduce the score
+    if "cutting_edge_projects" in topics and any(term in t for term in general_dev_terms):
         # Only apply penalty if there are no strong innovation indicators
         strong_innovation = any(indicator in t for indicator in innovation_indicators[:20])  # First 20 are strongest
         if not strong_innovation:
