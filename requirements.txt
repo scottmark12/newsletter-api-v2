@@ -16,6 +16,7 @@ apscheduler==3.10.4
 python-slugify==8.0.4
 python-dotenv==1.0.1
 pytz==2024.1
+requests==2.31.0
 # PostgreSQL support for Python 3.13
 psycopg[binary]==3.2.3
 schedule==1.2.0
