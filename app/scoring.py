@@ -20,7 +20,7 @@ EXCLUDE_KEYWORDS = {
 
 KWS = {
     "innovation": {
-        # Construction technology and processes
+        # AI and advanced technology
         "ai campus","ai factory","hyperscale","data center","robotic","robotics",
         "3d printed","3d printing","bim","digital twin","prefab","modular",
         "offsite","automation","computer vision","generative ai","llm","r&d",
@@ -29,14 +29,49 @@ KWS = {
         "machine learning","artificial intelligence","green tech","sustainability",
         "renewable energy","solar","wind","battery","electric vehicle","ev",
         "nanotechnology","biotech","fintech","proptech","contech",
-        # Developer-relevant building technologies
+        
+        # Advanced construction technologies
         "mass timber","cross laminated timber","clt","glulam","engineered wood",
         "precast concrete","tilt-up","insulated concrete forms","icf",
         "steel frame","structural steel","cold-formed steel","cf steel",
         "building envelope","air barrier","vapor barrier","thermal bridge",
         "heat pump","geothermal","ground source","air source",
         "building automation","hvac controls","energy management","building controls",
-        "construction technology","contech","construction tech","building tech"
+        "construction technology","contech","construction tech","building tech",
+        
+        # Cutting-edge building processes and materials
+        "self-healing concrete","carbon fiber","fiber reinforced polymer","frp",
+        "aerogel insulation","phase change materials","pcm","smart glass",
+        "electrochromic","photovoltaic glass","pv glass","transparent solar",
+        "living walls","green roofs","vertical farming","hydroponic",
+        "biomimetic","biomimicry","nature-inspired","bio-based materials",
+        "recycled materials","circular construction","cradle to cradle",
+        "net zero","carbon negative","passive house","passivhaus",
+        "zero energy","energy positive","plus energy",
+        
+        # Advanced construction methods
+        "drone surveying","lidar scanning","laser scanning","3d scanning",
+        "augmented reality","mixed reality","hololens","construction vr",
+        "autonomous vehicles","self-driving","robotic construction","exoskeleton",
+        "wearable tech","smart hardhat","construction iot","connected job site",
+        "predictive maintenance","condition monitoring","structural health monitoring",
+        "digital fabrication","cnc construction","robotic welding","automated bricklaying",
+        
+        # Emerging building systems
+        "microgrid","smart grid","energy storage","battery storage","thermal storage",
+        "district energy","thermal networks","heat recovery","waste heat",
+        "greywater recycling","rainwater harvesting","water treatment",
+        "air purification","indoor air quality","iaq","ventilation systems",
+        "acoustic design","sound masking","noise reduction","vibration control",
+        
+        # Future building concepts
+        "floating buildings","underwater construction","space construction",
+        "modular construction","volumetric construction","kit of parts",
+        "design for manufacturing","dfma","offsite manufacturing",
+        "factory-built","prefabricated","panelized construction",
+        "structural insulated panels","sip","insulated concrete forms","icf",
+        "autoclaved aerated concrete","aac","lightweight concrete",
+        "high-performance concrete","ultra-high performance concrete","uhpc"
     },
     "market_news": {
         "refinance","bond","cmbs","term sheet","bridge loan","construction loan",
@@ -392,6 +427,17 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
     
     if any(indicator in t for indicator in research_indicators):
         composite_score *= 1.3  # 30% bonus for research content
+    
+    # 🚀 INNOVATION & TECH BONUS
+    innovation_indicators = [
+        "breakthrough", "pilot program", "prototype", "patent", "first-of-its-kind",
+        "world's first", "cutting-edge", "next-generation", "revolutionary",
+        "groundbreaking", "innovative", "advanced technology", "emerging technology",
+        "new technology", "latest technology", "state-of-the-art", "bleeding edge"
+    ]
+    
+    if any(indicator in t for indicator in innovation_indicators):
+        composite_score *= 1.4  # 40% bonus for innovation content
     
     # 💰 BIG PROJECT VALUE MULTIPLIER
     import re
