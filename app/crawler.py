@@ -242,12 +242,29 @@ def _path_articleish(u: str) -> bool:
         return False
     if segs[-1] in STOP_TAILS:
         return False
+    
+    # Standard article patterns
     if any(token in path for token in ("/news", "/article", "/articles", "/architecture-news", "/stories", "/story/")):
         return True
     if re.search(r"/20\d{2}/", path):
         return True
     if len(segs) >= 3 and "-" in segs[-1]:
         return True
+    
+    # Institutional insights and research patterns
+    if any(token in path for token in (
+        "/insights", "/research", "/reports", "/analysis", "/market-report", 
+        "/market-analysis", "/market-insights", "/market-outlook", "/forecast",
+        "/trends", "/intelligence", "/perspectives", "/viewpoint", "/thought-leadership",
+        "/white-paper", "/whitepaper", "/case-study", "/case-study", "/survey",
+        "/index", "/indices", "/quarterly", "/annual", "/year-end", "/outlook"
+    )):
+        return True
+    
+    # PDF files (institutional research often in PDFs)
+    if path.endswith('.pdf'):
+        return True
+        
     return False
 
 def _is_fresh(published_iso: Optional[str], now_utc: datetime) -> bool:
