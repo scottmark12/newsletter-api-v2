@@ -474,10 +474,17 @@ def ingest_run(limit: Optional[int] = None) -> int:
             return
 
     with httpx.Client(headers=HEADERS, timeout=20) as client:
-        for _, urls in seed_cfg.items():
-            for base in urls:
-                if inserted >= cap:
-                    break
+        # Prioritize tier_1_sources and new high-quality categories first
+        priority_categories = ["tier_1_sources", "innovation_engineering", "insights_sources", "economy_news"]
+        other_categories = [k for k in seed_cfg.keys() if k not in priority_categories]
+        
+        # Process priority categories first
+        for category in priority_categories:
+            if category in seed_cfg:
+                print(f"[crawler] Processing priority category: {category}")
+                for base in seed_cfg[category]:
+                    if inserted_counter[0] >= cap:
+                        break
                 try:
                     fp = feedparser.parse(base)
 
