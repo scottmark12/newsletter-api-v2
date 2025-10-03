@@ -55,7 +55,23 @@ KWS = {
         # Small to medium scale innovations
         "residential","single-family","townhome","condo","apartment","mixed-use building",
         "office building","retail space","restaurant","hotel","boutique","flagship",
-        "renovation","retrofit","upgrade","modernization","adaptive reuse"
+        "renovation","retrofit","upgrade","modernization","adaptive reuse",
+        
+        # BROADER KEYWORDS FOR CUTTING EDGE PROJECTS
+        "innovation","innovative","new technology","advanced","modern","contemporary",
+        "sustainable","green building","smart building","high-tech","digital",
+        "prefab","prefabricated","modular","offsite","factory-built","mass timber",
+        "cross laminated timber","clt","glulam","engineered wood","wood construction",
+        "steel frame","concrete","high-rise","skyscraper","tower","development",
+        "project","construction","building","architecture","architect","design",
+        "engineering","engineer","contractor","development","developer","real estate",
+        "commercial","residential","multifamily","office","retail","industrial",
+        "hospitality","healthcare","education","institutional","government","public",
+        "private","mixed-use","transit-oriented","urban","downtown","suburban",
+        "infill","redevelopment","renovation","restoration","conversion","adaptive",
+        "award-winning","leed","green","energy efficient","performance","certification",
+        "first-of-its-kind","unique","distinctive","signature","landmark","iconic",
+        "pioneering","trailblazing","groundbreaking","revolutionary","transformative"
     },
     "market_news": {
         # Current market events affecting construction/real estate
@@ -82,7 +98,17 @@ KWS = {
         
         # Market sectors
         "commercial real estate","cre","multifamily","office","retail","industrial",
-        "logistics","warehouse","distribution center","data center","hospitality"
+        "logistics","warehouse","distribution center","data center","hospitality",
+        
+        # BROADER MARKET NEWS KEYWORDS
+        "market","economy","economic","financial","finance","banking","investment",
+        "investor","funding","capital","money","dollar","cost","price","rate",
+        "growth","decline","increase","decrease","up","down","rise","fall",
+        "quarterly","annual","monthly","report","data","statistics","numbers",
+        "trend","trending","forecast","outlook","prediction","expectation",
+        "news","update","announcement","release","statement","report","results",
+        "earnings","revenue","profit","loss","gain","performance","results",
+        "industry","sector","business","company","corporation","firm","organization"
     },
     "insights": {
         # Market inference and opportunity analysis
@@ -109,7 +135,18 @@ KWS = {
         # CRE firm insights and analysis
         "cbre","jll","cushman","colliers","marcus millichap","newmark","savills",
         "research report","market report","quarterly outlook","annual outlook",
-        "trend analysis","sector analysis","geographic analysis","investment analysis"
+        "trend analysis","sector analysis","geographic analysis","investment analysis",
+        
+        # BROADER INSIGHTS KEYWORDS
+        "analysis","analyst","analytical","research","study","survey","report",
+        "findings","conclusions","recommendations","suggestions","insights",
+        "intelligence","wisdom","knowledge","understanding","perspective","viewpoint",
+        "opinion","expert","specialist","consultant","advisor","strategist",
+        "forecast","prediction","projection","outlook","scenario","planning",
+        "strategy","strategic","plan","approach","methodology","framework",
+        "model","theory","concept","idea","innovation","solution","opportunity",
+        "challenge","problem","issue","trend","pattern","development","evolution",
+        "change","transformation","shift","disruption","impact","effect","influence"
     },
     "cutting_edge_development": {
         # Major infrastructure that changes cities
@@ -142,7 +179,24 @@ KWS = {
         # City-defining infrastructure
         "headquarters","corporate campus","tech campus","innovation hub","research park",
         "medical center","hospital complex","university campus","education complex",
-        "cultural district","arts district","museum district","entertainment complex"
+        "cultural district","arts district","museum district","entertainment complex",
+        
+        # BROADER KEYWORDS FOR CUTTING EDGE DEVELOPMENT
+        "mega","major","massive","huge","enormous","significant","substantial",
+        "billion","million","investment","development","project","construction",
+        "infrastructure","urban","city","metropolitan","downtown","central",
+        "district","quarter","neighborhood","community","campus","complex",
+        "facility","center","hub","terminal","station","plaza","square",
+        "boulevard","avenue","corridor","district","zone","area","region",
+        "expansion","growth","development","construction","building","structure",
+        "tower","high-rise","skyscraper","landmark","iconic","signature",
+        "flagship","premier","world-class","state-of-the-art","cutting-edge",
+        "innovative","revolutionary","transformative","game-changing","breakthrough",
+        "pioneering","trailblazing","unprecedented","record-breaking","first-of-its-kind",
+        "largest","biggest","tallest","longest","highest","deepest","widest",
+        "approved","permitted","entitled","rezoned","funded","financed","designed",
+        "planned","proposed","announced","launched","started","begins","opens",
+        "completed","finished","delivered","handed over","operational","active"
     },
 }
 
@@ -739,8 +793,8 @@ def run(limit: int = 50) -> Dict[str, Any]:
                 db.close()
             excluded += 1
         else:
-            save_scores(a["id"], scores)
-            scored += 1
+        save_scores(a["id"], scores)
+        scored += 1
     
     print(f"Scored {scored} developer-relevant articles, excluded {excluded} non-developer articles")
     return {"ok": True, "scored": scored, "excluded": excluded}
