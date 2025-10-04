@@ -220,6 +220,7 @@ def api_main_page(
             """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
         
         # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
+        # Exclude the top story to avoid duplicates
         with db_engine.connect() as conn:
             cutting_edge_projects_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -232,11 +233,20 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'innovation' = ANY(s.topics)
                   AND s.composite_score > 50
+                  AND a.id != :exclude_top_story_id
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            """), {
+                "cutoff": cutoff.isoformat(),
+                "exclude_top_story_id": top_story_row['id'] if top_story_row else None
+            }).mappings().all()
+        
+        # Collect used article IDs to prevent duplicates
+        used_article_ids = {top_story_row['id']} if top_story_row else set()
+        used_article_ids.update(row['id'] for row in cutting_edge_projects_rows)
         
         # Get cutting edge development (2-3 major infrastructure/city-changing stories)
+        # Exclude articles already used in other sections
         with db_engine.connect() as conn:
             cutting_edge_development_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -249,11 +259,19 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'unique_developments' = ANY(s.topics)
                   AND s.composite_score > 60
+                  AND a.id NOT IN :exclude_ids
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            """), {
+                "cutoff": cutoff.isoformat(),
+                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+            }).mappings().all()
+        
+        # Update used article IDs
+        used_article_ids.update(row['id'] for row in cutting_edge_development_rows)
         
         # Get market movers (3-4 significant market developments)
+        # Exclude articles already used in other sections
         with db_engine.connect() as conn:
             market_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -266,11 +284,19 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND ('market_news' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
                   AND s.composite_score > 80  -- Only significant market developments
+                  AND a.id NOT IN :exclude_ids
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 4
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            """), {
+                "cutoff": cutoff.isoformat(),
+                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+            }).mappings().all()
+        
+        # Update used article IDs
+        used_article_ids.update(row['id'] for row in market_rows)
         
         # Get insights & analysis (2-3 deep-dive pieces)
+        # Exclude articles already used in other sections
         with db_engine.connect() as conn:
             insights_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -283,11 +309,18 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'insights' = ANY(s.topics)
                   AND s.composite_score > 60  -- Only substantial insights
+                  AND a.id NOT IN :exclude_ids
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            """), {
+                "cutoff": cutoff.isoformat(),
+                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+            }).mappings().all()
         
-        # Get quick hits (top 5 highest scores excluding the top story)
+        # Update used article IDs
+        used_article_ids.update(row['id'] for row in insights_rows)
+        
+        # Get quick hits (top 5 highest scores excluding all previously used articles)
         with db_engine.connect() as conn:
             quick_hits_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -298,12 +331,12 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND a.id != :exclude_top_story_id  -- Exclude the top story
+                  AND a.id NOT IN :exclude_ids  -- Exclude all previously used articles
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 5
             """), {
-                "cutoff": cutoff.isoformat(), 
-                "exclude_top_story_id": top_story_row['id'] if top_story_row else None
+                "cutoff": cutoff.isoformat(),
+                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
             }).mappings().all()
         
         # Convert rows to dicts and add context
