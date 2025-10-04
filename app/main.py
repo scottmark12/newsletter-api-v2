@@ -297,7 +297,7 @@ def api_main_page(
                 LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
         
-        # Get quick hits (4-5 brief updates)
+        # Get quick hits (top 5 highest scores excluding the top story)
         with db_engine.connect() as conn:
             quick_hits_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
@@ -308,10 +308,13 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND s.composite_score BETWEEN 30 AND 80  -- Mid-tier but still relevant
-                ORDER BY a.published_at DESC, s.composite_score DESC
+                  AND a.id != :exclude_top_story_id  -- Exclude the top story
+                ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 5
-            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            """), {
+                "cutoff": cutoff.isoformat(), 
+                "exclude_top_story_id": top_story_row['id'] if top_story_row else None
+            }).mappings().all()
         
         # Convert rows to dicts and add context
         top_story = dict(top_story_row) if top_story_row else None
