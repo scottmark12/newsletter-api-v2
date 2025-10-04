@@ -259,12 +259,12 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'unique_developments' = ANY(s.topics)
                   AND s.composite_score > 60
-                  AND a.id NOT IN :exclude_ids
+                  AND a.id != ALL(:exclude_ids)
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
             """), {
                 "cutoff": cutoff.isoformat(),
-                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+                "exclude_ids": list(used_article_ids) if used_article_ids else []
             }).mappings().all()
         
         # Update used article IDs
@@ -284,12 +284,12 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND ('market_news' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
                   AND s.composite_score > 80  -- Only significant market developments
-                  AND a.id NOT IN :exclude_ids
+                  AND a.id != ALL(:exclude_ids)
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 4
             """), {
                 "cutoff": cutoff.isoformat(),
-                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+                "exclude_ids": list(used_article_ids) if used_article_ids else []
             }).mappings().all()
         
         # Update used article IDs
@@ -309,12 +309,12 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'insights' = ANY(s.topics)
                   AND s.composite_score > 60  -- Only substantial insights
-                  AND a.id NOT IN :exclude_ids
+                  AND a.id != ALL(:exclude_ids)
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
             """), {
                 "cutoff": cutoff.isoformat(),
-                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+                "exclude_ids": list(used_article_ids) if used_article_ids else []
             }).mappings().all()
         
         # Update used article IDs
@@ -331,12 +331,12 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND a.id NOT IN :exclude_ids  -- Exclude all previously used articles
+                  AND a.id != ALL(:exclude_ids)  -- Exclude all previously used articles
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 5
             """), {
                 "cutoff": cutoff.isoformat(),
-                "exclude_ids": tuple(used_article_ids) if used_article_ids else ('',)
+                "exclude_ids": list(used_article_ids) if used_article_ids else []
             }).mappings().all()
         
         # Convert rows to dicts and add context
