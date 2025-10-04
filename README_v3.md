@@ -81,7 +81,6 @@ pip install -r requirements_v3.txt
 # Set environment variables
 export DATABASE_URL="your_database_url"
 export OPENAI_API_KEY="your_openai_key"
-export ANTHROPIC_API_KEY="your_anthropic_key"
 ```
 
 ### **2. Initialize v3**
@@ -135,7 +134,6 @@ FORCE_SQLITE=false
 
 # API Keys
 OPENAI_API_KEY=your_key
-ANTHROPIC_API_KEY=your_key
 
 # Crawler Settings
 CRAWLER_DELAY=0.1
