@@ -149,6 +149,20 @@ def _get_engine():
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL environment variable not set")
+    
+    # Ensure we use the correct PostgreSQL driver
+    if database_url.startswith("postgresql://"):
+        # Use psycopg (newer driver) if available, fallback to psycopg2
+        try:
+            import psycopg
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
+        except ImportError:
+            try:
+                import psycopg2
+                database_url = database_url.replace("postgresql://", "postgresql+psycopg2://")
+            except ImportError:
+                pass  # Use default driver
+    
     return create_engine(database_url)
 
 # ---- JSON FEED FOR LOVABLE (recent articles) ----
