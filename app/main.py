@@ -221,7 +221,7 @@ def api_main_page(
         
         # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
         with db_engine.connect() as conn:
-            all_articles = conn.execute(text("""
+            cutting_edge_projects_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                        s.project_stage, s.needs_fact_check, s.media_type
@@ -230,20 +230,15 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
+                  AND 'innovation' = ANY(s.topics)
+                  AND s.composite_score > 50
                 ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
-            
-            # Filter for innovation articles in Python
-            cutting_edge_projects_rows = []
-            for row in all_articles:
-                article = dict(row)
-                topics = article.get('topics', [])
-                if 'innovation' in topics and len(cutting_edge_projects_rows) < 3 and article.get('composite_score', 0) > 50:
-                    cutting_edge_projects_rows.append(article)
         
         # Get cutting edge development (2-3 major infrastructure/city-changing stories)
         with db_engine.connect() as conn:
-            all_articles_dev = conn.execute(text("""
+            cutting_edge_development_rows = conn.execute(text("""
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                        s.project_stage, s.needs_fact_check, s.media_type
@@ -252,16 +247,11 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
+                  AND 'unique_developments' = ANY(s.topics)
+                  AND s.composite_score > 60
                 ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 3
             """), {"cutoff": cutoff.isoformat()}).mappings().all()
-            
-            # Filter for unique_developments articles in Python
-            cutting_edge_development_rows = []
-            for row in all_articles_dev:
-                article = dict(row)
-                topics = article.get('topics', [])
-                if 'unique_developments' in topics and len(cutting_edge_development_rows) < 3 and article.get('composite_score', 0) > 60:
-                    cutting_edge_development_rows.append(article)
         
         # Get market movers (3-4 significant market developments)
         with db_engine.connect() as conn:
@@ -430,3 +420,77 @@ def api_categories_top():
             result[frontend_name] = matching_articles
     
     return {"ok": True, "categories": result}
+
+# ---- INDIVIDUAL FEED ENDPOINTS FOR LOVABLE ----
+@web_app.get("/api/feed/{feed_type}")
+def api_feed_by_type(feed_type: str, days: int = Query(7, ge=1, le=30)):
+    """
+    Returns articles for a specific feed type (market_news, cutting_edge_projects, etc.)
+    This endpoint is designed for Lovable frontend integration.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    
+    # Map feed types to internal topic names
+    feed_mapping = {
+        "market_news": "market_news",
+        "cutting_edge_projects": "innovation", 
+        "cutting_edge_development": "unique_developments",
+        "insights": "insights"
+    }
+    
+    if feed_type not in feed_mapping:
+        raise HTTPException(status_code=404, detail=f"Feed type '{feed_type}' not found")
+    
+    internal_topic = feed_mapping[feed_type]
+    
+    try:
+        db_engine = _get_engine()
+        
+        # Get articles for this specific topic
+        with db_engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND :topic = ANY(s.topics)
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 20
+            """), {
+                "cutoff": cutoff.isoformat(),
+                "topic": internal_topic
+            }).mappings().all()
+        
+        articles = [dict(row) for row in rows]
+        
+        # Add feed metadata
+        feed_titles = {
+            "market_news": "Market News",
+            "cutting_edge_projects": "Cutting Edge Projects", 
+            "cutting_edge_development": "Cutting Edge Development",
+            "insights": "Insights"
+        }
+        
+        feed_descriptions = {
+            "market_news": "Today's events affecting construction and real estate",
+            "cutting_edge_projects": "Architectural innovation and entrepreneurial building science",
+            "cutting_edge_development": "Major infrastructure projects that change cities forever", 
+            "insights": "Market intelligence and opportunity analysis"
+        }
+        
+        return {
+            "ok": True,
+            "feed_type": feed_type,
+            "title": feed_titles.get(feed_type, feed_type),
+            "description": feed_descriptions.get(feed_type, ""),
+            "count": len(articles),
+            "articles": articles,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
