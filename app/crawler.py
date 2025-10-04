@@ -115,8 +115,16 @@ def _likely_article(u: str) -> bool:
         "/careers", "/jobs", "/hiring", "/newsletter", "/subscribe",
         "/login", "/register", "/account", "/profile", "/settings",
         "/shop", "/store", "/products", "/services", "/pricing",
-        "/blog/", "/blogs/", "/articles/", "/news/"  # These are category pages, not articles
+        "/blog/", "/blogs/", "/articles/"
     ]
+    
+    # Special handling for /news/ - only skip if it's just a category page, not specific articles
+    if "/news/" in path:
+        # Allow /news/ if it has additional path segments (specific article)
+        path_segments = [s for s in path.strip("/").split("/") if s]
+        if len(path_segments) <= 2:  # /news/ or /news/category/ - skip these
+            return False
+        # Allow /news/article-title/123456/ - these are specific articles
     
     if any(pattern in path for pattern in generic_patterns):
         return False
