@@ -83,6 +83,16 @@ def score_run(limit: int = Query(50, ge=1, le=500)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
+@web_app.post("/score/run-v2")
+def score_run_v2(limit: int = Query(50, ge=1, le=500)):
+    """Run the enhanced thematic scoring system v2"""
+    try:
+        from . import scoring_v2
+        result = scoring_v2.run_v2(limit=limit)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
 # ---- INTELLIGENCE SYNTHESIS ENDPOINTS ----
 
 @web_app.post("/ingest/research")
