@@ -222,7 +222,7 @@ INSTITUTIONAL_SOURCES = [
 EXCLUDE_KEYWORDS = {
     "furniture", "chair", "table", "desk", "sofa", "couch", "lamp", "lighting fixture",
     "interior design", "decor", "decoration", "aesthetic", "artistic", "conceptual",
-    "installation", "exhibition", "museum", "gallery", "art", "sculpture", "painting",
+    "installation", "exhibition", "museum", "gallery", "art ", "art.", "art,", "art:", "sculpture", "painting",
     "fashion", "clothing", "textile", "fabric", "wallpaper", "paint color", "color scheme",
     "experimental architecture", "avant-garde", "theoretical", "philosophical",
     "student project", "academic", "research paper", "thesis", "dissertation"
@@ -232,9 +232,11 @@ def detect_themes(text_blob: str) -> List[str]:
     """Detect themes in content using flexible signal matching"""
     t = (text_blob or "").lower()
     
-    # First check if content should be excluded
-    if any(exclude_word in t for exclude_word in EXCLUDE_KEYWORDS):
-        return []
+    # First check if content should be excluded (use word boundaries for precision)
+    import re
+    for exclude_word in EXCLUDE_KEYWORDS:
+        if re.search(r'\b' + re.escape(exclude_word) + r'\b', t):
+            return []
     
     detected_themes = []
     
@@ -246,10 +248,10 @@ def detect_themes(text_blob: str) -> List[str]:
         for signal_group, signals in signal_groups.items():
             matches = sum(1 for signal in signals if signal in t)
             if matches > 0:
-                theme_score += matches * (1 + len(signal_group.split('_')) * 0.2)  # Bonus for multiple signal types
+                theme_score += matches  # Simplified scoring
         
         # Include theme if it has sufficient signal strength
-        if theme_score >= 2:  # Minimum threshold for theme inclusion
+        if theme_score >= 1:  # Lower threshold for theme inclusion
             detected_themes.append(theme_name)
     
     return detected_themes
