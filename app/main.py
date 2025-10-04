@@ -41,9 +41,7 @@ def root():
     return {"status": "ok", "docs": "/docs", "health": "/health"}
 
 # --- startup: ensure schema exists ---
-@web_app.on_event("startup")
-def on_startup():
-    init_db()
+# Removed startup event handler to prevent database initialization during startup
 
 # --- actions ---
 @web_app.post("/ingest/run")
@@ -147,6 +145,7 @@ SAFE_TABLES = {"articles", "article_scores", "issues"}
 
 def _get_engine():
     # Use the same database URL logic as app.db
+    import os
     from .db import actual_db_url
     return create_engine(actual_db_url)
 

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "render": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-render"
+      ],
+      "env": {
+        "RENDER_API_KEY": "rnd_AqV4VpcJlQvkKTR4dpSsCtKbASiT"
+      }
+    }
+  }
+}
