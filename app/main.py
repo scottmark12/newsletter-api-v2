@@ -144,10 +144,12 @@ def api_recommended_content(content_type: str = Query("video", regex="^(video|po
 SAFE_TABLES = {"articles", "article_scores", "issues"}
 
 def _get_engine():
-    # Use the same database URL logic as app.db
+    # Use direct database URL from environment
     import os
-    from .db import actual_db_url
-    return create_engine(actual_db_url)
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL environment variable not set")
+    return create_engine(database_url)
 
 # ---- JSON FEED FOR LOVABLE (recent articles) ----
 @web_app.get("/api/articles")
