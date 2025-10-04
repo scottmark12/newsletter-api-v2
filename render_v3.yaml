@@ -1,0 +1,119 @@
+# render_v3.yaml
+# Newsletter API v3 Deployment Configuration for Render
+
+services:
+  # Main API Service
+  - type: web
+    name: newsletter-api-v3
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install -r requirements_v3.txt && python -m app.init_v3 quick
+    startCommand: uvicorn app.main_v3:web_app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v3/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: newsletter-v3-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: FORCE_SQLITE
+        value: "false"
+      - key: CRAWLER_DELAY
+        value: "0.1"
+      - key: CRAWLER_TIMEOUT
+        value: "10"
+      - key: MAX_ARTICLES_PER_SOURCE
+        value: "50"
+      - key: MIN_COMPOSITE_SCORE
+        value: "50.0"
+      - key: MIN_ACTIONABILITY_SCORE
+        value: "60.0"
+      - key: MAX_ARTICLES_PER_SCORING_RUN
+        value: "500"
+      - key: SYNTHESIS_MAX_TOKENS
+        value: "2000"
+      - key: SYNTHESIS_TEMPERATURE
+        value: "0.3"
+      - key: MAX_ARTICLES_FOR_SYNTHESIS
+        value: "50"
+      - key: TIER_1_MIN_SCORE
+        value: "80.0"
+      - key: TIER_2_MIN_SCORE
+        value: "60.0"
+      - key: TIER_3_MIN_SCORE
+        value: "40.0"
+      - key: MIN_CONTENT_LENGTH
+        value: "200"
+      - key: MIN_TITLE_LENGTH
+        value: "10"
+      - key: MAX_TITLE_LENGTH
+        value: "200"
+
+  # Background Worker for Crawling and Scoring
+  - type: worker
+    name: newsletter-v3-worker
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install -r requirements_v3.txt
+    startCommand: python -m app.worker_v3
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: newsletter-v3-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CRAWLER_DELAY
+        value: "0.2"
+      - key: CRAWLER_TIMEOUT
+        value: "15"
+      - key: MAX_ARTICLES_PER_SOURCE
+        value: "100"
+      - key: MIN_COMPOSITE_SCORE
+        value: "50.0"
+      - key: MIN_ACTIONABILITY_SCORE
+        value: "60.0"
+      - key: MAX_ARTICLES_PER_SCORING_RUN
+        value: "1000"
+      - key: SYNTHESIS_MAX_TOKENS
+        value: "2000"
+      - key: SYNTHESIS_TEMPERATURE
+        value: "0.3"
+
+  # Intelligence Synthesis Service
+  - type: worker
+    name: newsletter-v3-synthesis
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install -r requirements_v3.txt
+    startCommand: python -m app.synthesis_worker_v3
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: newsletter-v3-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SYNTHESIS_MAX_TOKENS
+        value: "2000"
+      - key: SYNTHESIS_TEMPERATURE
+        value: "0.3"
+      - key: MAX_ARTICLES_FOR_SYNTHESIS
+        value: "50"
+
+databases:
+  - name: newsletter-v3-db
+    plan: starter
+    region: oregon
