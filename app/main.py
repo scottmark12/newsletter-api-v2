@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 
-from .db import init_db
+# from .db import init_db  # Removed to prevent startup database initialization
 from . import crawler, scoring
 
 web_app = FastAPI(

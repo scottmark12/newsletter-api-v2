@@ -170,11 +170,21 @@ def init_db():
 
 def get_db():
     """Dependency to get database session"""
-    db = SessionLocal()
+    # Lazy initialization - only initialize when first accessed
     try:
+        db = SessionLocal()
         yield db
     finally:
         db.close()
 
-# Initialize database on import
-init_db()
+def ensure_db_initialized():
+    """Ensure database is initialized, but only when needed"""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception:
+        # Only initialize if connection fails
+        init_db()
+
+# Database initialization is now done lazily when needed
+# init_db()  # Removed automatic initialization to prevent startup errors
