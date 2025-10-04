@@ -556,3 +556,9 @@ def api_feed_by_type(feed_type: str, days: int = Query(7, ge=1, le=30)):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# V3 Theme-based endpoints
+from .main_v3_endpoints import add_v3_endpoints
+
+# Add v3 endpoints to the app
+add_v3_endpoints(web_app)

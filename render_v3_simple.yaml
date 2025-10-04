@@ -1,0 +1,20 @@
+# render_v3_simple.yaml
+# Simple v3 deployment that works with existing v2 database
+
+services:
+  # Main API Service - Compatible with existing database
+  - type: web
+    name: newsletter-api-v3
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install -r requirements_v3.txt
+    startCommand: uvicorn app.main_v3_compatible:web_app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v3/health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: FORCE_SQLITE
+        value: "true"
