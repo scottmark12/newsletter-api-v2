@@ -19,6 +19,7 @@ pytz==2024.1
 requests==2.31.0
 # PostgreSQL support for Python 3.13
 psycopg2-binary==2.9.9
+psycopg[binary]==3.2.3
 schedule==1.2.0
 celery==5.3.4
 redis==5.0.1
