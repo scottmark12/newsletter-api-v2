@@ -415,22 +415,31 @@ def api_main_page(
 @web_app.get("/api/categories/top")
 def api_categories_top():
     """
-    Returns the top 3 articles for each category with new naming structure.
+    Returns the top 3 articles for each category using priority-based categorization.
+    Each article appears in only its highest-priority category.
     """
     db_engine = _get_engine()
     
-    # Define category mapping: frontend_name -> internal_topic (with fallbacks)
+    # Define category priorities (higher number = higher priority)
+    category_priorities = {
+        "insights": 4,           # Highest priority - deep analysis
+        "cutting_edge_projects": 3,  # Innovation and new tech
+        "cutting_edge_development": 2,  # Major infrastructure 
+        "market_news": 1         # Lowest priority - general news
+    }
+    
+    # Map frontend names to internal topics
     category_mapping = {
         "market_news": "market_news",
-        "cutting_edge_projects": "innovation",  # Map to old topic name
-        "cutting_edge_development": "unique_developments",  # Map to old topic name  
+        "cutting_edge_projects": "innovation",
+        "cutting_edge_development": "unique_developments",  
         "insights": "insights"
     }
     
-    result = {}
+    result = {cat: [] for cat in category_mapping.keys()}
     
     with db_engine.connect() as conn:
-        # Get ALL articles and filter in Python - much simpler and more reliable
+        # Get ALL articles with their topics
         all_rows = conn.execute(text("""
             SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                    s.composite_score, s.topics, s.geography, s.summary2, s.why1,
@@ -442,15 +451,25 @@ def api_categories_top():
             ORDER BY s.composite_score DESC, a.published_at DESC
         """)).mappings().all()
         
-        # Filter articles by topics in Python
-        for frontend_name, internal_topic in category_mapping.items():
-            matching_articles = []
-            for row in all_rows:
-                article = dict(row)
-                topics = article.get('topics', [])
-                if internal_topic in topics and len(matching_articles) < 3:
-                    matching_articles.append(article)
-            result[frontend_name] = matching_articles
+        # Assign each article to its highest-priority category
+        for row in all_rows:
+            article = dict(row)
+            topics = article.get('topics', [])
+            
+            # Find the highest-priority category this article qualifies for
+            best_category = None
+            best_priority = 0
+            
+            for frontend_name, internal_topic in category_mapping.items():
+                if internal_topic in topics:
+                    priority = category_priorities[frontend_name]
+                    if priority > best_priority:
+                        best_priority = priority
+                        best_category = frontend_name
+            
+            # Add to the best category if we found one and it's not full
+            if best_category and len(result[best_category]) < 3:
+                result[best_category].append(article)
     
     return {"ok": True, "categories": result}
 
