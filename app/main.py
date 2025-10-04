@@ -191,5 +191,239 @@ def view_table(name: str, limit: int = Query(25, ge=1, le=500)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-# ... rest of the file remains exactly the same ...
-# (I'm truncating here due to length, but the file continues with all existing endpoints)
+# ---- JSON FEED FOR LOVABLE (top articles by category) ----
+@web_app.get("/api/main")
+def api_main_page(
+    days: int = Query(7, ge=1, le=30)
+):
+    """
+    Coherent main page with clear narrative flow and curated content sections.
+    Creates a structured, digestible experience rather than scattered articles.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    try:
+        db_engine = _get_engine()
+        
+        # Get the top story of the day (highest impact)
+        with db_engine.connect() as conn:
+            top_story_row = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 1
+            """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
+        
+        # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
+        with db_engine.connect() as conn:
+            all_articles = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                ORDER BY s.composite_score DESC, a.published_at DESC
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            
+            # Filter for innovation articles in Python
+            cutting_edge_projects_rows = []
+            for row in all_articles:
+                article = dict(row)
+                topics = article.get('topics', [])
+                if 'innovation' in topics and len(cutting_edge_projects_rows) < 3 and article.get('composite_score', 0) > 50:
+                    cutting_edge_projects_rows.append(article)
+        
+        # Get cutting edge development (2-3 major infrastructure/city-changing stories)
+        with db_engine.connect() as conn:
+            all_articles_dev = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                ORDER BY s.composite_score DESC, a.published_at DESC
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+            
+            # Filter for unique_developments articles in Python
+            cutting_edge_development_rows = []
+            for row in all_articles_dev:
+                article = dict(row)
+                topics = article.get('topics', [])
+                if 'unique_developments' in topics and len(cutting_edge_development_rows) < 3 and article.get('composite_score', 0) > 60:
+                    cutting_edge_development_rows.append(article)
+        
+        # Get market movers (3-4 significant market developments)
+        with db_engine.connect() as conn:
+            market_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND ('market_news' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
+                  AND s.composite_score > 80  -- Only significant market developments
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 4
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+        
+        # Get insights & analysis (2-3 deep-dive pieces)
+        with db_engine.connect() as conn:
+            insights_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND 'insights' = ANY(s.topics)
+                  AND s.composite_score > 60  -- Only substantial insights
+                ORDER BY s.composite_score DESC, a.published_at DESC
+                LIMIT 3
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+        
+        # Get quick hits (4-5 brief updates)
+        with db_engine.connect() as conn:
+            quick_hits_rows = conn.execute(text("""
+                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                       s.project_stage, s.needs_fact_check, s.media_type
+                FROM articles a
+                JOIN article_scores s ON s.article_id = a.id
+                WHERE a.status != 'discarded'
+                  AND s.composite_score > 0
+                  AND a.published_at >= :cutoff
+                  AND s.composite_score BETWEEN 30 AND 80  -- Mid-tier but still relevant
+                ORDER BY a.published_at DESC, s.composite_score DESC
+                LIMIT 5
+            """), {"cutoff": cutoff.isoformat()}).mappings().all()
+        
+        # Convert rows to dicts and add context
+        top_story = dict(top_story_row) if top_story_row else None
+        if top_story:
+            top_story['section'] = 'top_story'
+            top_story['context'] = 'Today\'s most important story'
+        
+        cutting_edge_projects = [dict(row) for row in cutting_edge_projects_rows]
+        for article in cutting_edge_projects:
+            article['section'] = 'cutting_edge_projects'
+            article['context'] = 'Architectural innovation and entrepreneurial building science'
+        
+        cutting_edge_development = [dict(row) for row in cutting_edge_development_rows]
+        for article in cutting_edge_development:
+            article['section'] = 'cutting_edge_development'
+            article['context'] = 'Major infrastructure projects that change cities forever'
+        
+        market_movers = [dict(row) for row in market_rows]
+        for article in market_movers:
+            article['section'] = 'market_news'
+            article['context'] = 'Today\'s events affecting construction and real estate'
+        
+        insights_analysis = [dict(row) for row in insights_rows]
+        for article in insights_analysis:
+            article['section'] = 'insights'
+            article['context'] = 'Market intelligence and opportunity analysis'
+        
+        quick_hits = [dict(row) for row in quick_hits_rows]
+        for article in quick_hits:
+            article['section'] = 'quick_hits'
+            article['context'] = 'Brief updates and noteworthy developments'
+        
+        return {
+            "ok": True,
+            "page_title": "Building the Future - Today's Essential News",
+            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "sections": {
+                "top_story": {
+                    "title": "Today's Top Story",
+                    "description": "The most important development in construction and real estate",
+                    "articles": [top_story] if top_story else []
+                },
+                "market_news": {
+                    "title": "Market News",
+                    "description": "Today's events affecting construction and real estate",
+                    "articles": market_movers
+                },
+                "cutting_edge_projects": {
+                    "title": "Cutting Edge Projects", 
+                    "description": "Architectural innovation and entrepreneurial building science",
+                    "articles": cutting_edge_projects
+                },
+                "cutting_edge_development": {
+                    "title": "Cutting Edge Development",
+                    "description": "Major infrastructure that changes cities forever",
+                    "articles": cutting_edge_development
+                },
+                "insights": {
+                    "title": "Insights",
+                    "description": "Market intelligence and opportunity analysis", 
+                    "articles": insights_analysis
+                },
+                "quick_hits": {
+                    "title": "Quick Hits",
+                    "description": "Brief updates and noteworthy developments",
+                    "articles": quick_hits
+                }
+            },
+            "total_articles": len(cutting_edge_projects) + len(cutting_edge_development) + len(market_movers) + len(insights_analysis) + len(quick_hits) + (1 if top_story else 0),
+            "description": "Curated daily digest of the most important construction and real estate news"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@web_app.get("/api/categories/top")
+def api_categories_top():
+    """
+    Returns the top 3 articles for each category with new naming structure.
+    """
+    db_engine = _get_engine()
+    
+    # Define category mapping: frontend_name -> internal_topic (with fallbacks)
+    category_mapping = {
+        "market_news": "market_news",
+        "cutting_edge_projects": "innovation",  # Map to old topic name
+        "cutting_edge_development": "unique_developments",  # Map to old topic name  
+        "insights": "insights"
+    }
+    
+    result = {}
+    
+    with db_engine.connect() as conn:
+        # Get ALL articles and filter in Python - much simpler and more reliable
+        all_rows = conn.execute(text("""
+            SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
+                   s.composite_score, s.topics, s.geography, s.summary2, s.why1,
+                   s.project_stage, s.needs_fact_check, s.media_type
+            FROM articles a
+            JOIN article_scores s ON s.article_id = a.id
+            WHERE s.composite_score > 0
+              AND a.status != 'discarded'
+            ORDER BY s.composite_score DESC, a.published_at DESC
+        """)).mappings().all()
+        
+        # Filter articles by topics in Python
+        for frontend_name, internal_topic in category_mapping.items():
+            matching_articles = []
+            for row in all_rows:
+                article = dict(row)
+                topics = article.get('topics', [])
+                if internal_topic in topics and len(matching_articles) < 3:
+                    matching_articles.append(article)
+            result[frontend_name] = matching_articles
+    
+    return {"ok": True, "categories": result}
