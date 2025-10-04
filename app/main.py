@@ -259,7 +259,7 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'unique_developments' = ANY(s.topics)
                   AND s.composite_score > 60
-                  AND a.id != ALL(:exclude_ids)
+                  AND a.id NOT IN (SELECT unnest(:exclude_ids))
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
             """), {
@@ -284,7 +284,7 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND ('market_news' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
                   AND s.composite_score > 80  -- Only significant market developments
-                  AND a.id != ALL(:exclude_ids)
+                  AND a.id NOT IN (SELECT unnest(:exclude_ids))
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 4
             """), {
@@ -309,7 +309,7 @@ def api_main_page(
                   AND a.published_at >= :cutoff
                   AND 'insights' = ANY(s.topics)
                   AND s.composite_score > 60  -- Only substantial insights
-                  AND a.id != ALL(:exclude_ids)
+                  AND a.id NOT IN (SELECT unnest(:exclude_ids))
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 3
             """), {
@@ -331,7 +331,7 @@ def api_main_page(
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
                   AND a.published_at >= :cutoff
-                  AND a.id != ALL(:exclude_ids)  -- Exclude all previously used articles
+                  AND a.id NOT IN (SELECT unnest(:exclude_ids))  -- Exclude all previously used articles
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 5
             """), {
