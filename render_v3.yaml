@@ -8,7 +8,7 @@ services:
     env: python
     region: oregon
     plan: starter
-    buildCommand: pip install -r requirements_v3.txt && python -m app.init_v3 quick
+    buildCommand: pip install -r requirements_v3.txt
     startCommand: uvicorn app.main_v3:web_app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/v3/health
     envVars:
