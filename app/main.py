@@ -36,6 +36,11 @@ def v3_test():
     """Simple V3 test endpoint"""
     return {"status": "ok", "version": "v3-test", "message": "V3 endpoints are working"}
 
+@web_app.get("/api/v3/simple")
+def v3_simple():
+    """Ultra simple V3 endpoint"""
+    return {"working": True}
+
 # --- health & root ---
 @web_app.get("/health")
 @web_app.get("/healthz")
