@@ -1,0 +1,224 @@
+{
+  "professional_sources": {
+    "construction_industry": {
+      "name": "Construction Industry",
+      "feeds": [
+        {
+          "url": "https://www.enr.com/rss",
+          "name": "Engineering News-Record",
+          "quality_score": 95,
+          "description": "Leading construction industry publication"
+        },
+        {
+          "url": "https://www.constructiondive.com/feeds/",
+          "name": "Construction Dive",
+          "quality_score": 90,
+          "description": "Construction industry news and analysis"
+        },
+        {
+          "url": "https://www.bdcnetwork.com/rss.xml",
+          "name": "Building Design+Construction",
+          "quality_score": 88,
+          "description": "Commercial construction and design"
+        },
+        {
+          "url": "https://www.constructionexec.com/feed/",
+          "name": "Construction Executive",
+          "quality_score": 85,
+          "description": "Construction management and business"
+        }
+      ]
+    },
+    "real_estate_commercial": {
+      "name": "Commercial Real Estate",
+      "feeds": [
+        {
+          "url": "https://www.commercialobserver.com/feed/",
+          "name": "Commercial Observer",
+          "quality_score": 92,
+          "description": "NYC and national commercial real estate"
+        },
+        {
+          "url": "https://www.globest.com/rss/",
+          "name": "GlobeSt",
+          "quality_score": 90,
+          "description": "Commercial real estate news"
+        },
+        {
+          "url": "https://www.bisnow.com/rss",
+          "name": "Bisnow",
+          "quality_score": 88,
+          "description": "Commercial real estate events and news"
+        },
+        {
+          "url": "https://www.realestateweekly.com/feed/",
+          "name": "Real Estate Weekly",
+          "quality_score": 85,
+          "description": "NYC real estate market insights"
+        }
+      ]
+    },
+    "investment_finance": {
+      "name": "Real Estate Investment & Finance",
+      "feeds": [
+        {
+          "url": "https://www.penews.com/rss/",
+          "name": "Private Equity Real Estate",
+          "quality_score": 95,
+          "description": "Private equity real estate investments"
+        },
+        {
+          "url": "https://www.reit.com/rss",
+          "name": "NAREIT",
+          "quality_score": 92,
+          "description": "REIT industry news and analysis"
+        },
+        {
+          "url": "https://www.realestateinvesting.com/feed/",
+          "name": "Real Estate Investing",
+          "quality_score": 88,
+          "description": "Investment strategies and market analysis"
+        }
+      ]
+    },
+    "technology_innovation": {
+      "name": "Construction Technology & Innovation",
+      "feeds": [
+        {
+          "url": "https://www.constructiontech.com/feed/",
+          "name": "Construction Technology",
+          "quality_score": 90,
+          "description": "Construction technology and innovation"
+        },
+        {
+          "url": "https://www.builtworlds.com/rss/",
+          "name": "BuiltWorlds",
+          "quality_score": 88,
+          "description": "Built environment technology"
+        },
+        {
+          "url": "https://www.procore.com/blog/rss.xml",
+          "name": "Procore Blog",
+          "quality_score": 85,
+          "description": "Construction management technology"
+        }
+      ]
+    },
+    "architecture_design": {
+      "name": "Architecture & Design",
+      "feeds": [
+        {
+          "url": "https://www.archdaily.com/rss",
+          "name": "ArchDaily",
+          "quality_score": 92,
+          "description": "Architecture and design news"
+        },
+        {
+          "url": "https://www.dezeen.com/feed/",
+          "name": "Dezeen",
+          "quality_score": 90,
+          "description": "Architecture and design"
+        },
+        {
+          "url": "https://www.architectmagazine.com/rss",
+          "name": "Architect Magazine",
+          "quality_score": 88,
+          "description": "Professional architecture"
+        }
+      ]
+    },
+    "sustainability_green": {
+      "name": "Sustainability & Green Building",
+      "feeds": [
+        {
+          "url": "https://www.greenbuildingadvisor.com/rss.xml",
+          "name": "Green Building Advisor",
+          "quality_score": 85,
+          "description": "Green building and sustainability"
+        },
+        {
+          "url": "https://www.usgbc.org/rss",
+          "name": "USGBC",
+          "quality_score": 90,
+          "description": "LEED and green building standards"
+        },
+        {
+          "url": "https://www.buildinggreen.com/rss",
+          "name": "BuildingGreen",
+          "quality_score": 88,
+          "description": "Sustainable building practices"
+        }
+      ]
+    },
+    "market_research": {
+      "name": "Market Research & Analysis",
+      "feeds": [
+        {
+          "url": "https://www.cbre.com/rss",
+          "name": "CBRE Research",
+          "quality_score": 95,
+          "description": "Global real estate market research"
+        },
+        {
+          "url": "https://www.jll.com/rss",
+          "name": "JLL Research",
+          "quality_score": 95,
+          "description": "Real estate market intelligence"
+        },
+        {
+          "url": "https://www.cushmanwakefield.com/rss",
+          "name": "Cushman & Wakefield",
+          "quality_score": 92,
+          "description": "Commercial real estate insights"
+        }
+      ]
+    }
+  },
+  "insight_scrapers": {
+    "high_quality_sources": [
+      {
+        "url": "https://am.jpmorgan.com/us/en/asset-management/adv/insights/",
+        "name": "J.P. Morgan Asset Management",
+        "quality_score": 95,
+        "description": "Investment insights and market analysis"
+      },
+      {
+        "url": "https://www.creanalyst.com/insights/",
+        "name": "CRE Analyst",
+        "quality_score": 90,
+        "description": "Commercial real estate analysis"
+      },
+      {
+        "url": "https://creinsightjournal.com/",
+        "name": "CRE Insight Journal",
+        "quality_score": 88,
+        "description": "Commercial real estate insights"
+      },
+      {
+        "url": "https://www.nar.realtor/commercial-real-estate-market-insights",
+        "name": "NAR Commercial Real Estate",
+        "quality_score": 92,
+        "description": "Market insights and research"
+      }
+    ]
+  },
+  "google_search_queries": {
+    "high_opportunity_content": [
+      "billion dollar construction projects 2025",
+      "major real estate development deals",
+      "construction technology investment funding",
+      "commercial real estate market trends",
+      "modular construction success stories",
+      "mass timber construction projects",
+      "smart building technology implementation",
+      "construction automation ROI",
+      "real estate investment opportunities",
+      "affordable housing development projects",
+      "data center construction boom",
+      "renewable energy construction projects",
+      "mixed-use development case studies",
+      "construction cost reduction technology",
+      "building information modeling benefits"
+    ]
+  }
+}

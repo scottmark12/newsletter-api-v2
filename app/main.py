@@ -73,6 +73,16 @@ def ingest_start(limit: int = Query(50, ge=1, le=500), tasks: BackgroundTasks = 
         tasks.add_task(crawler.run, limit)
     return {"ok": True, "started": True, "limit": limit}
 
+@web_app.post("/ingest/enhanced")
+def enhanced_ingest_run(limit: int = Query(100, ge=1, le=500)):
+    """Enhanced ingestion using professional sources and web scraping"""
+    try:
+        from .enhanced_crawler import enhanced_ingest_run
+        result = enhanced_ingest_run(limit)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
 @web_app.post("/score/run")
 def score_run(limit: int = Query(50, ge=1, le=500)):
     try:
