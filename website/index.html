@@ -438,7 +438,7 @@
 
     <script>
         // API Configuration
-        const API_BASE = 'https://newsletter-api-v3-clean.onrender.com';
+        const API_BASE = 'https://newsletter-api-v2.onrender.com';
         
         // Theme configuration
         const THEMES = {
@@ -500,17 +500,44 @@
             hideContent('themes-container');
 
             try {
-                const themes = await Promise.all(
-                    Object.keys(THEMES).map(async (themeName) => {
-                        const response = await fetch(`${API_BASE}/api/v3/${themeName}`);
-                        const data = await response.json();
-                        return {
-                            name: themeName,
-                            data: data,
-                            config: THEMES[themeName]
-                        };
-                    })
-                );
+                // Get all articles first
+                const articlesResponse = await fetch(`${API_BASE}/api/articles?limit=50`);
+                const articlesData = await articlesResponse.json();
+                const articles = articlesData.items || articlesData || [];
+                
+                // Group articles by topics
+                const themes = Object.keys(THEMES).map(themeName => {
+                    const config = THEMES[themeName];
+                    let themeArticles = [];
+                    
+                    // Map topics to theme names
+                    if (themeName === 'opportunities') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && (
+                                article.topics.includes('big_returns') || 
+                                article.topics.includes('market_transformations')
+                            )
+                        );
+                    } else if (themeName === 'practices') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && article.topics.includes('material_breakthroughs')
+                        );
+                    } else if (themeName === 'systems') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && article.topics.includes('market_transformations')
+                        );
+                    } else if (themeName === 'vision') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && article.topics.includes('material_breakthroughs')
+                        );
+                    }
+                    
+                    return {
+                        name: themeName,
+                        data: { articles: themeArticles },
+                        config: config
+                    };
+                });
 
                 displayThemes(themes);
                 hideLoading('loading');
@@ -534,11 +561,37 @@
             hideContent('articles-grid');
 
             try {
-                const response = await fetch(`${API_BASE}/api/v3/${themeName}`);
-                const data = await response.json();
+                // Get all articles and filter by theme
+                const articlesResponse = await fetch(`${API_BASE}/api/articles?limit=50`);
+                const articlesData = await articlesResponse.json();
+                const articles = articlesData.items || articlesData || [];
+                
+                let themeArticles = [];
+                
+                // Map topics to theme names
+                if (themeName === 'opportunities') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && (
+                            article.topics.includes('big_returns') || 
+                            article.topics.includes('market_transformations')
+                        )
+                    );
+                } else if (themeName === 'practices') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && article.topics.includes('material_breakthroughs')
+                    );
+                } else if (themeName === 'systems') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && article.topics.includes('market_transformations')
+                    );
+                } else if (themeName === 'vision') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && article.topics.includes('material_breakthroughs')
+                    );
+                }
 
-                if (data.articles && data.articles.length > 0) {
-                    displayArticles(data.articles, themeName);
+                if (themeArticles && themeArticles.length > 0) {
+                    displayArticles(themeArticles, themeName);
                     hideLoading('theme-loading');
                     showContent('articles-grid');
                 } else {
