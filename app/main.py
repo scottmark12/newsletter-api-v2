@@ -803,6 +803,11 @@ def get_vision(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@web_app.get("/api/v3/test")
+def v3_test():
+    """Simple V3 test endpoint"""
+    return {"status": "ok", "version": "v3-test"}
+
 @web_app.get("/api/v3/health")
 def v3_health_check():
     """V3 health check endpoint"""
