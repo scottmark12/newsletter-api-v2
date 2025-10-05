@@ -453,7 +453,11 @@ def api_articles(
                            s.summary2, s.why1, s.project_stage, s.needs_fact_check, s.media_type
                     FROM articles a
                     LEFT JOIN article_scores s ON s.article_id = a.id
-                    WHERE a.status != 'discarded' AND (
+                    WHERE a.status != 'discarded' 
+                    AND a.url NOT LIKE '%/question/%'
+                    AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%piano%')
+                    AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%water heater%')
+                    AND (
                         (a.published_at IS NOT NULL AND a.published_at >= :cutoff)
                         OR
                         (a.published_at IS NULL AND a.fetched_at >= :cutoff)
@@ -505,7 +509,10 @@ def api_main_page(
                 JOIN article_scores s ON s.article_id = a.id
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
-                    AND a.published_at >= :cutoff
+                  AND a.url NOT LIKE '%/question/%'
+                  AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%piano%')
+                  AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%water heater%')
+                  AND a.published_at >= :cutoff
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 1
             """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
@@ -521,6 +528,9 @@ def api_main_page(
                 JOIN article_scores s ON s.article_id = a.id
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
+                  AND a.url NOT LIKE '%/question/%'
+                  AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%piano%')
+                  AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%water heater%')
                   AND a.published_at >= :cutoff
                   AND 'innovation' = ANY(s.topics)
                   AND s.composite_score > 50
