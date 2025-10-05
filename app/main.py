@@ -814,7 +814,7 @@ def v3_health_check():
             conn.execute(text("SELECT 1"))
             
             # Get basic stats
-                   stats_query = text("""
+            stats_query = text("""
                        SELECT 
                            COUNT(*) as total_articles,
                            COUNT(CASE WHEN s.article_id IS NOT NULL THEN 1 END) as scored_articles,
