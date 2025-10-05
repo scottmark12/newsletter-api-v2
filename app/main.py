@@ -34,7 +34,7 @@ web_app.add_middleware(
 @web_app.get("/health")
 @web_app.get("/healthz")
 def health():
-    return {"ok": True, "debug": "deployment_test_v3"}
+    return {"ok": True, "debug": "deployment_test_v4", "timestamp": datetime.now().isoformat(), "version": "1.0.1", "status": "active"}
 
 @web_app.get("/")
 def root():
