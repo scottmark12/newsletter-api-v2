@@ -184,6 +184,83 @@ def scrape_insights(limit: int = Query(50, ge=1, le=200)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
+@web_app.post("/ingest/blocked-sources")
+def scrape_blocked_sources(limit: int = Query(50, ge=1, le=200)):
+    """Scrape content from sources that blocked RSS access"""
+    try:
+        from .blocked_sources_scraper import BlockedSourcesScraper
+        from .db import SessionLocal
+        from sqlalchemy import text
+        import uuid
+        
+        scraper = BlockedSourcesScraper()
+        
+        # Scrape articles from blocked sources
+        articles = scraper.scrape_all_blocked_sources(limit)
+        
+        # Save to database
+        saved_count = 0
+        db = SessionLocal()
+        
+        try:
+            for article in articles:
+                try:
+                    # Check if article already exists
+                    existing = db.execute(
+                        text("SELECT id FROM articles WHERE url = :url"),
+                        {"url": article['url']}
+                    ).fetchone()
+                    
+                    if existing:
+                        continue
+                    
+                    # Insert new article
+                    article_id = str(uuid.uuid4())
+                    
+                    db.execute(text("""
+                        INSERT INTO articles (
+                            id, title, url, summary_raw, content, published_at, 
+                            fetched_at, lang, source, status
+                        ) VALUES (
+                            :id, :title, :url, :summary, :content, :published_at,
+                            :fetched_at, :lang, :source, 'new'
+                        )
+                    """), {
+                        "id": article_id,
+                        "title": article['title'],
+                        "url": article['url'],
+                        "summary": article['summary'],
+                        "content": article['summary'],  # Use summary as content for now
+                        "published_at": article['published_at'],
+                        "fetched_at": article['fetched_at'],
+                        "lang": "en",
+                        "source": article['source']
+                    })
+                    
+                    saved_count += 1
+                    
+                except Exception as e:
+                    print(f"Error saving article: {e}")
+                    continue
+            
+            db.commit()
+            
+        except Exception as e:
+            print(f"Database error: {e}")
+            db.rollback()
+        finally:
+            db.close()
+        
+        return {
+            "ok": True,
+            "scraped": len(articles),
+            "saved": saved_count,
+            "sources": ["CBRE", "JLL", "Cushman & Wakefield", "Blackstone", "Bisnow", "ENR"]
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
 @web_app.post("/score/run")
 def score_run(limit: int = Query(50, ge=1, le=500)):
     try:
