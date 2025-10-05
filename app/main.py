@@ -585,40 +585,6 @@ def v3_test():
 
 # Temporarily commented out all complex V3 endpoints to debug deployment issues
 
-@web_app.get("/api/v3/health")
-def v3_health_check():
-    """V3 health check endpoint"""
-    try:
-        db_engine = _get_engine()
-        
-        with db_engine.connect() as conn:
-            # Check database connection
-            conn.execute(text("SELECT 1"))
-            
-            # Get basic stats
-            stats_query = text("""
-                       SELECT 
-                           COUNT(*) as total_articles,
-                           COUNT(CASE WHEN s.article_id IS NOT NULL THEN 1 END) as scored_articles,
-                           AVG(s.composite_score) as avg_score
-                       FROM articles a
-                       LEFT JOIN article_scores s ON s.article_id = a.id
-                   """)
-            
-            stats = conn.execute(stats_query).fetchone()
-        
-        return {
-            "status": "healthy",
-            "version": "3.0.0 (compatible)",
-            "database": "connected",
-            "stats": dict(stats._mapping),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-        
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "version": "3.0.0 (compatible)",
-            "error": str(e),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
+# Temporarily commented out V3 health check to debug endpoint registration
+# @web_app.get("/api/v3/health")
+# def v3_health_check():
