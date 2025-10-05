@@ -1,0 +1,34 @@
+{
+  "tier_1_sources": [
+    "https://commercialobserver.com/feed/",
+    "https://www.constructiondive.com/feeds/news/",
+    "https://www.dezeen.com/feed/",
+    "https://www.smartcitiesdive.com/feeds/news/",
+    "https://aecmag.com/feed/",
+    "https://www.archdaily.com/feed",
+    "https://therealdeal.com/national/feed/",
+    "https://therealdeal.com/miami/feed/",
+    "https://therealdeal.com/new-york/feed/",
+    "https://therealdeal.com/la/feed/"
+  ],
+  "sustainability_green": [
+    "https://www.greenbuildingadvisor.com/feed/",
+    "https://www.buildinggreen.com/feed/",
+    "https://www.architecture2030.org/feed/",
+    "https://www.carbonleadershipforum.org/feed/",
+    "https://www.woodworks.org/feed/"
+  ],
+  "real_estate_investment": [
+    "https://www.realestateinvesting.com/feed/",
+    "https://www.yardimatrix.com/blog/feed/"
+  ],
+  "technology_innovation": [
+    "https://www.dezeen.com/technology/feed/",
+    "https://www.constructiondive.com/feeds/news/"
+  ],
+  "youtube_content": [
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbDw",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC0intLFzLaudFG-xAvUEO-A",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCAL3JXZSzSm8AlZyD3nQdBA"
+  ]
+}

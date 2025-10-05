@@ -3,11 +3,13 @@
     "https://commercialobserver.com/feed/",
     "https://www.constructiondive.com/feeds/news/",
     "https://www.dezeen.com/feed/",
-    "https://www.construction.com/news/rss",
-    "https://www.bisnow.com/rss/all-markets/all-sectors",
-    "https://urbanland.uli.org/feed/",
-    "https://www.constructionexec.com/feed/",
-    "https://www.realestateweekly.com/feed/"
+    "https://www.smartcitiesdive.com/feeds/news/",
+    "https://aecmag.com/feed/",
+    "https://www.archdaily.com/feed",
+    "https://therealdeal.com/national/feed/",
+    "https://therealdeal.com/miami/feed/",
+    "https://therealdeal.com/new-york/feed/",
+    "https://therealdeal.com/la/feed/"
   ],
   "innovation_engineering": [
     "https://www.constructiondive.com/feeds/news/",
@@ -128,14 +130,14 @@
     "https://www.smartcitiesdive.com/feeds/news/",
     "https://commercialobserver.com/feed/",
     "https://www.dezeen.com/feed/",
-    "https://www.zillow.com/research/feed/",
-    "https://www.redfin.com/news/feed/",
-    "https://www.brookings.edu/feed/",
-    "https://www.urban.org/rss.xml",
-    "https://rmi.org/feed/",
     "https://www.dezeen.com/technology/feed/",
-    "https://www.constructionexec.com/feed/",
-    "https://www.realestateweekly.com/feed/"
+    "https://aecmag.com/feed/",
+    "https://www.archdaily.com/feed",
+    "https://therealdeal.com/national/feed/",
+    "https://therealdeal.com/new-york/feed/",
+    "https://therealdeal.com/miami/feed/",
+    "https://therealdeal.com/la/feed/",
+    "https://www.realestateinvesting.com/feed/"
   ],
   "real_estate_news": [
     "https://therealdeal.com/feed/",
