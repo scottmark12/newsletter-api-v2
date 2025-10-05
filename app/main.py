@@ -46,6 +46,11 @@ def v3_hello():
     """Hello world V3 endpoint"""
     return {"hello": "world", "version": "v3"}
 
+@web_app.get("/test-simple")
+def test_simple():
+    """Simple test endpoint"""
+    return {"test": "working"}
+
 # --- health & root ---
 @web_app.get("/health")
 @web_app.get("/healthz")
