@@ -10,14 +10,6 @@ from .db import SessionLocal
 
 # Keywords that indicate non-developer content (furniture, experimental architecture, etc.)
 EXCLUDE_KEYWORDS = {
-<<<<<<< Updated upstream
-    "furniture","chair","table","desk","sofa","couch","lamp","lighting fixture",
-    "interior design","decor","decoration","aesthetic","artistic","conceptual",
-    "installation","exhibition","museum","gallery","art","sculpture","painting",
-    "fashion","clothing","textile","fabric","wallpaper","paint color","color scheme",
-    "experimental architecture","avant-garde","theoretical","philosophical",
-    "student project","academic","research paper","thesis","dissertation"
-=======
     # Furniture (only exact matches)
     "furniture design", "chair design", "table design", "sofa design", 
     "lamp design", "lighting fixture design",
@@ -49,7 +41,6 @@ EXCLUDE_KEYWORDS = {
     # Low-quality sources
     "greenbuildingadvisor.com/question", "forum", "community", "discussion",
     "reddit", "quora", "stackexchange"
->>>>>>> Stashed changes
 }
 
 KWS = {
