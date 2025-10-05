@@ -6,7 +6,16 @@
     "https://www.bisnow.com/rss/all-markets/all-sectors",
     "https://urbanland.uli.org/feed/",
     "https://www.constructiondive.com/feeds/news/",
-    "https://therealdeal.com/feed/"
+    "https://therealdeal.com/feed/",
+    "https://www.globest.com/rss/",
+    "https://www.reit.com/rss",
+    "https://www.penews.com/rss/",
+    "https://www.cbre.com/rss",
+    "https://www.jll.com/rss",
+    "https://www.cushmanwakefield.com/rss",
+    "https://www.bdcnetwork.com/rss.xml",
+    "https://www.constructionexec.com/feed/",
+    "https://www.realestateweekly.com/feed/"
   ],
   "innovation_engineering": [
     "https://www.constructiondive.com/feeds/news/",
@@ -114,7 +123,13 @@
     "https://www.archpaper.com/category/subject/urbanism/feed/"
   ],
   "investor_insights": [
-    "https://www.blackstone.com/insights/"
+    "https://www.blackstone.com/insights/",
+    "https://www.penews.com/rss/",
+    "https://www.reit.com/rss",
+    "https://www.realestateinvesting.com/feed/",
+    "https://www.institutionalrealestateinc.com/rss/",
+    "https://www.preqin.com/rss",
+    "https://www.pitchbook.com/rss"
   ],
   "priority_sites": [
     "https://www.constructiondive.com/feeds/news/",
@@ -132,7 +147,13 @@
     "https://www.cbre.com/insights",
     "https://www.cushmanwakefield.com/en/insights",
     "https://www.savills.com/insight-and-opinion/",
-    "https://www.colliers.com/en/research"
+    "https://www.colliers.com/en/research",
+    "https://www.enr.com/rss/all",
+    "https://www.globest.com/rss/",
+    "https://www.penews.com/rss/",
+    "https://www.reit.com/rss",
+    "https://www.constructionexec.com/feed/",
+    "https://www.realestateweekly.com/feed/"
   ],
   "real_estate_news": [
     "https://therealdeal.com/feed/",
