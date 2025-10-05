@@ -1,179 +1,42 @@
-# app/main.py
-import os
-import re
-from typing import Dict, Any, List
-from datetime import datetime, timedelta, timezone
-from urllib.parse import urlparse
+"""
+Newsletter API v3 - Clean Minimal Implementation
+Theme-based construction and real estate intelligence platform
+"""
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
-from fastapi.responses import HTMLResponse
+import os
+from typing import Dict, Any, List
+from datetime import datetime, timedelta
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 
-# # from .db import init_db  # Commented out for V3 compatibility  # Removed to prevent startup database initialization
-from . import crawler, scoring
-
-web_app = FastAPI(
-    title="Newsletter API",
-    version="1.0.0",
+# Create FastAPI app
+app = FastAPI(
+    title="Newsletter API v3",
+    version="3.0.0",
+    description="Theme-based construction and real estate intelligence platform",
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json",
 )
 
-# CORS so Lovable (or any browser client) can call your API
-web_app.add_middleware(
+# CORS middleware
+app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # replace with your Lovable app origin when known
+    allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["*"],          # include OPTIONS automatically
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# V3 Test endpoint - added early to test registration
-@web_app.get("/api/v3/test")
-def v3_test():
-    """Simple V3 test endpoint"""
-    return {"status": "ok", "version": "v3-test", "message": "V3 endpoints are working"}
-
-@web_app.get("/api/v3/simple")
-def v3_simple():
-    """Ultra simple V3 endpoint"""
-    return {"working": True}
-
-@web_app.get("/api/v3/hello")
-def v3_hello():
-    """Hello world V3 endpoint"""
-    return {"hello": "world", "version": "v3"}
-
-@web_app.get("/test-simple")
-def test_simple():
-    """Simple test endpoint"""
-    return {"test": "working"}
-
-# --- health & root ---
-@web_app.get("/health")
-@web_app.get("/healthz")
-def health():
-    return {"ok": True, "debug": "deployment_test_v2", "timestamp": "2025-10-05-03:55"}
-
-@web_app.get("/")
-def root():
-    return {"status": "ok", "docs": "/docs", "health": "/health"}
-
-# --- startup: ensure schema exists ---
-# Removed startup event handler to prevent database initialization during startup
-
-# --- actions ---
-@web_app.post("/ingest/run")
-def ingest_run(limit: int = Query(50, ge=1, le=500)):
-    try:
-        try:
-            result = crawler.run(limit=limit)
-        except TypeError:
-            result = crawler.run()
-        if isinstance(result, dict):
-            return result
-        return {"ok": True, "result": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-@web_app.post("/ingest/start", status_code=202)
-@web_app.get("/ingest/start", status_code=202)
-def ingest_start(limit: int = Query(50, ge=1, le=500), tasks: BackgroundTasks = None):
-    """
-    Start ingest in the background. FastAPI will inject BackgroundTasks.
-    We keep a tiny fallback to threading if for some reason it's not injected.
-    """
-    if tasks is None:
-        import threading
-        threading.Thread(target=crawler.run, kwargs={"limit": limit}, daemon=True).start()
-    else:
-        tasks.add_task(crawler.run, limit)
-    return {"ok": True, "started": True, "limit": limit}
-
-@web_app.post("/score/run")
-def score_run(limit: int = Query(50, ge=1, le=500)):
-    try:
-        result = scoring.run(limit=limit)
-        if isinstance(result, dict):
-            return result
-        return {"ok": True, "result": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-@web_app.post("/score/run-v2")
-def score_run_v2(limit: int = Query(50, ge=1, le=500)):
-    """Run the enhanced thematic scoring system v2"""
-    try:
-        from . import scoring_v2
-        result = scoring_v2.run_v2(limit=limit)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
-
-# ---- INTELLIGENCE SYNTHESIS ENDPOINTS ----
-
-@web_app.post("/ingest/research")
-def ingest_research(limit: int = Query(10, ge=1, le=50)):
-    """Ingest research reports from major CRE firms (JLL, CBRE, etc.)"""
-    try:
-        from . import pdf_handler
-        return pdf_handler.run(limit=limit)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@web_app.post("/ingest/videos")
-def ingest_videos(limit: int = Query(20, ge=1, le=100)):
-    """Ingest YouTube construction video transcripts"""
-    try:
-        from . import transcript_handler
-        return transcript_handler.run(limit=limit)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@web_app.get("/api/brief/narrative")
-def api_narrative_brief(days_back: int = Query(1, ge=1, le=7)):
-    """
-    Get AI-synthesized narrative brief that weaves together:
-    - News articles
-    - Research reports from JLL/CBRE  
-    - Video/podcast content
-    Into a coherent story with actual point of view
-    """
-    try:
-        from . import narrative_synthesis
-        result = narrative_synthesis.synthesize_daily_narrative(days_back=days_back)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@web_app.get("/api/content/recommended")
-def api_recommended_content(content_type: str = Query("video", regex="^(video|podcast)$")):
-    """Get recommended video or podcast for the day"""
-    try:
-        from . import narrative_synthesis
-        content = narrative_synthesis.get_recommended_content(content_type=content_type)
-        if content:
-            return {"ok": True, "recommended": content}
-        else:
-            return {"ok": True, "recommended": None, "message": f"No {content_type} content found"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# --- read-only viewer (safe) ---
-SAFE_TABLES = {"articles", "article_scores", "issues"}
-
-def _get_engine():
-    # Use direct database URL from environment
-    import os
+def get_database_engine():
+    """Get database engine with proper driver selection"""
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL environment variable not set")
     
     # Ensure we use the correct PostgreSQL driver
     if database_url.startswith("postgresql://"):
-        # Use psycopg (newer driver) if available, fallback to psycopg2
         try:
             import psycopg
             database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
@@ -186,415 +49,209 @@ def _get_engine():
     
     return create_engine(database_url)
 
-# ---- JSON FEED FOR LOVABLE (recent articles) ----
-@web_app.get("/api/articles")
-def api_articles(
-    limit: int = Query(20, ge=1, le=100),
-    since_hours: int = Query(24, ge=1, le=168),
-):
-    """
-    Returns recent articles as JSON for the frontend.
-    Use: GET /api/articles?limit=20&since_hours=24
-    """
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=since_hours)
-    try:
-        engine = _get_engine()
-        with engine.connect() as conn:
-            rows = conn.execute(
-                text("""
-                    SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.content,
-                           a.published_at, a.fetched_at, a.lang,
-                           s.composite_score, s.topics, s.geography, s.macro_flag,
-                           s.summary2, s.why1, s.project_stage, s.needs_fact_check, s.media_type
-                    FROM articles a
-                    LEFT JOIN article_scores s ON s.article_id = a.id
-                    WHERE a.status != 'discarded' AND (
-                        (a.published_at IS NOT NULL AND a.published_at >= :cutoff)
-                        OR
-                        (a.published_at IS NULL AND a.fetched_at >= :cutoff)
-                    )
-                    ORDER BY COALESCE(s.composite_score, 0) DESC, COALESCE(a.published_at, a.fetched_at) DESC
-                    LIMIT :limit
-                """),
-                {"cutoff": cutoff.isoformat(), "limit": limit},
-            ).mappings().all()
-        return {"ok": True, "count": len(rows), "items": [dict(r) for r in rows]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+# Health endpoints
+@app.get("/health")
+@app.get("/healthz")
+def health():
+    return {"ok": True, "version": "v3-clean", "timestamp": datetime.now().isoformat()}
 
-@web_app.get("/admin/table/{name}")
-def view_table(name: str, limit: int = Query(25, ge=1, le=500)):
-    if name not in SAFE_TABLES:
-        raise HTTPException(status_code=400, detail=f"table not allowed: {name}")
-    try:
-        engine = _get_engine()
-        with engine.connect() as conn:
-            rows = conn.execute(
-                text(f"SELECT * FROM {name} ORDER BY 1 DESC LIMIT :limit"),
-                {"limit": limit},
-            )
-            return [dict(r._mapping) for r in rows]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+@app.get("/")
+def root():
+    return {
+        "status": "ok", 
+        "version": "v3-clean",
+        "docs": "/docs", 
+        "health": "/health",
+        "endpoints": {
+            "themes": "/api/v3/themes",
+            "opportunities": "/api/v3/opportunities",
+            "practices": "/api/v3/practices",
+            "systems": "/api/v3/systems",
+            "vision": "/api/v3/vision"
+        }
+    }
 
-# ---- JSON FEED FOR LOVABLE (top articles by category) ----
-@web_app.get("/api/main")
-def api_main_page(
-    days: int = Query(7, ge=1, le=30)
-):
-    """
-    Coherent main page with clear narrative flow and curated content sections.
-    Creates a structured, digestible experience rather than scattered articles.
-    """
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-    try:
-        db_engine = _get_engine()
-        
-        # Get the top story of the day (highest impact)
-        with db_engine.connect() as conn:
-            top_story_row = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                  FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                    AND a.published_at >= :cutoff
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 1
-            """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
-        
-        # Get cutting edge projects (2-3 architectural/entrepreneurial innovation stories)
-        # Exclude the top story to avoid duplicates
-        with db_engine.connect() as conn:
-            cutting_edge_projects_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND 'innovation' = ANY(s.topics)
-                  AND s.composite_score > 50
-                  AND a.id != :exclude_top_story_id
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {
-                "cutoff": cutoff.isoformat(),
-                "exclude_top_story_id": top_story_row['id'] if top_story_row else None
-            }).mappings().all()
-        
-        # Collect used article IDs to prevent duplicates
-        used_article_ids = {top_story_row['id']} if top_story_row else set()
-        used_article_ids.update(row['id'] for row in cutting_edge_projects_rows)
-        
-        # Get cutting edge development (2-3 major infrastructure/city-changing stories)
-        # Exclude articles already used in other sections
-        with db_engine.connect() as conn:
-            cutting_edge_development_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND 'unique_developments' = ANY(s.topics)
-                  AND s.composite_score > 60
-                  AND a.id NOT IN (SELECT unnest(:exclude_ids))
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {
-                "cutoff": cutoff.isoformat(),
-                "exclude_ids": list(used_article_ids) if used_article_ids else []
-            }).mappings().all()
-        
-        # Update used article IDs
-        used_article_ids.update(row['id'] for row in cutting_edge_development_rows)
-        
-        # Get market movers (3-4 significant market developments)
-        # Exclude articles already used in other sections
-        with db_engine.connect() as conn:
-            market_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND ('market_news' = ANY(s.topics) OR 'unique_developments' = ANY(s.topics))
-                  AND s.composite_score > 80  -- Only significant market developments
-                  AND a.id NOT IN (SELECT unnest(:exclude_ids))
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 4
-            """), {
-                "cutoff": cutoff.isoformat(),
-                "exclude_ids": list(used_article_ids) if used_article_ids else []
-            }).mappings().all()
-        
-        # Update used article IDs
-        used_article_ids.update(row['id'] for row in market_rows)
-        
-        # Get insights & analysis (2-3 deep-dive pieces)
-        # Exclude articles already used in other sections
-        with db_engine.connect() as conn:
-            insights_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND 'insights' = ANY(s.topics)
-                  AND s.composite_score > 60  -- Only substantial insights
-                  AND a.id NOT IN (SELECT unnest(:exclude_ids))
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 3
-            """), {
-                "cutoff": cutoff.isoformat(),
-                "exclude_ids": list(used_article_ids) if used_article_ids else []
-            }).mappings().all()
-        
-        # Update used article IDs
-        used_article_ids.update(row['id'] for row in insights_rows)
-        
-        # Get quick hits (top 5 highest scores excluding all previously used articles)
-        with db_engine.connect() as conn:
-            quick_hits_rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
-                  AND a.id NOT IN (SELECT unnest(:exclude_ids))  -- Exclude all previously used articles
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 5
-            """), {
-                "cutoff": cutoff.isoformat(),
-                "exclude_ids": list(used_article_ids) if used_article_ids else []
-            }).mappings().all()
-        
-        # Convert rows to dicts and add context
-        top_story = dict(top_story_row) if top_story_row else None
-        if top_story:
-            top_story['section'] = 'top_story'
-            top_story['context'] = 'Today\'s most important story'
-        
-        cutting_edge_projects = [dict(row) for row in cutting_edge_projects_rows]
-        for article in cutting_edge_projects:
-            article['section'] = 'cutting_edge_projects'
-            article['context'] = 'Architectural innovation and entrepreneurial building science'
-        
-        cutting_edge_development = [dict(row) for row in cutting_edge_development_rows]
-        for article in cutting_edge_development:
-            article['section'] = 'cutting_edge_development'
-            article['context'] = 'Major infrastructure projects that change cities forever'
-        
-        market_movers = [dict(row) for row in market_rows]
-        for article in market_movers:
-            article['section'] = 'market_news'
-            article['context'] = 'Today\'s events affecting construction and real estate'
-        
-        insights_analysis = [dict(row) for row in insights_rows]
-        for article in insights_analysis:
-            article['section'] = 'insights'
-            article['context'] = 'Market intelligence and opportunity analysis'
-        
-        quick_hits = [dict(row) for row in quick_hits_rows]
-        for article in quick_hits:
-            article['section'] = 'quick_hits'
-            article['context'] = 'Brief updates and noteworthy developments'
-        
-        return {
-            "ok": True,
-            "page_title": "Building the Future - Today's Essential News",
-            "last_updated": datetime.now(timezone.utc).isoformat(),
-            "sections": {
-                "top_story": {
-                    "title": "Today's Top Story",
-                    "description": "The most important development in construction and real estate",
-                    "articles": [top_story] if top_story else []
-                },
-                "market_news": {
-                    "title": "Market News",
-                    "description": "Today's events affecting construction and real estate",
-                    "articles": market_movers
-                },
-                "cutting_edge_projects": {
-                    "title": "Cutting Edge Projects", 
-                    "description": "Architectural innovation and entrepreneurial building science",
-                    "articles": cutting_edge_projects
-                },
-                "cutting_edge_development": {
-                    "title": "Cutting Edge Development",
-                    "description": "Major infrastructure that changes cities forever",
-                    "articles": cutting_edge_development
-                },
-                "insights": {
-                    "title": "Insights",
-                    "description": "Market intelligence and opportunity analysis", 
-                    "articles": insights_analysis
-                },
-                "quick_hits": {
-                    "title": "Quick Hits",
-                    "description": "Brief updates and noteworthy developments",
-                    "articles": quick_hits
-                }
+# V3 Theme-based endpoints
+@app.get("/api/v3/themes")
+def get_themes():
+    """Get available themes"""
+    return {
+        "themes": [
+            {
+                "id": "opportunities",
+                "name": "Opportunities",
+                "description": "Stories of transformation, investments, deals, and wealth-building examples"
             },
-            "total_articles": len(cutting_edge_projects) + len(cutting_edge_development) + len(market_movers) + len(insights_analysis) + len(quick_hits) + (1 if top_story else 0),
-            "description": "Curated daily digest of the most important construction and real estate news"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+            {
+                "id": "practices", 
+                "name": "Practices",
+                "description": "Building methods, design principles, process improvements, and lessons learned"
+            },
+            {
+                "id": "systems",
+                "name": "Systems & Codes", 
+                "description": "Policy updates, building code changes, zoning reforms, and regulatory unlocks"
+            },
+            {
+                "id": "vision",
+                "name": "Vision",
+                "description": "Smart cities, future-of-living models, community impact, and biophilic design"
+            }
+        ]
+    }
 
-@web_app.get("/api/categories/top")
-def api_categories_top():
-    """
-    Returns the top 3 articles for each category using priority-based categorization.
-    Each article appears in only its highest-priority category.
-    """
-    db_engine = _get_engine()
-    
-    # Define category priorities (higher number = higher priority)
-    category_priorities = {
-        "insights": 4,           # Highest priority - deep analysis
-        "cutting_edge_projects": 3,  # Innovation and new tech
-        "cutting_edge_development": 2,  # Major infrastructure 
-        "market_news": 1         # Lowest priority - general news
-    }
-    
-    # Map frontend names to internal topics
-    category_mapping = {
-        "market_news": "market_news",
-        "cutting_edge_projects": "innovation",
-        "cutting_edge_development": "unique_developments",  
-        "insights": "insights"
-    }
-    
-    result = {cat: [] for cat in category_mapping.keys()}
-    
-    with db_engine.connect() as conn:
-        # Get ALL articles with their topics
-        all_rows = conn.execute(text("""
-            SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                   s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                   s.project_stage, s.needs_fact_check, s.media_type
-            FROM articles a
-            JOIN article_scores s ON s.article_id = a.id
-            WHERE s.composite_score > 0
-              AND a.status != 'discarded'
-            ORDER BY s.composite_score DESC, a.published_at DESC
-        """)).mappings().all()
-        
-        # Assign each article to its highest-priority category
-        for row in all_rows:
-            article = dict(row)
-            topics = article.get('topics', [])
-            
-            # Find the highest-priority category this article qualifies for
-            best_category = None
-            best_priority = 0
-            
-            for frontend_name, internal_topic in category_mapping.items():
-                if internal_topic in topics:
-                    priority = category_priorities[frontend_name]
-                    if priority > best_priority:
-                        best_priority = priority
-                        best_category = frontend_name
-            
-            # Add to the best category if we found one and it's not full
-            if best_category and len(result[best_category]) < 3:
-                result[best_category].append(article)
-    
-    return {"ok": True, "categories": result}
-
-# ---- INDIVIDUAL FEED ENDPOINTS FOR LOVABLE ----
-@web_app.get("/api/feed/{feed_type}")
-def api_feed_by_type(feed_type: str, days: int = Query(7, ge=1, le=30)):
-    """
-    Returns articles for a specific feed type (market_news, cutting_edge_projects, etc.)
-    This endpoint is designed for Lovable frontend integration.
-    """
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-    
-    # Map feed types to internal topic names
-    feed_mapping = {
-        "market_news": "market_news",
-        "cutting_edge_projects": "innovation", 
-        "cutting_edge_development": "unique_developments",
-        "insights": "insights"
-    }
-    
-    if feed_type not in feed_mapping:
-        raise HTTPException(status_code=404, detail=f"Feed type '{feed_type}' not found")
-    
-    internal_topic = feed_mapping[feed_type]
-    
+@app.get("/api/v3/opportunities")
+def get_opportunities(limit: int = 10):
+    """Get opportunity-themed articles"""
     try:
-        db_engine = _get_engine()
-        
-        # Get articles for this specific topic
-        with db_engine.connect() as conn:
-            rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
-                       s.composite_score, s.topics, s.geography, s.summary2, s.why1,
-                       s.project_stage, s.needs_fact_check, s.media_type
-                  FROM articles a
-                  JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                  AND s.composite_score > 0
-                    AND a.published_at >= :cutoff
-                  AND :topic = ANY(s.topics)
-                ORDER BY s.composite_score DESC, a.published_at DESC
-                LIMIT 20
-            """), {
-                "cutoff": cutoff.isoformat(),
-                "topic": internal_topic
-            }).mappings().all()
-        
-        articles = [dict(row) for row in rows]
-        
-        # Add feed metadata
-        feed_titles = {
-            "market_news": "Market News",
-            "cutting_edge_projects": "Cutting Edge Projects", 
-            "cutting_edge_development": "Cutting Edge Development",
-            "insights": "Insights"
-        }
-        
-        feed_descriptions = {
-            "market_news": "Today's events affecting construction and real estate",
-            "cutting_edge_projects": "Architectural innovation and entrepreneurial building science",
-            "cutting_edge_development": "Major infrastructure projects that change cities forever", 
-            "insights": "Market intelligence and opportunity analysis"
-        }
-        
-        return {
-            "ok": True,
-            "feed_type": feed_type,
-            "title": feed_titles.get(feed_type, feed_type),
-            "description": feed_descriptions.get(feed_type, ""),
-            "count": len(articles),
-            "articles": articles,
-            "last_updated": datetime.now(timezone.utc).isoformat()
-        }
-        
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            # Simple query to get recent articles
+            result = conn.execute(text("""
+                SELECT a.id, a.title, a.url, a.published_at, a.summary,
+                       s.overall_score, s.opportunities_score
+                FROM articles a
+                LEFT JOIN article_scores s ON a.id = s.article_id
+                WHERE a.published_at >= NOW() - INTERVAL '7 days'
+                ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
+                    LIMIT :limit
+            """), {"limit": limit})
+            
+            articles = []
+            for row in result:
+                articles.append({
+                    "id": str(row.id),
+                    "title": row.title,
+                    "url": row.url,
+                    "published_at": row.published_at.isoformat() if row.published_at else None,
+                    "summary": row.summary,
+                    "overall_score": float(row.overall_score) if row.overall_score else 0.0,
+                    "opportunities_score": float(row.opportunities_score) if row.opportunities_score else 0.0
+                })
+            
+            return {
+                "theme": "opportunities",
+                "count": len(articles),
+                "articles": articles
+            }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"theme": "opportunities", "count": 0, "articles": [], "error": str(e)}
 
-# Test endpoint at the very end
-@web_app.get("/test-end")
-def test_end():
-    """Test endpoint at the end of file"""
-    return {"test": "end", "working": True}
+@app.get("/api/v3/practices")
+def get_practices(limit: int = 10):
+    """Get practice-themed articles"""
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT a.id, a.title, a.url, a.published_at, a.summary,
+                       s.overall_score, s.practices_score
+                FROM articles a
+                LEFT JOIN article_scores s ON a.id = s.article_id
+                WHERE a.published_at >= NOW() - INTERVAL '7 days'
+                ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
+                LIMIT :limit
+            """), {"limit": limit})
+            
+            articles = []
+            for row in result:
+                articles.append({
+                    "id": str(row.id),
+                    "title": row.title,
+                    "url": row.url,
+                    "published_at": row.published_at.isoformat() if row.published_at else None,
+                    "summary": row.summary,
+                    "overall_score": float(row.overall_score) if row.overall_score else 0.0,
+                    "practices_score": float(row.practices_score) if row.practices_score else 0.0
+                })
+            
+            return {
+                "theme": "practices",
+                "count": len(articles),
+                "articles": articles
+            }
+    except Exception as e:
+        return {"theme": "practices", "count": 0, "articles": [], "error": str(e)}
+
+@app.get("/api/v3/systems")
+def get_systems(limit: int = 10):
+    """Get systems & codes themed articles"""
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT a.id, a.title, a.url, a.published_at, a.summary,
+                       s.overall_score, s.systems_score
+                  FROM articles a
+                LEFT JOIN article_scores s ON a.id = s.article_id
+                WHERE a.published_at >= NOW() - INTERVAL '7 days'
+                ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
+                LIMIT :limit
+            """), {"limit": limit})
+            
+            articles = []
+            for row in result:
+                articles.append({
+                    "id": str(row.id),
+                    "title": row.title,
+                    "url": row.url,
+                    "published_at": row.published_at.isoformat() if row.published_at else None,
+                    "summary": row.summary,
+                    "overall_score": float(row.overall_score) if row.overall_score else 0.0,
+                    "systems_score": float(row.systems_score) if row.systems_score else 0.0
+                })
+            
+            return {
+                "theme": "systems",
+                "count": len(articles),
+                "articles": articles
+            }
+    except Exception as e:
+        return {"theme": "systems", "count": 0, "articles": [], "error": str(e)}
+
+@app.get("/api/v3/vision")
+def get_vision(limit: int = 10):
+    """Get vision-themed articles"""
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT a.id, a.title, a.url, a.published_at, a.summary,
+                       s.overall_score, s.vision_score
+                FROM articles a
+                LEFT JOIN article_scores s ON a.id = s.article_id
+                WHERE a.published_at >= NOW() - INTERVAL '7 days'
+                ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
+                LIMIT :limit
+            """), {"limit": limit})
+            
+            articles = []
+            for row in result:
+                articles.append({
+                    "id": str(row.id),
+                    "title": row.title,
+                    "url": row.url,
+                    "published_at": row.published_at.isoformat() if row.published_at else None,
+                    "summary": row.summary,
+                    "overall_score": float(row.overall_score) if row.overall_score else 0.0,
+                    "vision_score": float(row.vision_score) if row.vision_score else 0.0
+                })
+            
+            return {
+                "theme": "vision",
+                "count": len(articles),
+                "articles": articles
+            }
+    except Exception as e:
+        return {"theme": "vision", "count": 0, "articles": [], "error": str(e)}
+
+# Test endpoint
+@app.get("/api/v3/test")
+def test_endpoint():
+    """Test endpoint to verify V3 is working"""
+    return {
+        "status": "ok",
+        "version": "v3-clean",
+        "message": "V3 endpoints are working!",
+        "timestamp": datetime.now().isoformat()
+    }

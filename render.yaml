@@ -1,46 +1,10 @@
 services:
-  # Web API Service
   - type: web
-    name: newsletter-api-v2
+    name: newsletter-api-v3-clean
     env: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python -m uvicorn app.main:web_app --host 0.0.0.0 --port $PORT"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: newsletter-api-v2-db
-          property: connectionString
-      - key: OPENAI_API_KEY
-        sync: false  # You'll set this manually in Render dashboard
-      - key: GOOGLE_CSE_API_KEY
-        sync: false  # Optional - set if you want CSE features
-      - key: GOOGLE_CSE_CX_ID
-        sync: false  # Optional - set if you want CSE features
-
-  # Background Worker Service
-  - type: worker
-    name: newsletter-bg-worker
-    env: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python standalone_worker.py"  # Use standalone worker with explicit environment setup
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: newsletter-api-v2-db
-          property: connectionString
-      - key: OPENAI_API_KEY
-        sync: false  # You'll set this manually in Render dashboard
-      - key: GOOGLE_CSE_API_KEY
-        sync: false  # Optional - set if you want CSE features
-      - key: GOOGLE_CSE_CX_ID
-        sync: false  # Optional - set if you want CSE features
-      - key: TIMEZONE
-        value: "America/New_York"  # Adjust to your timezone
-
-databases:
-  - name: newsletter-api-v2-db
-    plan: free  # or 'starter' for production
-    databaseName: newsletter_api_v2
-    user: newsletter_api_user
+        sync: false  # Set this in Render dashboard
+    healthCheckPath: /health
