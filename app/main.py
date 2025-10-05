@@ -15,7 +15,7 @@ from . import crawler, scoring
 
 web_app = FastAPI(
     title="Newsletter API",
-    version="1.0.0",
+    version="1.0.1",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
