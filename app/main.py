@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 
-from .db import init_db
+# from .db import init_db  # Commented out for V3 compatibility
 from . import crawler, scoring
 
 web_app = FastAPI(
@@ -41,9 +41,9 @@ def root():
     return {"status": "ok", "docs": "/docs", "health": "/health"}
 
 # --- startup: ensure schema exists ---
-@web_app.on_event("startup")
-def on_startup():
-    init_db()
+# @web_app.on_event("startup")
+# def on_startup():
+#     init_db()  # Commented out to prevent V3 schema conflicts
 
 # --- actions ---
 @web_app.post("/ingest/run")
