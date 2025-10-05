@@ -11,8 +11,8 @@ from typing import List, Dict, Any
 
 # Create FastAPI app with completely new structure
 app = FastAPI(
-    title="Newsletter API - DEPLOYMENT FIX",
-    version="2.1.0-DEPLOYMENT-FIX",
+    title="Newsletter API - DB INITIALIZATION",
+    version="2.1.1-DB-INIT",
     description="Completely new API version with guaranteed database initialization"
 )
 
@@ -107,7 +107,7 @@ def health_check():
     """Health check endpoint"""
     return {
         "ok": True,
-        "version": "2.1.0-DEPLOYMENT-FIX",
+        "version": "2.1.1-DB-INIT",
         "timestamp": datetime.now().isoformat(),
         "database": "initialized",
         "status": "active"
@@ -119,7 +119,7 @@ def root_endpoint():
     """Root endpoint"""
     return {
         "status": "ok",
-        "version": "2.1.0-DEPLOYMENT-FIX",
+        "version": "2.1.1-DB-INIT",
         "message": "Newsletter API - NEW VERSION",
         "docs": "/docs",
         "health": "/health",
@@ -221,12 +221,12 @@ def get_articles(
         
         with engine.connect() as conn:
             rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.content,
-                       a.published_at, a.fetched_at, a.lang,
+                  SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.content,
+                         a.published_at, a.fetched_at, a.lang,
                        s.composite_score, s.topics, s.geography, s.macro_flag,
                        s.summary2, s.why1, s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                LEFT JOIN article_scores s ON s.article_id = a.id
+                  FROM articles a
+                  LEFT JOIN article_scores s ON s.article_id = a.id
                 WHERE a.status != 'discarded'
                 AND a.url NOT LIKE '%/question/%'
                 AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%piano%')
