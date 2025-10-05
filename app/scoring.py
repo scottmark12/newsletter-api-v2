@@ -10,12 +10,46 @@ from .db import SessionLocal
 
 # Keywords that indicate non-developer content (furniture, experimental architecture, etc.)
 EXCLUDE_KEYWORDS = {
+<<<<<<< Updated upstream
     "furniture","chair","table","desk","sofa","couch","lamp","lighting fixture",
     "interior design","decor","decoration","aesthetic","artistic","conceptual",
     "installation","exhibition","museum","gallery","art","sculpture","painting",
     "fashion","clothing","textile","fabric","wallpaper","paint color","color scheme",
     "experimental architecture","avant-garde","theoretical","philosophical",
     "student project","academic","research paper","thesis","dissertation"
+=======
+    # Furniture (only exact matches)
+    "furniture design", "chair design", "table design", "sofa design", 
+    "lamp design", "lighting fixture design",
+    
+    # Pure decorative/aesthetic content
+    "interior decoration", "wall decoration", "room decoration",
+    "paint colors", "color schemes", "aesthetic design",
+    
+    # Art and exhibitions (only if not about buildings)
+    "art exhibition", "art gallery", "art museum", "sculpture exhibition",
+    "painting exhibition", "art installation",
+    
+    # Fashion (not building-related)
+    "fashion design", "clothing design", "textile design", "fabric design",
+    
+    # Academic/theoretical (only pure academic)
+    "student thesis", "dissertation", "academic paper", "research paper",
+    "theoretical architecture", "philosophical architecture",
+    
+    # Forum posts and low-quality content
+    "question:", "help needed", "advice needed", "looking for advice",
+    "any suggestions", "what should i", "how do i", "can someone help",
+    "forum post", "discussion thread", "community post",
+    
+    # Personal/homeowner questions
+    "my house", "my home", "my basement", "my shower", "my water heater",
+    "my piano", "my floor", "my room", "my garage",
+    
+    # Low-quality sources
+    "greenbuildingadvisor.com/question", "forum", "community", "discussion",
+    "reddit", "quora", "stackexchange"
+>>>>>>> Stashed changes
 }
 
 KWS = {
@@ -418,6 +452,51 @@ def developer_focused_score(row: Dict[str, Any]) -> Dict[str, Any]:
         row.get("content") or ""
     ])
     t = text_blob.lower()
+    
+    # 🚫 QUALITY FILTERS - Reject low-quality content early
+    
+    # 1. Minimum content length (reject very short articles)
+    if len(text_blob.strip()) < 500:
+        return {"composite_score": 0, "exclusion_reason": "Content too short (< 500 chars)"}
+    
+    # 2. Reject forum posts and Q&A content
+    forum_indicators = [
+        "question:", "help needed", "advice needed", "looking for advice",
+        "any suggestions", "what should i", "how do i", "can someone help",
+        "forum post", "discussion thread", "community post"
+    ]
+    
+    if any(indicator in t for indicator in forum_indicators):
+        return {"composite_score": 0, "exclusion_reason": "Forum post or Q&A content"}
+    
+    # 3. Reject personal/homeowner questions
+    personal_indicators = [
+        "my house", "my home", "my basement", "my shower", "my water heater",
+        "my piano", "my floor", "my room", "my garage", "my kitchen"
+    ]
+    
+    if any(indicator in t for indicator in personal_indicators):
+        return {"composite_score": 0, "exclusion_reason": "Personal/homeowner question"}
+    
+    # 4. Reject low-quality sources
+    url = row.get("url", "").lower()
+    low_quality_sources = [
+        "greenbuildingadvisor.com/question", "forum", "community", "discussion",
+        "reddit", "quora", "stackexchange", "yahoo answers"
+    ]
+    
+    if any(source in url for source in low_quality_sources):
+        return {"composite_score": 0, "exclusion_reason": "Low-quality source"}
+    
+    # 5. Require professional/industry content indicators
+    professional_indicators = [
+        "construction", "development", "building", "real estate", "property",
+        "investment", "project", "development", "infrastructure", "architecture",
+        "engineering", "technology", "innovation", "market", "industry"
+    ]
+    
+    if not any(indicator in t for indicator in professional_indicators):
+        return {"composite_score": 0, "exclusion_reason": "Not professional/industry content"}
     
     # Get topics first before any calculations
     topics = _tag_categories(text_blob)
