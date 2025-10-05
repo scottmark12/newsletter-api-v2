@@ -34,7 +34,7 @@ web_app.add_middleware(
 @web_app.get("/health")
 @web_app.get("/healthz")
 def health():
-    return {"ok": True, "debug": "deployment_test_v4", "timestamp": datetime.now().isoformat(), "version": "1.0.1", "status": "active"}
+    return {"ok": True, "debug": "deployment_test_v5", "timestamp": datetime.now().isoformat(), "version": "1.0.2", "status": "active", "filtering": "enabled"}
 
 @web_app.get("/")
 def root():
@@ -512,7 +512,7 @@ def api_main_page(
                   AND a.url NOT LIKE '%/question/%'
                   AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%piano%')
                   AND NOT (a.source = 'GreenBuildingAdvisor' AND a.title ILIKE '%water heater%')
-                  AND a.published_at >= :cutoff
+                    AND a.published_at >= :cutoff
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 1
             """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
