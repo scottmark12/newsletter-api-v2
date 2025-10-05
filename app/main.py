@@ -187,7 +187,7 @@ def get_systems(limit: int = 10):
                 LEFT JOIN article_scores s ON a.id = s.article_id
                 WHERE a.published_at >= NOW() - INTERVAL '7 days'
                 ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
-                LIMIT :limit
+                    LIMIT :limit
             """), {"limit": limit})
             
             articles = []
@@ -333,6 +333,53 @@ def get_main_page(limit: int = 10):
                 "generated_at": datetime.now().isoformat(),
                 "version": "v3-clean"
             }
+        }
+
+# Database management endpoints
+@app.post("/api/v3/admin/clear-db")
+def clear_database():
+    """Clear all articles and scores from the database"""
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            # Clear article scores first (foreign key constraint)
+            conn.execute(text("DELETE FROM article_scores"))
+            conn.execute(text("DELETE FROM articles"))
+            conn.commit()
+            
+            return {
+                "status": "success",
+                "message": "Database cleared successfully",
+                "timestamp": datetime.now().isoformat()
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+
+@app.get("/api/v3/admin/db-status")
+def database_status():
+    """Check database status and article count"""
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            # Count articles
+            article_count = conn.execute(text("SELECT COUNT(*) FROM articles")).scalar()
+            score_count = conn.execute(text("SELECT COUNT(*) FROM article_scores")).scalar()
+            
+            return {
+                "status": "connected",
+                "articles": article_count,
+                "scores": score_count,
+                "timestamp": datetime.now().isoformat()
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat()
         }
 
 # Test endpoint
