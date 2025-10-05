@@ -571,20 +571,3 @@ def api_feed_by_type(feed_type: str, days: int = Query(7, ge=1, le=30)):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@web_app.get("/api/v3/test")
-def v3_test():
-    """Simple V3 test endpoint"""
-    return {"status": "ok", "version": "v3-test", "message": "V3 endpoints are working"}
-
-# V3 Theme-based endpoints - added directly to avoid import issues
-
-# Temporarily commented out complex V3 endpoints to debug deployment issues
-# @web_app.get("/api/v3/opportunities")
-# def get_opportunities(...):
-
-# Temporarily commented out all complex V3 endpoints to debug deployment issues
-
-# Temporarily commented out V3 health check to debug endpoint registration
-# @web_app.get("/api/v3/health")
-# def v3_health_check():
