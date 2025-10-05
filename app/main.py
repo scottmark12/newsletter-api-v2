@@ -30,6 +30,12 @@ web_app.add_middleware(
     allow_headers=["*"],
 )
 
+# V3 Test endpoint - added early to test registration
+@web_app.get("/api/v3/test")
+def v3_test():
+    """Simple V3 test endpoint"""
+    return {"status": "ok", "version": "v3-test", "message": "V3 endpoints are working"}
+
 # --- health & root ---
 @web_app.get("/health")
 @web_app.get("/healthz")
