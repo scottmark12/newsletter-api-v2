@@ -1,18 +1,9 @@
 """
-Minimal working API for newsletter database initialization
+Database initialization module
 """
 
-from fastapi import FastAPI, Query
-from datetime import datetime, timezone, timedelta
 import os
 from sqlalchemy import create_engine, text
-
-# Create FastAPI app
-app = FastAPI(
-    title="Newsletter API - Working Version",
-    version="1.0.0",
-    description="Minimal working API for database initialization"
-)
 
 def get_engine():
     """Get database engine"""
@@ -85,37 +76,6 @@ def init_database():
         print(f"Database initialization failed: {e}")
         return False
 
-@app.on_event("startup")
-def startup():
-    """Initialize database on startup"""
-    print("🚀 Starting Newsletter API - Working Version")
-    if init_database():
-        print("✅ Database initialized successfully")
-    else:
-        print("⚠️ Database initialization failed")
-
-@app.get("/health")
-def health():
-    """Health check endpoint"""
-    return {
-        "ok": True,
-        "version": "1.0.1-working-FINAL",
-        "timestamp": datetime.now().isoformat(),
-        "database": "initialized"
-    }
-
-@app.get("/")
-def root():
-    """Root endpoint"""
-    return {
-        "status": "ok",
-        "version": "1.0.1-working-FINAL",
-        "docs": "/docs",
-        "health": "/health",
-        "endpoints": ["/health", "/test-db", "/clear-db"]
-    }
-
-@app.get("/test-db")
 def test_database():
     """Test database connection and tables"""
     try:
@@ -132,71 +92,10 @@ def test_database():
             return {
                 "ok": True,
                 "articles_count": article_count,
-                "scores_count": scores_count,
-                "database": "working"
+                "scores_count": scores_count
             }
     except Exception as e:
         return {
             "ok": False,
-            "error": str(e),
-            "database": "failed"
+            "error": str(e)
         }
-
-@app.post("/clear-db")
-def clear_database():
-    """Clear all articles and scores"""
-    try:
-        engine = get_engine()
-        with engine.connect() as conn:
-            # Clear scores first (foreign key constraint)
-            conn.execute(text("DELETE FROM article_scores"))
-            # Then clear articles
-            conn.execute(text("DELETE FROM articles"))
-            conn.commit()
-            
-            return {
-                "ok": True,
-                "message": "Database cleared successfully",
-                "timestamp": datetime.now().isoformat()
-            }
-    except Exception as e:
-        return {
-            "ok": False,
-            "error": str(e),
-            "message": "Failed to clear database"
-        }
-
-@app.get("/api/articles")
-def get_articles(limit: int = Query(20, ge=1, le=100)):
-    """Get articles from database"""
-    try:
-        engine = get_engine()
-        with engine.connect() as conn:
-            rows = conn.execute(text("""
-                SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.content,
-                       a.published_at, a.fetched_at, a.lang,
-                       s.composite_score, s.topics, s.geography, s.macro_flag,
-                       s.summary2, s.why1, s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                LEFT JOIN article_scores s ON s.article_id = a.id
-                WHERE a.status != 'discarded'
-                ORDER BY COALESCE(s.composite_score, 0) DESC, COALESCE(a.published_at, a.fetched_at) DESC
-                LIMIT :limit
-            """), {"limit": limit}).mappings().all()
-            
-            return {
-                "ok": True,
-                "count": len(rows),
-                "items": [dict(r) for r in rows]
-            }
-    except Exception as e:
-        return {
-            "ok": False,
-            "error": str(e),
-            "count": 0,
-            "items": []
-        }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
