@@ -83,6 +83,29 @@ def score_run(limit: int = Query(50, ge=1, le=500)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
+@web_app.post("/admin/clear-db")
+def clear_database():
+    """Clear all articles and scores from the database"""
+    try:
+        engine = _get_engine()
+        with engine.connect() as conn:
+            # Clear article scores first (foreign key constraint)
+            conn.execute(text("DELETE FROM article_scores"))
+            conn.execute(text("DELETE FROM articles"))
+            conn.commit()
+            
+            return {
+                "status": "success",
+                "message": "Database cleared successfully",
+                "timestamp": datetime.now().isoformat()
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+
 # ---- INTELLIGENCE SYNTHESIS ENDPOINTS ----
 
 @web_app.post("/ingest/research")
