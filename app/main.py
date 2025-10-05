@@ -34,7 +34,16 @@ web_app.add_middleware(
 @web_app.get("/health")
 @web_app.get("/healthz")
 def health():
-    return {"ok": True, "debug": "deployment_test_v5", "timestamp": datetime.now().isoformat(), "version": "1.0.2", "status": "active", "filtering": "enabled"}
+    return {
+        "ok": True, 
+        "debug": "deployment_test_v6_FINAL", 
+        "timestamp": datetime.now().isoformat(), 
+        "version": "1.0.3", 
+        "status": "active", 
+        "filtering": "enabled",
+        "database": "v3_empty",
+        "features": ["clear-db", "filtering", "new-scoring"]
+    }
 
 @web_app.get("/")
 def root():
@@ -43,7 +52,11 @@ def root():
 # --- startup: ensure schema exists ---
 @web_app.on_event("startup")
 def on_startup():
+    try:
     init_db()
+        print("✅ Database schema initialized for V3 empty database")
+    except Exception as e:
+        print(f"⚠️ Database init failed (will be lazy): {e}")
 
 # --- actions ---
 @web_app.post("/ingest/run")
