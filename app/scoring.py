@@ -8,20 +8,35 @@ from .db import SessionLocal
 # We tag each article with one or more of these:
 # "innovation", "market_news", "insights", "unique_developments"
 
-# Keywords that indicate non-developer content (furniture, experimental architecture, etc.)
+# Keywords that indicate non-developer content (more specific matching)
 EXCLUDE_KEYWORDS = {
-    "furniture","chair","table","desk","sofa","couch","lamp","lighting fixture",
-    "interior design","decor","decoration","aesthetic","artistic","conceptual",
-    "installation","exhibition","museum","gallery","art","sculpture","painting",
-    "fashion","clothing","textile","fabric","wallpaper","paint color","color scheme",
-    "experimental architecture","avant-garde","theoretical","philosophical",
-    "student project","academic","research paper","thesis","dissertation"
+    # Furniture (only exact matches)
+    "furniture design", "chair design", "table design", "sofa design", 
+    "lamp design", "lighting fixture design",
+    
+    # Pure decorative/aesthetic content
+    "interior decoration", "wall decoration", "room decoration",
+    "paint colors", "color schemes", "aesthetic design",
+    
+    # Art and exhibitions (only if not about buildings)
+    "art exhibition", "art gallery", "art museum", "sculpture exhibition",
+    "painting exhibition", "art installation",
+    
+    # Fashion (not building-related)
+    "fashion design", "clothing design", "textile design", "fabric design",
+    
+    # Academic/theoretical (only pure academic)
+    "student thesis", "dissertation", "academic paper", "research paper",
+    "theoretical architecture", "philosophical architecture"
 }
 
 KWS = {
     "cutting_edge_projects": {
-        # Architectural innovation and building science
-        "self-healing concrete","carbon fiber","fiber reinforced polymer","frp",
+        # High-opportunity material breakthroughs
+        "self-healing concrete","carbon fiber","fiber reinforced polymer","frp","graphene","aerogel",
+        "3d printed","3d printing","additive manufacturing","automated construction","robotic construction",
+        "mass timber","cross laminated timber","clt","engineered wood","prefab","modular construction",
+        "off-site construction","factory-built","industrialized construction",
         "aerogel insulation","phase change materials","pcm","smart glass",
         "electrochromic","photovoltaic glass","pv glass","transparent solar",
         "living walls","green roofs","vertical farming","hydroponic",
@@ -109,6 +124,11 @@ KWS = {
         "unemployment","job growth","wage growth","consumer spending","gdp",
         "construction spending","housing starts","building permits","new home sales",
         "existing home sales","home prices","rent prices","occupancy rates",
+        
+        # High-opportunity market indicators
+        "billion dollar","mega project","infrastructure investment","construction boom",
+        "market growth","investment opportunity","development surge","construction expansion",
+        "market transformation","sector growth","industry expansion","market opportunity",
         
         # Today's market activity
         "refinance","bond","cmbs","term sheet","bridge loan","construction loan",
@@ -242,8 +262,15 @@ KWS = {
 def _tag_categories(text_blob: str) -> list[str]:
     t = (text_blob or "").lower()
     
-    # First check if content should be excluded (furniture, experimental architecture, etc.)
-    if any(exclude_word in t for exclude_word in EXCLUDE_KEYWORDS):
+    # Check if content should be excluded (more lenient matching)
+    # Only exclude if the exclude keyword appears as a complete phrase
+    exclude_count = 0
+    for exclude_phrase in EXCLUDE_KEYWORDS:
+        if exclude_phrase.lower() in t:
+            exclude_count += 1
+    
+    # Only exclude if multiple exclusion criteria match (to avoid false positives)
+    if exclude_count >= 2:
         return []  # Return empty tags for excluded content
     
     tags = []

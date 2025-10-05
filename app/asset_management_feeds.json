@@ -1,0 +1,54 @@
+{
+  "tier_1_asset_managers": [
+    "https://www.blackstone.com/insights/feed",
+    "https://www.kkr.com/global-perspectives/feed",
+    "https://www.apollo.com/insights/feed",
+    "https://www.carlyle.com/insights/feed",
+    "https://www.brookfield.com/insights/feed",
+    "https://www.tpg.com/insights/feed",
+    "https://www.ares.com/insights/feed"
+  ],
+  "cre_research_firms": [
+    "https://www.jll.com/insights/feed",
+    "https://www.cbre.com/insights/feed", 
+    "https://www.cushmanwakefield.com/en/insights/feed",
+    "https://www.savills.com/insight-and-opinion/feed",
+    "https://www.colliers.com/en/research/feed",
+    "https://www.newmark.com/insights/feed",
+    "https://www.marcusmillichap.com/research/feed",
+    "https://www.lee-associates.com/insights/feed"
+  ],
+  "investment_banks": [
+    "https://www.morganstanley.com/ideas/feed",
+    "https://www.goldmansachs.com/insights/feed",
+    "https://www.jpmorgan.com/insights/feed",
+    "https://www.bankofamerica.com/insights/feed",
+    "https://www.wellsfargo.com/commercial-insights/feed",
+    "https://www.citi.com/commercial-bank/insights/feed",
+    "https://www.ubs.com/insights/feed",
+    "https://www.credit-suisse.com/insights/feed"
+  ],
+  "consulting_firms": [
+    "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/rss",
+    "https://www.bcg.com/en-us/rss",
+    "https://www2.deloitte.com/us/en/insights/real-estate/rss.xml",
+    "https://www.pwc.com/us/en/services/real-estate/insights/rss.xml",
+    "https://www.ey.com/en_us/insights/real-estate/rss",
+    "https://www.kpmg.com/us/en/insights/real-estate/rss.xml"
+  ],
+  "government_research": [
+    "https://www.federalreserve.gov/feeds/press/all.xml",
+    "https://www.census.gov/newsroom/rss.xml",
+    "https://www.hud.gov/news/rss",
+    "https://www.transportation.gov/news/rss",
+    "https://www.energy.gov/news/rss"
+  ],
+  "think_tanks": [
+    "https://www.brookings.edu/feed/",
+    "https://www.urban.org/rss.xml",
+    "https://www.petersoninstitute.org/feeds/piie-news.xml",
+    "https://www.csis.org/feeds/all.xml",
+    "https://www.aei.org/feed/",
+    "https://www.heritage.org/feeds/heritage-today.xml"
+  ]
+}

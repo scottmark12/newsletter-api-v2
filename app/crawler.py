@@ -392,24 +392,37 @@ def crawl_google_searches(limit: int, db, inserted_counter, attempts_counter, do
     """Crawl articles using Google search queries for innovation and opportunities"""
     print(f"[google] Starting Google search crawl, limit={limit}")
     
-    # Innovation/Engineering search queries
-    innovation_queries = [
-        "3d printed home",
-        "straw homes", 
-        "rammed earth homes",
-        "engineering construction news"
-    ]
-    
-    # Opportunities search queries
-    opportunity_queries = [
-        "Real Estate Opportunities News",
-        "3d printed home News",
-        "straw homes News", 
-        "rammed earth homes News",
-        "engineering construction news"
-    ]
-    
-    all_queries = innovation_queries + opportunity_queries
+    # Import narrative-focused queries (V3-inspired)
+    try:
+        from .narrative_focused_queries import ALL_NARRATIVE_QUERIES
+        all_queries = ALL_NARRATIVE_QUERIES[:30]  # Limit to first 30 queries
+        print(f"[google] Using {len(all_queries)} NARRATIVE-FOCUSED search queries")
+        print("[google] Targeting: Transformation stories, breakthrough language, disruption signals, ROI narratives")
+    except ImportError:
+        try:
+            from .opportunity_focused_queries import ALL_OPPORTUNITY_QUERIES
+            all_queries = ALL_OPPORTUNITY_QUERIES[:25]
+            print(f"[google] Using {len(all_queries)} OPPORTUNITY-FOCUSED search queries (fallback)")
+        except ImportError:
+            try:
+                from .enhanced_google_queries import ALL_QUERIES
+                all_queries = ALL_QUERIES[:20]
+                print(f"[google] Using {len(all_queries)} enhanced search queries (fallback)")
+            except ImportError:
+                # Fallback to basic queries
+                print("[google] Using basic opportunity queries")
+            all_queries = [
+                "billion dollar construction projects 2025",
+                "3D printed building construction",
+                "mass timber construction boom", 
+                "data center construction boom",
+                "renewable energy construction boom",
+                "construction automation investment",
+                "mixed-use development success stories",
+                "affordable housing development ROI",
+                "zoning reform construction opportunities",
+                "southeast construction boom"
+            ]
     
     with httpx.Client(headers=HEADERS, timeout=30.0, follow_redirects=True) as client:
         for query in all_queries:
@@ -443,9 +456,17 @@ def ingest_run(limit: Optional[int] = None) -> int:
     db = SessionLocal()
     db.execute(text("SELECT 1"))
 
-    seeds_path = pathlib.Path(__file__).with_name("seeds.json")
-    with seeds_path.open() as f:
-        seed_cfg = json.load(f)
+    # Try enhanced seeds first, fallback to original
+    try:
+        seeds_path = pathlib.Path(__file__).with_name("enhanced_seeds.json")
+        with seeds_path.open() as f:
+            seed_cfg = json.load(f)
+            print(f"[seeds] Loaded enhanced seeds with {sum(len(v) for v in seed_cfg.values())} total feeds")
+    except FileNotFoundError:
+        seeds_path = pathlib.Path(__file__).with_name("seeds.json")
+        with seeds_path.open() as f:
+            seed_cfg = json.load(f)
+            print(f"[seeds] Loaded original seeds with {sum(len(v) for v in seed_cfg.values())} total feeds")
 
     print(f"[crawler] cap={cap}, seeds={sum(len(v) for v in seed_cfg.values())} lists")
     
@@ -540,7 +561,7 @@ def ingest_run(limit: Optional[int] = None) -> int:
 
     with httpx.Client(headers=HEADERS, timeout=20) as client:
         # Prioritize tier_1_sources and new high-quality categories first
-        priority_categories = ["tier_1_sources", "innovation_engineering", "insights_sources", "economy_news"]
+        priority_categories = ["tier_1_sources", "asset_managers", "investment_banks", "cre_research_firms", "innovation_engineering"]
         other_categories = [k for k in seed_cfg.keys() if k not in priority_categories]
         
         # Process priority categories first
@@ -550,6 +571,11 @@ def ingest_run(limit: Optional[int] = None) -> int:
                 for base in seed_cfg[category]:
                     if inserted_counter[0] >= cap:
                         break
+                    
+                    # Track stale articles per source
+                    stale_count = 0
+                    max_stale_before_skip = 2  # Skip to next source after 2 stale articles
+                    
                     try:
                         fp = feedparser.parse(base)
 
@@ -595,6 +621,11 @@ def ingest_run(limit: Optional[int] = None) -> int:
 
                         else:
                             for e in fp.entries[:TOP_K]:
+                                # Skip to next source if too many stale articles
+                                if stale_count >= max_stale_before_skip:
+                                    print(f"[crawler] Skipping {base} - too many stale articles ({stale_count})")
+                                    break
+                                
                                 link = e.get("link")
                                 if not link:
                                     continue
@@ -612,6 +643,11 @@ def ingest_run(limit: Optional[int] = None) -> int:
                                             ).isoformat()
                                 except Exception:
                                     fb_iso = None
+                                
+                                # Check if article is stale
+                                if not _is_fresh(fb_iso, now_utc):
+                                    stale_count += 1
+                                    continue
 
                                 host_check = _registrable_domain(urlparse(link).netloc)
                                 if domain_counts.get(host_check, 0) >= MAX_PER_DOMAIN_PER_RUN:

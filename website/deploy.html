@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Pulse - Construction & Real Estate Intelligence</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 1rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Status Card */
+        .status-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .status-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-description {
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+
+        .api-info {
+            background: #f7fafc;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .api-info h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .api-endpoint {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+            word-break: break-all;
+        }
+
+        /* Theme Preview Cards */
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .theme-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .theme-icon.opportunities { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .theme-icon.practices { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .theme-icon.systems { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .theme-icon.vision { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .theme-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .theme-description {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .coming-soon {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                Urban Pulse
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#opportunities">Opportunities</a></li>
+                <li><a href="#practices">Practices</a></li>
+                <li><a href="#systems">Systems</a></li>
+                <li><a href="#vision">Vision</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Urban Pulse</h1>
+            <p>Your intelligence hub for construction innovation, market opportunities, and real estate development insights</p>
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card">
+            <div class="status-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h2 class="status-title">Website Ready for Deployment</h2>
+            <p class="status-description">
+                The Urban Pulse website is built and ready to connect to your API. 
+                Currently configured to use the V3 API endpoints.
+            </p>
+            
+            <div class="api-info">
+                <h3>API Configuration</h3>
+                <p>Base URL:</p>
+                <div class="api-endpoint">https://newsletter-api-v3-clean.onrender.com</div>
+                
+                <p>Available Endpoints:</p>
+                <div class="api-endpoint">/api/v3/opportunities</div>
+                <div class="api-endpoint">/api/v3/practices</div>
+                <div class="api-endpoint">/api/v3/systems</div>
+                <div class="api-endpoint">/api/v3/vision</div>
+            </div>
+        </div>
+
+        <!-- Theme Preview -->
+        <div class="themes-grid">
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-icon opportunities">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="theme-title">Opportunities</h3>
+                </div>
+                <p class="theme-description">Stories of transformation, investments, deals, and wealth-building examples</p>
+                <div class="coming-soon">Ready to load articles</div>
+            </div>
+
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-icon practices">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="theme-title">Practices</h3>
+                </div>
+                <p class="theme-description">Building methods, design principles, process improvements, and lessons learned</p>
+                <div class="coming-soon">Ready to load articles</div>
+            </div>
+
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-icon systems">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3 class="theme-title">Systems & Codes</h3>
+                </div>
+                <p class="theme-description">Policy updates, building code changes, zoning reforms, and regulatory unlocks</p>
+                <div class="coming-soon">Ready to load articles</div>
+            </div>
+
+            <div class="theme-card">
+                <div class="theme-header">
+                    <div class="theme-icon vision">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="theme-title">Vision</h3>
+                </div>
+                <p class="theme-description">Smart cities, future-of-living models, community impact, and biophilic design</p>
+                <div class="coming-soon">Ready to load articles</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple navigation highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.style.opacity = '1');
+                    
+                    // Add active class to clicked link
+                    this.style.opacity = '0.8';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
