@@ -41,6 +41,11 @@ def v3_simple():
     """Ultra simple V3 endpoint"""
     return {"working": True}
 
+@web_app.get("/api/v3/hello")
+def v3_hello():
+    """Hello world V3 endpoint"""
+    return {"hello": "world", "version": "v3"}
+
 # --- health & root ---
 @web_app.get("/health")
 @web_app.get("/healthz")
@@ -246,11 +251,11 @@ def api_main_page(
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                        s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
+                  FROM articles a
                 JOIN article_scores s ON s.article_id = a.id
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
+                    AND a.published_at >= :cutoff
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 1
             """), {"cutoff": cutoff.isoformat()}).mappings().fetchone()
@@ -540,11 +545,11 @@ def api_feed_by_type(feed_type: str, days: int = Query(7, ge=1, le=30)):
                 SELECT a.id, a.url, a.source, a.title, a.summary_raw, a.published_at,
                        s.composite_score, s.topics, s.geography, s.summary2, s.why1,
                        s.project_stage, s.needs_fact_check, s.media_type
-                FROM articles a
-                JOIN article_scores s ON s.article_id = a.id
+                  FROM articles a
+                  JOIN article_scores s ON s.article_id = a.id
                 WHERE a.status != 'discarded'
                   AND s.composite_score > 0
-                  AND a.published_at >= :cutoff
+                    AND a.published_at >= :cutoff
                   AND :topic = ANY(s.topics)
                 ORDER BY s.composite_score DESC, a.published_at DESC
                 LIMIT 20
