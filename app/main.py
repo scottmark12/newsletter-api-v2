@@ -53,7 +53,7 @@ def get_database_engine():
 @app.get("/health")
 @app.get("/healthz")
 def health():
-    return {"ok": True, "version": "v3-clean", "timestamp": datetime.now().isoformat()}
+    return {"ok": True, "version": "v3-clean", "timestamp": datetime.now().isoformat(), "build": "latest"}
 
 @app.get("/")
 def root():
