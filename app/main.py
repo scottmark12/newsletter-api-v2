@@ -63,6 +63,7 @@ def root():
         "docs": "/docs", 
         "health": "/health",
         "endpoints": {
+            "main_page": "/api/v3/main",
             "themes": "/api/v3/themes",
             "opportunities": "/api/v3/opportunities",
             "practices": "/api/v3/practices",
@@ -244,6 +245,95 @@ def get_vision(limit: int = 10):
             }
     except Exception as e:
         return {"theme": "vision", "count": 0, "articles": [], "error": str(e)}
+
+# Main page endpoint with top story and quick hits
+@app.get("/api/v3/main")
+def get_main_page(limit: int = 10):
+    """Get main page with top story and quick hits"""
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            # Get top story (highest overall score)
+            top_story_result = conn.execute(text("""
+                SELECT a.id, a.title, a.url, a.published_at, a.summary, a.body,
+                       s.overall_score, s.opportunities_score, s.practices_score, 
+                       s.systems_score, s.vision_score
+                  FROM articles a
+                LEFT JOIN article_scores s ON a.id = s.article_id
+                WHERE a.published_at >= NOW() - INTERVAL '7 days'
+                ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
+                LIMIT 1
+            """))
+            
+            top_story = None
+            for row in top_story_result:
+                top_story = {
+                    "id": str(row.id),
+                    "title": row.title,
+                    "url": row.url,
+                    "published_at": row.published_at.isoformat() if row.published_at else None,
+                    "summary": row.summary,
+                    "body": row.body,
+                    "overall_score": float(row.overall_score) if row.overall_score else 0.0,
+                    "theme_scores": {
+                        "opportunities": float(row.opportunities_score) if row.opportunities_score else 0.0,
+                        "practices": float(row.practices_score) if row.practices_score else 0.0,
+                        "systems": float(row.systems_score) if row.systems_score else 0.0,
+                        "vision": float(row.vision_score) if row.vision_score else 0.0
+                    }
+                }
+                break
+            
+            # Get quick hits (top 5 excluding the top story)
+            quick_hits_result = conn.execute(text("""
+                SELECT a.id, a.title, a.url, a.published_at, a.summary,
+                       s.overall_score, s.opportunities_score, s.practices_score, 
+                       s.systems_score, s.vision_score
+                FROM articles a
+                LEFT JOIN article_scores s ON a.id = s.article_id
+                WHERE a.published_at >= NOW() - INTERVAL '7 days'
+                  AND (:top_story_id IS NULL OR a.id != :top_story_id)
+                ORDER BY COALESCE(s.overall_score, 0) DESC, a.published_at DESC
+                LIMIT 5
+            """), {
+                "top_story_id": top_story["id"] if top_story else None
+            })
+            
+            quick_hits = []
+            for row in quick_hits_result:
+                quick_hits.append({
+                    "id": str(row.id),
+                    "title": row.title,
+                    "url": row.url,
+                    "published_at": row.published_at.isoformat() if row.published_at else None,
+                    "summary": row.summary,
+                    "overall_score": float(row.overall_score) if row.overall_score else 0.0,
+                    "theme_scores": {
+                        "opportunities": float(row.opportunities_score) if row.opportunities_score else 0.0,
+                        "practices": float(row.practices_score) if row.practices_score else 0.0,
+                        "systems": float(row.systems_score) if row.systems_score else 0.0,
+                        "vision": float(row.vision_score) if row.vision_score else 0.0
+                    }
+                })
+            
+            return {
+                "top_story": top_story,
+                "quick_hits": quick_hits,
+                "metadata": {
+                    "generated_at": datetime.now().isoformat(),
+                    "version": "v3-clean"
+                }
+            }
+    except Exception as e:
+        return {
+            "top_story": None,
+            "quick_hits": [],
+            "error": str(e),
+            "metadata": {
+                "generated_at": datetime.now().isoformat(),
+                "version": "v3-clean"
+            }
+        }
 
 # Test endpoint
 @app.get("/api/v3/test")
