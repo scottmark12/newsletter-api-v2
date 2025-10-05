@@ -814,14 +814,14 @@ def v3_health_check():
             conn.execute(text("SELECT 1"))
             
             # Get basic stats
-            stats_query = text("""
-                SELECT 
-                    COUNT(*) as total_articles,
-                    COUNT(CASE WHEN s.id IS NOT NULL THEN 1 END) as scored_articles,
-                    AVG(s.composite_score) as avg_score
-                FROM articles a
-                LEFT JOIN article_scores s ON s.article_id = a.id
-            """)
+                   stats_query = text("""
+                       SELECT 
+                           COUNT(*) as total_articles,
+                           COUNT(CASE WHEN s.article_id IS NOT NULL THEN 1 END) as scored_articles,
+                           AVG(s.composite_score) as avg_score
+                       FROM articles a
+                       LEFT JOIN article_scores s ON s.article_id = a.id
+                   """)
             
             stats = conn.execute(stats_query).fetchone()
         
