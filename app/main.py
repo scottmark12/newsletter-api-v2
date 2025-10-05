@@ -55,7 +55,7 @@ def test_simple():
 @web_app.get("/health")
 @web_app.get("/healthz")
 def health():
-    return {"ok": True}
+    return {"ok": True, "debug": "deployment_test", "timestamp": "2025-10-05"}
 
 @web_app.get("/")
 def root():
