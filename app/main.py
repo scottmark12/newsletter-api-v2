@@ -592,3 +592,9 @@ def api_feed_by_type(feed_type: str, days: int = Query(7, ge=1, le=30)):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Test endpoint at the very end
+@web_app.get("/test-end")
+def test_end():
+    """Test endpoint at the end of file"""
+    return {"test": "end", "working": True}
