@@ -11,8 +11,8 @@ from typing import List, Dict, Any
 
 # Create FastAPI app with completely new structure
 app = FastAPI(
-    title="Newsletter API - NEW VERSION",
-    version="2.0.0-NEW",
+    title="Newsletter API - DEPLOYMENT FIX",
+    version="2.1.0-DEPLOYMENT-FIX",
     description="Completely new API version with guaranteed database initialization"
 )
 
@@ -107,7 +107,7 @@ def health_check():
     """Health check endpoint"""
     return {
         "ok": True,
-        "version": "2.0.0-NEW",
+        "version": "2.1.0-DEPLOYMENT-FIX",
         "timestamp": datetime.now().isoformat(),
         "database": "initialized",
         "status": "active"
@@ -119,7 +119,7 @@ def root_endpoint():
     """Root endpoint"""
     return {
         "status": "ok",
-        "version": "2.0.0-NEW",
+        "version": "2.1.0-DEPLOYMENT-FIX",
         "message": "Newsletter API - NEW VERSION",
         "docs": "/docs",
         "health": "/health",
