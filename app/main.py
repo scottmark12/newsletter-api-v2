@@ -14,8 +14,8 @@ from .db import init_db
 from . import crawler, scoring
 
 web_app = FastAPI(
-    title="Newsletter API",
-    version="1.0.1",
+    title="Newsletter API v2",
+    version="1.0.2",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
