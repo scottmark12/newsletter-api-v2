@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Pulse - Construction & Real Estate Intelligence</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 1rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        /* Theme Sections */
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .theme-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .theme-icon.opportunities { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .theme-icon.practices { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .theme-icon.systems { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .theme-icon.vision { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .theme-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .theme-description {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .theme-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .article-count {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .view-articles {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .view-articles:hover {
+            background: #5a67d8;
+        }
+
+        /* Articles List */
+        .articles-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .articles-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .article-card.opportunities { border-left-color: #4facfe; }
+        .article-card.practices { border-left-color: #43e97b; }
+        .article-card.systems { border-left-color: #fa709a; }
+        .article-card.vision { border-left-color: #a8edea; }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-score {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .article-summary {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .article-link {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .article-link:hover {
+            background: #5a67d8;
+        }
+
+        .article-date {
+            color: #718096;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .article-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Hidden class for navigation */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                Urban Pulse
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showHome()">Home</a></li>
+                <li><a href="#" onclick="showTheme('opportunities')">Opportunities</a></li>
+                <li><a href="#" onclick="showTheme('practices')">Practices</a></li>
+                <li><a href="#" onclick="showTheme('systems')">Systems</a></li>
+                <li><a href="#" onclick="showTheme('vision')">Vision</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page">
+            <div class="hero">
+                <h1>Urban Pulse</h1>
+                <p>Your intelligence hub for construction innovation, market opportunities, and real estate development insights</p>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading latest insights...</p>
+            </div>
+
+            <div id="error" class="error hidden">
+                <p>Unable to load content. Please try again later.</p>
+            </div>
+
+            <div id="themes-container" class="hidden">
+                <div class="themes-grid" id="themes-grid">
+                    <!-- Themes will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Pages -->
+        <div id="theme-page" class="hidden">
+            <div class="articles-section">
+                <div class="section-header">
+                    <div>
+                        <div class="back-link" onclick="showHome()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </div>
+                        <h2 class="section-title" id="theme-title">Theme Articles</h2>
+                    </div>
+                </div>
+
+                <div id="theme-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading articles...</p>
+                </div>
+
+                <div id="theme-error" class="error hidden">
+                    <p>Unable to load articles for this theme.</p>
+                </div>
+
+                <div id="articles-grid" class="articles-grid hidden">
+                    <!-- Articles will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = 'https://newsletter-api-v2.onrender.com';
+        
+        // Theme configuration
+        const THEMES = {
+            opportunities: {
+                name: 'Opportunities',
+                description: 'Stories of transformation, investments, deals, and wealth-building examples',
+                icon: 'fas fa-chart-line',
+                color: 'opportunities'
+            },
+            practices: {
+                name: 'Practices',
+                description: 'Building methods, design principles, process improvements, and lessons learned',
+                icon: 'fas fa-tools',
+                color: 'practices'
+            },
+            systems: {
+                name: 'Systems & Codes',
+                description: 'Policy updates, building code changes, zoning reforms, and regulatory unlocks',
+                icon: 'fas fa-gavel',
+                color: 'systems'
+            },
+            vision: {
+                name: 'Vision',
+                description: 'Smart cities, future-of-living models, community impact, and biophilic design',
+                icon: 'fas fa-eye',
+                color: 'vision'
+            }
+        };
+
+        // Current page state
+        let currentPage = 'home';
+        let currentTheme = null;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHomePage();
+        });
+
+        // Navigation functions
+        function showHome() {
+            currentPage = 'home';
+            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('theme-page').classList.add('hidden');
+            loadHomePage();
+        }
+
+        function showTheme(themeName) {
+            currentPage = 'theme';
+            currentTheme = themeName;
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('theme-page').classList.remove('hidden');
+            loadThemePage(themeName);
+        }
+
+        // Load home page
+        async function loadHomePage() {
+            showLoading('loading');
+            hideError('error');
+            hideContent('themes-container');
+
+            try {
+                       const articlesResponse = await fetch(`${API_BASE}/api/articles?limit=50`);
+                const articlesData = await articlesResponse.json();
+                const articles = articlesData.items || articlesData || [];
+                
+                // Group articles by topics
+                const themes = Object.keys(THEMES).map(themeName => {
+                    const config = THEMES[themeName];
+                    let themeArticles = [];
+                    
+                    // Map topics to theme names
+                    if (themeName === 'opportunities') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && (
+                                article.topics.includes('big_returns') || 
+                                article.topics.includes('market_transformations')
+                            )
+                        );
+                    } else if (themeName === 'practices') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && article.topics.includes('material_breakthroughs')
+                        );
+                    } else if (themeName === 'systems') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && article.topics.includes('market_transformations')
+                        );
+                    } else if (themeName === 'vision') {
+                        themeArticles = articles.filter(article => 
+                            article.topics && article.topics.includes('material_breakthroughs')
+                        );
+                    }
+                    
+                    return {
+                        name: themeName,
+                        data: { articles: themeArticles },
+                        config: config
+                    };
+                });
+
+                displayThemes(themes);
+                hideLoading('loading');
+                showContent('themes-container');
+            } catch (error) {
+                console.error('Error loading themes:', error);
+                hideLoading('loading');
+                showError('error');
+            }
+        }
+
+        // Load theme page
+        async function loadThemePage(themeName) {
+            const themeConfig = THEMES[themeName];
+            
+            // Update page title
+            document.getElementById('theme-title').textContent = themeConfig.name;
+            
+            showLoading('theme-loading');
+            hideError('theme-error');
+            hideContent('articles-grid');
+
+            try {
+                // Get all articles and filter by theme
+                const articlesResponse = await fetch(`${API_BASE}/api/articles?limit=50`);
+                const articlesData = await articlesResponse.json();
+                const articles = articlesData.items || articlesData || [];
+                
+                let themeArticles = [];
+                
+                // Map topics to theme names
+                if (themeName === 'opportunities') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && (
+                            article.topics.includes('big_returns') || 
+                            article.topics.includes('market_transformations')
+                        )
+                    );
+                } else if (themeName === 'practices') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && article.topics.includes('material_breakthroughs')
+                    );
+                } else if (themeName === 'systems') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && article.topics.includes('market_transformations')
+                    );
+                } else if (themeName === 'vision') {
+                    themeArticles = articles.filter(article => 
+                        article.topics && article.topics.includes('material_breakthroughs')
+                    );
+                }
+
+                if (themeArticles && themeArticles.length > 0) {
+                    displayArticles(themeArticles, themeName);
+                    hideLoading('theme-loading');
+                    showContent('articles-grid');
+                } else {
+                    hideLoading('theme-loading');
+                    showError('theme-error');
+                }
+            } catch (error) {
+                console.error('Error loading theme:', error);
+                hideLoading('theme-loading');
+                showError('theme-error');
+            }
+        }
+
+        // Display themes on home page
+        function displayThemes(themes) {
+            const container = document.getElementById('themes-grid');
+            container.innerHTML = '';
+
+            themes.forEach(theme => {
+                const themeCard = document.createElement('div');
+                themeCard.className = 'theme-card';
+                
+                const articleCount = theme.data.articles ? theme.data.articles.length : 0;
+                
+                themeCard.innerHTML = `
+                    <div class="theme-header">
+                        <div class="theme-icon ${theme.name}">
+                            <i class="${theme.config.icon}"></i>
+                        </div>
+                        <h3 class="theme-title">${theme.config.name}</h3>
+                    </div>
+                    <p class="theme-description">${theme.config.description}</p>
+                    <div class="theme-stats">
+                        <span class="article-count">${articleCount} articles</span>
+                        <a href="#" class="view-articles" onclick="showTheme('${theme.name}')">
+                            View Articles
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(themeCard);
+            });
+        }
+
+        // Display articles
+        function displayArticles(articles, themeName) {
+            const container = document.getElementById('articles-grid');
+            container.innerHTML = '';
+
+            if (articles.length === 0) {
+                container.innerHTML = '<div class="error">No articles available for this theme.</div>';
+                return;
+            }
+
+            articles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = `article-card ${themeName}`;
+                
+                const publishedDate = article.published_at ? 
+                    new Date(article.published_at).toLocaleDateString() : 'Unknown date';
+                
+                articleCard.innerHTML = `
+                    <div class="article-header">
+                        <h3 class="article-title">${article.title}</h3>
+                        <span class="article-score">Score: ${article.overall_score.toFixed(1)}</span>
+                    </div>
+                    <div class="article-meta">
+                        <span><i class="fas fa-calendar"></i> ${publishedDate}</span>
+                        <span><i class="fas fa-link"></i> External Link</span>
+                    </div>
+                    <div class="article-summary">
+                        ${article.summary || 'No summary available.'}
+                    </div>
+                    <div class="article-footer">
+                        <span class="article-date">Published: ${publishedDate}</span>
+                        <a href="${article.url}" target="_blank" class="article-link">
+                            Read Article <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(articleCard);
+            });
+        }
+
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showError(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showContent(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideContent(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
