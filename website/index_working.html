@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter API - Working Version</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .warning { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+        .info { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
+        
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .article {
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 10px 0;
+            background: #f9fafb;
+        }
+        
+        .article h3 {
+            margin: 0 0 10px 0;
+            color: #1f2937;
+        }
+        
+        .article .meta {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .article .score {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Newsletter API - Working Version</h1>
+        
+        <div id="status"></div>
+        
+        <div class="section">
+            <h2>🔧 System Status</h2>
+            <button onclick="checkHealth()">Check Health</button>
+            <button onclick="testDatabase()">Test Database</button>
+            <button onclick="initDatabase()">Initialize Database</button>
+            <button onclick="clearDatabase()">Clear Database</button>
+        </div>
+        
+        <div class="section">
+            <h2>📰 Articles</h2>
+            <button onclick="loadArticles()">Load Articles</button>
+            <button onclick="runCrawl()">Run Crawl</button>
+            <div id="articles"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 API Endpoints</h2>
+            <ul>
+                <li><strong>GET /health</strong> - Health check</li>
+                <li><strong>GET /test-db</strong> - Test database connection</li>
+                <li><strong>POST /init-db</strong> - Initialize database</li>
+                <li><strong>POST /clear-db</strong> - Clear database</li>
+                <li><strong>GET /api/articles</strong> - Get articles</li>
+                <li><strong>POST /ingest/run</strong> - Run crawl</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://newsletter-api-v2.onrender.com';
+        
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        async function checkHealth() {
+            showStatus('Checking health...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                showStatus(`✅ Health: ${JSON.stringify(data, null, 2)}`, 'success');
+            } catch (error) {
+                showStatus(`❌ Health check failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDatabase() {
+            showStatus('Testing database...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/test-db`);
+                const data = await response.json();
+                if (data.ok) {
+                    showStatus(`✅ Database: ${data.articles_count} articles, ${data.scores_count} scores`, 'success');
+                } else {
+                    showStatus(`❌ Database test failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Database test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function initDatabase() {
+            showStatus('Initializing database...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/init-db`, { method: 'POST' });
+                const data = await response.json();
+                if (data.ok) {
+                    showStatus(`✅ Database initialized: ${data.message}`, 'success');
+                } else {
+                    showStatus(`❌ Database init failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Database init failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function clearDatabase() {
+            if (!confirm('Are you sure you want to clear the database?')) return;
+            
+            showStatus('Clearing database...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/clear-db`, { method: 'POST' });
+                const data = await response.json();
+                if (data.ok) {
+                    showStatus(`✅ Database cleared: ${data.message}`, 'success');
+                } else {
+                    showStatus(`❌ Database clear failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Database clear failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loadArticles() {
+            showStatus('Loading articles...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/api/articles?limit=10`);
+                const data = await response.json();
+                if (data.ok) {
+                    const articlesDiv = document.getElementById('articles');
+                    if (data.count > 0) {
+                        articlesDiv.innerHTML = data.items.map(article => `
+                            <div class="article">
+                                <h3>${article.title || 'No title'}</h3>
+                                <div class="meta">
+                                    Source: ${article.source || 'Unknown'} | 
+                                    Score: <span class="score">${article.composite_score || 'N/A'}</span>
+                                </div>
+                                <p>${article.summary_raw || article.content || 'No content'}</p>
+                            </div>
+                        `).join('');
+                        showStatus(`✅ Loaded ${data.count} articles`, 'success');
+                    } else {
+                        articlesDiv.innerHTML = '<p>No articles found</p>';
+                        showStatus('⚠️ No articles found', 'warning');
+                    }
+                } else {
+                    showStatus(`❌ Failed to load articles: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Failed to load articles: ${error.message}`, 'error');
+            }
+        }
+        
+        async function runCrawl() {
+            showStatus('Running crawl...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/ingest/run?limit=10`, { method: 'POST' });
+                const data = await response.json();
+                if (data.ok) {
+                    showStatus(`✅ Crawl completed: ${data.ingested} articles ingested`, 'success');
+                    setTimeout(loadArticles, 2000); // Load articles after crawl
+                } else {
+                    showStatus(`❌ Crawl failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Crawl failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-check health on load
+        window.onload = function() {
+            checkHealth();
+        };
+    </script>
+</body>
+</html>
