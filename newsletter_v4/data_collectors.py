@@ -74,15 +74,21 @@ class RSSCollector:
                     # Extract metadata
                     author = getattr(entry, 'author', None)
                     published_at = None
+                    
+                    # Try multiple date fields
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
                         published_at = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+                    elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                        published_at = datetime(*entry.updated_parsed[:6], tzinfo=timezone.utc)
                     else:
-                        # Skip articles without published dates
-                        continue
+                        # If no date available, assume it's recent (within 72 hours)
+                        # This is more permissive for feeds that don't provide dates
+                        published_at = datetime.now(timezone.utc)
                     
-                    # Skip articles older than cutoff time
-                    if published_at < cutoff_time:
-                        continue
+                    # Skip articles older than cutoff time (only if we have a real date)
+                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        if published_at < cutoff_time:
+                            continue
                     
                     # Extract content
                     content = ""
