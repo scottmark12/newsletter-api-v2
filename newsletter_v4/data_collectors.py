@@ -76,10 +76,13 @@ class RSSCollector:
                     published_at = None
                     if hasattr(entry, 'published_parsed') and entry.published_parsed:
                         published_at = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
-                        
-                        # Skip articles older than cutoff time
-                        if published_at < cutoff_time:
-                            continue
+                    else:
+                        # Skip articles without published dates
+                        continue
+                    
+                    # Skip articles older than cutoff time
+                    if published_at < cutoff_time:
+                        continue
                     
                     # Extract content
                     content = ""
