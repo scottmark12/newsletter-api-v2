@@ -11,7 +11,7 @@ from typing import List, Optional
 @dataclass
 class DatabaseConfig:
     """Database configuration"""
-    url: str = os.getenv("DATABASE_URL", "sqlite:///./newsletter_v4.db")
+    url: str = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/newsletter_v4")
     echo: bool = os.getenv("DATABASE_ECHO", "false").lower() == "true"
 
 
