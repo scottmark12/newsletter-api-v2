@@ -103,7 +103,7 @@ async def get_opportunities(
     ).filter(
         and_(
             ArticleScore.opportunities_score >= min_score,
-            ArticleScore.total_score >= 0.4,  # Minimum overall quality
+            ArticleScore.total_score >= 0.2,  # Minimum overall quality
             Article.content.isnot(None),
             func.length(Article.content) > 200,  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
@@ -184,7 +184,7 @@ async def get_practices(
     ).filter(
         and_(
             ArticleScore.practices_score >= min_score,
-            ArticleScore.total_score >= 0.4,
+            ArticleScore.total_score >= 0.2,
             Article.content.isnot(None),
             func.length(Article.content) > 200,
             Article.published_at >= cutoff_time  # Only recent articles
