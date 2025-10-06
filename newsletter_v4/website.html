@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Pulse - Construction & Real Estate Intelligence</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Featured Video */
+        .featured-video {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .featured-video.show {
+            display: block;
+        }
+
+        .video-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .video-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .play-button:hover {
+            background: white;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .video-summary {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        /* Theme Sections */
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .theme-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .theme-icon.opportunities { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .theme-icon.practices { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .theme-icon.systems { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .theme-icon.vision { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .theme-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .theme-description {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .theme-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .article-count {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .view-articles {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .view-articles:hover {
+            background: #5a67d8;
+        }
+
+        /* Articles List */
+        .articles-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .articles-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .article-card.opportunities { border-left-color: #4facfe; }
+        .article-card.practices { border-left-color: #43e97b; }
+        .article-card.systems { border-left-color: #fa709a; }
+        .article-card.vision { border-left-color: #a8edea; }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-score {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .article-summary {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .article-link {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .article-link:hover {
+            background: #5a67d8;
+        }
+
+        .article-date {
+            color: #718096;
+            font-size: 0.8rem;
+        }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .video-content {
+                grid-template-columns: 1fr;
+            }
+
+            .article-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Hidden class for navigation */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                Urban Pulse
+            </div>
+            <ul class="nav-links">
+                <li><a onclick="showHome()">Home</a></li>
+                <li><a onclick="showTheme('opportunities')">Opportunities</a></li>
+                <li><a onclick="showTheme('practices')">Practices</a></li>
+                <li><a onclick="showTheme('systems')">Systems</a></li>
+                <li><a onclick="showTheme('vision')">Vision</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Urban Pulse</h1>
+                    <p>Your intelligence hub for construction innovation, market opportunities, and real estate development insights</p>
+                    
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" id="total-articles">-</div>
+                            <div class="hero-stat-label">Articles</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" id="avg-score">-</div>
+                            <div class="hero-stat-label">Avg Score</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="hero-stat-value" id="recent-articles">-</div>
+                            <div class="hero-stat-label">Today</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Video -->
+            <div id="featured-video" class="featured-video">
+                <div class="video-header">
+                    <div class="video-icon">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <h2>Featured Video</h2>
+                </div>
+                <div class="video-content">
+                    <div class="video-thumbnail">
+                        <img id="video-thumbnail" src="" alt="Video thumbnail">
+                        <div class="play-button" onclick="openVideo()">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 id="video-title">Video Title</h3>
+                        <div class="video-meta">
+                            <span id="video-channel">Channel</span>
+                            <span id="video-views">Views</span>
+                            <span id="video-duration">Duration</span>
+                        </div>
+                        <div class="video-summary" id="video-summary">
+                            Video summary will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading latest insights...</p>
+            </div>
+
+            <div id="error" class="error hidden">
+                <p>Unable to load content. Please try again later.</p>
+            </div>
+
+            <div id="themes-container" class="hidden">
+                <div class="themes-grid" id="themes-grid">
+                    <!-- Themes will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Pages -->
+        <div id="theme-page" class="hidden">
+            <div class="articles-section">
+                <div class="section-header">
+                    <div>
+                        <div class="back-link" onclick="showHome()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </div>
+                        <h2 class="section-title" id="theme-title">Theme Articles</h2>
+                    </div>
+                </div>
+
+                <div id="theme-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading articles...</p>
+                </div>
+
+                <div id="theme-error" class="error hidden">
+                    <p>Unable to load articles for this theme.</p>
+                </div>
+
+                <div id="articles-grid" class="articles-grid hidden">
+                    <!-- Articles will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = window.location.origin;
+        
+        // Theme configuration
+        const THEMES = {
+            opportunities: {
+                name: 'Opportunities',
+                description: 'Market growth, investments, and emerging trends in construction and real estate',
+                icon: 'fas fa-chart-line',
+                color: 'opportunities'
+            },
+            practices: {
+                name: 'Practices',
+                description: 'Best practices, technology, and methodologies for building and construction',
+                icon: 'fas fa-tools',
+                color: 'practices'
+            },
+            systems: {
+                name: 'Systems & Codes',
+                description: 'Infrastructure, regulations, and compliance in the built environment',
+                icon: 'fas fa-gavel',
+                color: 'systems'
+            },
+            vision: {
+                name: 'Vision',
+                description: 'Smart cities, future-of-living models, and transformative industry trends',
+                icon: 'fas fa-eye',
+                color: 'vision'
+            }
+        };
+
+        // Current page state
+        let currentPage = 'home';
+        let currentTheme = null;
+        let featuredVideo = null;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHomePage();
+        });
+
+        // Navigation functions
+        function showHome() {
+            currentPage = 'home';
+            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('theme-page').classList.add('hidden');
+            loadHomePage();
+        }
+
+        function showTheme(themeName) {
+            currentPage = 'theme';
+            currentTheme = themeName;
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('theme-page').classList.remove('hidden');
+            loadThemePage(themeName);
+        }
+
+        // Load home page
+        async function loadHomePage() {
+            showLoading('loading');
+            hideError('error');
+            hideContent('themes-container');
+
+            try {
+                // Load homepage data
+                const homeResponse = await fetch(`${API_BASE}/api/v4/home?limit=20`);
+                const homeData = await homeResponse.json();
+
+                // Load admin stats for hero section
+                const statsResponse = await fetch(`${API_BASE}/api/v4/admin/stats`);
+                const stats = await statsResponse.json();
+
+                // Update hero stats
+                document.getElementById('total-articles').textContent = stats.total_articles || 0;
+                document.getElementById('recent-articles').textContent = stats.recent_articles_24h || 0;
+                document.getElementById('avg-score').textContent = '7.2'; // Placeholder
+
+                // Load featured video
+                if (homeData.featured_video) {
+                    featuredVideo = homeData.featured_video;
+                    displayFeaturedVideo(featuredVideo);
+                }
+
+                // Group articles by themes
+                const themes = Object.keys(THEMES).map(themeName => {
+                    const config = THEMES[themeName];
+                    let themeArticles = [];
+                    
+                    // Filter articles by theme scores
+                    if (homeData.articles) {
+                        themeArticles = homeData.articles.filter(article => {
+                            const score = article.score[themeName] || 0;
+                            return score > 0;
+                        });
+                    }
+                    
+                    return {
+                        name: themeName,
+                        data: { articles: themeArticles },
+                        config: config
+                    };
+                });
+
+                displayThemes(themes);
+                hideLoading('loading');
+                showContent('themes-container');
+            } catch (error) {
+                console.error('Error loading themes:', error);
+                hideLoading('loading');
+                showError('error');
+            }
+        }
+
+        // Load theme page
+        async function loadThemePage(themeName) {
+            const themeConfig = THEMES[themeName];
+            
+            // Update page title
+            document.getElementById('theme-title').textContent = themeConfig.name;
+            
+            showLoading('theme-loading');
+            hideError('theme-error');
+            hideContent('articles-grid');
+
+            try {
+                // Load articles for specific theme
+                const articlesResponse = await fetch(`${API_BASE}/api/v4/${themeName}?limit=50`);
+                const articlesData = await articlesResponse.json();
+
+                if (articlesData.articles && articlesData.articles.length > 0) {
+                    displayArticles(articlesData.articles, themeName);
+                    hideLoading('theme-loading');
+                    showContent('articles-grid');
+                } else {
+                    hideLoading('theme-loading');
+                    showError('theme-error');
+                }
+            } catch (error) {
+                console.error('Error loading theme:', error);
+                hideLoading('theme-loading');
+                showError('theme-error');
+            }
+        }
+
+        // Display featured video
+        function displayFeaturedVideo(video) {
+            const videoContainer = document.getElementById('featured-video');
+            const thumbnail = document.getElementById('video-thumbnail');
+            const title = document.getElementById('video-title');
+            const channel = document.getElementById('video-channel');
+            const views = document.getElementById('video-views');
+            const duration = document.getElementById('video-duration');
+            const summary = document.getElementById('video-summary');
+
+            if (video.thumbnail_url) {
+                thumbnail.src = video.thumbnail_url;
+            }
+
+            title.textContent = video.title || 'Featured Video';
+            channel.textContent = video.channel_name || 'Unknown Channel';
+            views.textContent = video.view_count ? `${video.view_count.toLocaleString()} views` : 'Views unknown';
+            duration.textContent = video.duration ? formatDuration(video.duration) : 'Duration unknown';
+            summary.textContent = video.summary || 'No summary available.';
+
+            videoContainer.classList.add('show');
+        }
+
+        // Format video duration
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${secs.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Open video in new tab
+        function openVideo() {
+            if (featuredVideo && featuredVideo.url) {
+                window.open(featuredVideo.url, '_blank');
+            }
+        }
+
+        // Display themes on home page
+        function displayThemes(themes) {
+            const container = document.getElementById('themes-grid');
+            container.innerHTML = '';
+
+            themes.forEach(theme => {
+                const themeCard = document.createElement('div');
+                themeCard.className = 'theme-card';
+                
+                const articleCount = theme.data.articles ? theme.data.articles.length : 0;
+                
+                themeCard.innerHTML = `
+                    <div class="theme-header">
+                        <div class="theme-icon ${theme.name}">
+                            <i class="${theme.config.icon}"></i>
+                        </div>
+                        <h3 class="theme-title">${theme.config.name}</h3>
+                    </div>
+                    <p class="theme-description">${theme.config.description}</p>
+                    <div class="theme-stats">
+                        <span class="article-count">${articleCount} articles</span>
+                        <a class="view-articles" onclick="showTheme('${theme.name}')">
+                            View Articles
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(themeCard);
+            });
+        }
+
+        // Display articles
+        function displayArticles(articles, themeName) {
+            const container = document.getElementById('articles-grid');
+            container.innerHTML = '';
+
+            if (articles.length === 0) {
+                container.innerHTML = '<div class="error">No articles available for this theme.</div>';
+                return;
+            }
+
+            articles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = `article-card ${themeName}`;
+                
+                const publishedDate = article.published_at ? 
+                    new Date(article.published_at).toLocaleDateString() : 'Unknown date';
+                
+                const totalScore = article.score.total || 0;
+                
+                articleCard.innerHTML = `
+                    <div class="article-header">
+                        <h3 class="article-title">${article.title}</h3>
+                        <span class="article-score">Score: ${totalScore.toFixed(1)}</span>
+                    </div>
+                    <div class="article-meta">
+                        <span><i class="fas fa-calendar"></i> ${publishedDate}</span>
+                        <span><i class="fas fa-link"></i> External Link</span>
+                    </div>
+                    <div class="article-summary">
+                        ${article.summary || 'No summary available.'}
+                    </div>
+                    <div class="article-footer">
+                        <span class="article-date">Published: ${publishedDate}</span>
+                        <a href="${article.url}" target="_blank" class="article-link">
+                            Read Article <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(articleCard);
+            });
+        }
+
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showError(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showContent(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideContent(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

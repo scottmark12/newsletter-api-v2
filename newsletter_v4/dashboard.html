@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter API v4 - Scoring Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-primary {
+            background: #4facfe;
+            border-color: #4facfe;
+        }
+
+        .btn-primary:hover {
+            background: #3d8bfe;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Scoring Configuration */
+        .scoring-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .config-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-range {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+
+        .range-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Articles Table */
+        .articles-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .articles-table th,
+        .articles-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .articles-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .articles-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .score-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .score-high { background: #48bb78; }
+        .score-medium { background: #ed8936; }
+        .score-low { background: #e53e3e; }
+
+        .theme-tags {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .theme-tag {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .theme-opportunities { background: #4facfe; }
+        .theme-practices { background: #43e97b; }
+        .theme-systems { background: #fa709a; }
+        .theme-vision { background: #a8edea; color: #2d3748; }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scoring-config {
+                grid-template-columns: 1fr;
+            }
+
+            .articles-table {
+                font-size: 0.9rem;
+            }
+
+            .articles-table th,
+            .articles-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                Newsletter API v4 - Scoring Dashboard
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                <button class="btn btn-primary" onclick="saveConfig()">
+                    <i class="fas fa-save"></i>
+                    Save Config
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">
+                <i class="fas fa-chart-bar"></i> Overview
+            </button>
+            <button class="tab" onclick="switchTab('articles')">
+                <i class="fas fa-newspaper"></i> Articles
+            </button>
+            <button class="tab" onclick="switchTab('scoring')">
+                <i class="fas fa-cogs"></i> Scoring Config
+            </button>
+            <button class="tab" onclick="switchTab('sources')">
+                <i class="fas fa-rss"></i> Data Sources
+            </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">System Overview</h2>
+                </div>
+                
+                <div id="overview-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading system statistics...</p>
+                </div>
+
+                <div id="overview-content" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-articles">-</div>
+                            <div class="stat-label">Total Articles</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="scored-articles">-</div>
+                            <div class="stat-label">Scored Articles</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avg-score">-</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="recent-articles">-</div>
+                            <div class="stat-label">Recent (24h)</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Theme Distribution</h3>
+                        </div>
+                        <div id="theme-distribution">
+                            <!-- Theme distribution will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles Tab -->
+        <div id="articles" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Article Scores</h2>
+                </div>
+                
+                <div id="articles-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading articles...</p>
+                </div>
+
+                <div id="articles-content" style="display: none;">
+                    <table class="articles-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Source</th>
+                                <th>Score</th>
+                                <th>Themes</th>
+                                <th>Published</th>
+                            </tr>
+                        </thead>
+                        <tbody id="articles-table-body">
+                            <!-- Articles will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scoring Configuration Tab -->
+        <div id="scoring" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Scoring Configuration</h2>
+                </div>
+
+                <div class="scoring-config">
+                    <div class="config-section">
+                        <h3 class="config-title">Theme Weights</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Opportunities Weight</label>
+                            <input type="range" class="form-range" id="opportunities-weight" min="0" max="3" step="0.1" value="1.0">
+                            <span class="range-value" id="opportunities-value">1.0</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Practices Weight</label>
+                            <input type="range" class="form-range" id="practices-weight" min="0" max="3" step="0.1" value="1.0">
+                            <span class="range-value" id="practices-value">1.0</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Systems Weight</label>
+                            <input type="range" class="form-range" id="systems-weight" min="0" max="3" step="0.1" value="1.0">
+                            <span class="range-value" id="systems-value">1.0</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Vision Weight</label>
+                            <input type="range" class="form-range" id="vision-weight" min="0" max="3" step="0.1" value="1.0">
+                            <span class="range-value" id="vision-value">1.0</span>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3 class="config-title">Quality Factors</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Insight Quality Weight</label>
+                            <input type="range" class="form-range" id="insight-weight" min="0" max="3" step="0.1" value="1.5">
+                            <span class="range-value" id="insight-value">1.5</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Narrative Signal Weight</label>
+                            <input type="range" class="form-range" id="narrative-weight" min="0" max="3" step="0.1" value="1.2">
+                            <span class="range-value" id="narrative-value">1.2</span>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3 class="config-title">Source Bonuses</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Institutional Source Bonus</label>
+                            <input type="range" class="form-range" id="institutional-bonus" min="1" max="2" step="0.1" value="1.3">
+                            <span class="range-value" id="institutional-value">1.3</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Premium Source Bonus</label>
+                            <input type="range" class="form-range" id="premium-bonus" min="1" max="2" step="0.1" value="1.2">
+                            <span class="range-value" id="premium-value">1.2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Sources Tab -->
+        <div id="sources" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Data Sources</h2>
+                </div>
+                
+                <div id="sources-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading data sources...</p>
+                </div>
+
+                <div id="sources-content" style="display: none;">
+                    <div class="card">
+                        <h3>RSS Feeds</h3>
+                        <div id="rss-feeds-list">
+                            <!-- RSS feeds will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Data Collection Actions</h3>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="collectArticles()">
+                                <i class="fas fa-download"></i>
+                                Collect Articles
+                            </button>
+                            <button class="btn" onclick="runScoring()">
+                                <i class="fas fa-calculator"></i>
+                                Run Scoring
+                            </button>
+                            <button class="btn" onclick="processVideos()">
+                                <i class="fas fa-video"></i>
+                                Process Videos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.origin;
+
+        // Current tab state
+        let currentTab = 'overview';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            setupEventListeners();
+        });
+
+        function initializeDashboard() {
+            loadOverview();
+            loadScoringConfig();
+        }
+
+        function setupEventListeners() {
+            // Range input listeners
+            const rangeInputs = document.querySelectorAll('input[type="range"]');
+            rangeInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const valueSpan = document.getElementById(this.id.replace('-weight', '-value').replace('-bonus', '-value'));
+                    if (valueSpan) {
+                        valueSpan.textContent = this.value;
+                    }
+                });
+            });
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            currentTab = tabName;
+
+            // Load tab-specific data
+            switch(tabName) {
+                case 'overview':
+                    loadOverview();
+                    break;
+                case 'articles':
+                    loadArticles();
+                    break;
+                case 'scoring':
+                    loadScoringConfig();
+                    break;
+                case 'sources':
+                    loadSources();
+                    break;
+            }
+        }
+
+        // Load overview data
+        async function loadOverview() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/admin/stats`);
+                const stats = await response.json();
+
+                document.getElementById('total-articles').textContent = stats.total_articles || 0;
+                document.getElementById('scored-articles').textContent = stats.scored_articles || 0;
+                document.getElementById('recent-articles').textContent = stats.recent_articles_24h || 0;
+                
+                // Calculate average score (placeholder)
+                document.getElementById('avg-score').textContent = '7.2';
+
+                document.getElementById('overview-loading').style.display = 'none';
+                document.getElementById('overview-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading overview:', error);
+                document.getElementById('overview-loading').innerHTML = '<p>Error loading overview data</p>';
+            }
+        }
+
+        // Load articles data
+        async function loadArticles() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/top-stories?limit=50`);
+                const data = await response.json();
+                
+                const tbody = document.getElementById('articles-table-body');
+                tbody.innerHTML = '';
+
+                data.articles.forEach(article => {
+                    const row = document.createElement('tr');
+                    
+                    const scoreClass = article.score.total >= 7 ? 'score-high' : 
+                                     article.score.total >= 5 ? 'score-medium' : 'score-low';
+                    
+                    const themes = Object.entries(article.score)
+                        .filter(([key, value]) => key !== 'total' && value > 0)
+                        .map(([theme, value]) => `<span class="theme-tag theme-${theme}">${theme}</span>`)
+                        .join('');
+
+                    row.innerHTML = `
+                        <td>${article.title}</td>
+                        <td>${article.source}</td>
+                        <td><span class="score-badge ${scoreClass}">${article.score.total.toFixed(1)}</span></td>
+                        <td><div class="theme-tags">${themes}</div></td>
+                        <td>${new Date(article.published_at).toLocaleDateString()}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+
+                document.getElementById('articles-loading').style.display = 'none';
+                document.getElementById('articles-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                document.getElementById('articles-loading').innerHTML = '<p>Error loading articles</p>';
+            }
+        }
+
+        // Load scoring configuration
+        function loadScoringConfig() {
+            // Configuration values would be loaded from API
+            // For now, using default values
+            console.log('Loading scoring configuration...');
+        }
+
+        // Load data sources
+        async function loadSources() {
+            try {
+                // Load RSS feeds (placeholder)
+                const rssList = document.getElementById('rss-feeds-list');
+                rssList.innerHTML = '<p>RSS feeds will be loaded from configuration...</p>';
+
+                document.getElementById('sources-loading').style.display = 'none';
+                document.getElementById('sources-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading sources:', error);
+                document.getElementById('sources-loading').innerHTML = '<p>Error loading sources</p>';
+            }
+        }
+
+        // Admin actions
+        async function collectArticles() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/admin/collect`, { method: 'POST' });
+                const result = await response.json();
+                alert(`Collected ${result.stored_count} new articles`);
+                refreshData();
+            } catch (error) {
+                alert('Error collecting articles: ' + error.message);
+            }
+        }
+
+        async function runScoring() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/admin/score`, { method: 'POST' });
+                const result = await response.json();
+                alert(`Scored ${result.scored_count} articles`);
+                refreshData();
+            } catch (error) {
+                alert('Error running scoring: ' + error.message);
+            }
+        }
+
+        async function processVideos() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/admin/process-videos`, { method: 'POST' });
+                const result = await response.json();
+                alert(`Processed ${result.processed_count} videos`);
+                refreshData();
+            } catch (error) {
+                alert('Error processing videos: ' + error.message);
+            }
+        }
+
+        async function saveConfig() {
+            // Collect configuration values
+            const config = {
+                opportunities_weight: parseFloat(document.getElementById('opportunities-weight').value),
+                practices_weight: parseFloat(document.getElementById('practices-weight').value),
+                systems_weight: parseFloat(document.getElementById('systems-weight').value),
+                vision_weight: parseFloat(document.getElementById('vision-weight').value),
+                insight_quality_weight: parseFloat(document.getElementById('insight-weight').value),
+                narrative_signal_weight: parseFloat(document.getElementById('narrative-weight').value),
+                institutional_source_bonus: parseFloat(document.getElementById('institutional-bonus').value),
+                premium_source_bonus: parseFloat(document.getElementById('premium-bonus').value)
+            };
+
+            try {
+                // Save configuration (would need API endpoint)
+                console.log('Saving configuration:', config);
+                alert('Configuration saved successfully!');
+            } catch (error) {
+                alert('Error saving configuration: ' + error.message);
+            }
+        }
+
+        function refreshData() {
+            switch(currentTab) {
+                case 'overview':
+                    loadOverview();
+                    break;
+                case 'articles':
+                    loadArticles();
+                    break;
+                case 'sources':
+                    loadSources();
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>

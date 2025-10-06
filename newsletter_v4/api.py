@@ -695,86 +695,25 @@ async def get_admin_stats(db: Session = Depends(get_db)):
 @app.get("/website", response_class=HTMLResponse)
 async def serve_website():
     """Serve the main website"""
-    return """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Newsletter API v4</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
-            .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            h1 { color: #333; text-align: center; }
-            .endpoint { margin: 20px 0; padding: 15px; background: #f8f9fa; border-left: 4px solid #007bff; }
-            .endpoint h3 { margin: 0 0 10px 0; color: #007bff; }
-            .endpoint p { margin: 5px 0; color: #666; }
-            .theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0; }
-            .theme-card { padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; text-align: center; }
-            .theme-card h3 { margin: 0 0 10px 0; }
-            .featured-video { margin: 30px 0; padding: 20px; background: #e3f2fd; border-radius: 10px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🚀 Newsletter API v4</h1>
-            <p style="text-align: center; color: #666; font-size: 18px;">
-                Intelligent construction and real estate platform
-            </p>
-            
-            <div class="theme-grid">
-                <div class="theme-card">
-                    <h3>🎯 Opportunities</h3>
-                    <p>Market growth, investments, and emerging trends</p>
-                </div>
-                <div class="theme-card">
-                    <h3>⚙️ Practices</h3>
-                    <p>Best practices, technology, and methodologies</p>
-                </div>
-                <div class="theme-card">
-                    <h3>🏗️ Systems & Codes</h3>
-                    <p>Infrastructure, regulations, and compliance</p>
-                </div>
-                <div class="theme-card">
-                    <h3>🔮 Vision</h3>
-                    <p>Future trends, strategy, and industry outlook</p>
-                </div>
-            </div>
-            
-            <div class="featured-video">
-                <h3>📺 Featured Video</h3>
-                <p>Top-scoring construction and real estate content</p>
-                <p><em>Video integration coming soon...</em></p>
-            </div>
-            
-            <div class="endpoint">
-                <h3>📊 API Endpoints</h3>
-                <p><strong>GET /api/v4/home</strong> - Homepage with featured content</p>
-                <p><strong>GET /api/v4/top-stories</strong> - Top stories across all categories</p>
-                <p><strong>GET /api/v4/opportunities</strong> - Opportunities category articles</p>
-                <p><strong>GET /api/v4/practices</strong> - Practices category articles</p>
-                <p><strong>GET /api/v4/systems-codes</strong> - Systems & Codes category articles</p>
-                <p><strong>GET /api/v4/vision</strong> - Vision category articles</p>
-            </div>
-            
-            <div class="endpoint">
-                <h3>🧠 Intelligence Endpoints</h3>
-                <p><strong>GET /api/v4/insights/high-impact</strong> - High-impact insights</p>
-                <p><strong>GET /api/v4/insights/methodology</strong> - Methodology insights</p>
-                <p><strong>GET /api/v4/synthesis/daily-brief</strong> - AI-synthesized daily brief</p>
-            </div>
-            
-            <div class="endpoint">
-                <h3>⚡ Admin Endpoints</h3>
-                <p><strong>POST /api/v4/admin/collect</strong> - Collect articles from all sources</p>
-                <p><strong>POST /api/v4/admin/score</strong> - Run scoring on articles</p>
-                <p><strong>POST /api/v4/admin/process-videos</strong> - Process YouTube videos</p>
-                <p><strong>GET /api/v4/admin/stats</strong> - Admin statistics</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    try:
+        import os
+        website_path = os.path.join(os.path.dirname(__file__), 'website.html')
+        with open(website_path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        return f"Error loading website: {str(e)}"
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def serve_dashboard():
+    """Serve the scoring dashboard"""
+    try:
+        import os
+        dashboard_path = os.path.join(os.path.dirname(__file__), 'dashboard.html')
+        with open(dashboard_path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        return f"Error loading dashboard: {str(e)}"
 
 
 if __name__ == "__main__":
