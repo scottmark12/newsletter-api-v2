@@ -140,7 +140,7 @@ async def get_opportunities(
                           for indicator in insight_indicators)
         
         # Include if meets relevance criteria
-        if has_transformation or has_insights or score.total_score >= 0.6:
+        if has_transformation or has_insights or score.total_score >= 0.2:
             relevant_articles.append((article, score))
             
         if len(relevant_articles) >= limit:
@@ -220,7 +220,7 @@ async def get_practices(
         has_innovation = any(indicator in content_lower or indicator in title_lower 
                            for indicator in innovation_indicators)
         
-        if has_practices or has_innovation or score.total_score >= 0.6:
+        if has_practices or has_innovation or score.total_score >= 0.2:
             relevant_articles.append((article, score))
             
         if len(relevant_articles) >= limit:
