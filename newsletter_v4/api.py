@@ -90,7 +90,7 @@ async def health_check():
 @app.get("/api/v4/opportunities")
 async def get_opportunities(
     limit: int = Query(10, ge=1, le=500),
-    min_score: float = Query(0.2, ge=0.0, le=1.0),
+    min_score: float = Query(0.1, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -118,40 +118,8 @@ async def get_opportunities(
         desc(ArticleScore.opportunities_score)  # Then by opportunities score
     ).limit(limit * 2).all()  # Get more to filter further
     
-    # Additional relevance filtering
-    relevant_articles = []
-    for article, score in articles:
-        # Check for high-value content indicators
-        content_lower = (article.content or "").lower()
-        title_lower = article.title.lower()
-        
-        # Look for transformation/success indicators
-        transformation_indicators = [
-            'turned into', 'grew from', 'scaled up', 'transformed', 'converted',
-            'success story', 'case study', 'wealth creation', 'portfolio growth',
-            'investment returns', 'market opportunity', 'emerging market'
-        ]
-        
-        has_transformation = any(indicator in content_lower or indicator in title_lower 
-                               for indicator in transformation_indicators)
-        
-        # Look for actionable insights
-        insight_indicators = [
-            'how to', 'framework', 'strategy', 'approach', 'methodology',
-            'best practices', 'lessons learned', 'insights', 'analysis'
-        ]
-        
-        has_insights = any(indicator in content_lower or indicator in title_lower 
-                          for indicator in insight_indicators)
-        
-        # Include if meets relevance criteria
-        if has_transformation or has_insights or score.total_score >= 0.1:
-            relevant_articles.append((article, score))
-            
-        if len(relevant_articles) >= limit:
-            break
-    
-    articles = relevant_articles[:limit]
+    # Use all articles that meet the score threshold - no additional keyword filtering
+    articles = articles[:limit]
     
     result = []
     for article, score in articles:
@@ -176,7 +144,7 @@ async def get_opportunities(
 @app.get("/api/v4/practices")
 async def get_practices(
     limit: int = Query(10, ge=1, le=500),
-    min_score: float = Query(0.3, ge=0.0, le=1.0),
+    min_score: float = Query(0.1, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -190,7 +158,7 @@ async def get_practices(
     ).filter(
         and_(
             ArticleScore.practices_score >= min_score,
-            ArticleScore.total_score >= 0.2,
+            ArticleScore.total_score >= 0.05,
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),
             Article.published_at >= cutoff_time  # Only recent articles
@@ -200,39 +168,8 @@ async def get_practices(
         desc(ArticleScore.practices_score)
     ).limit(limit * 2).all()
     
-    # Filter for actionable practices and methodologies
-    relevant_articles = []
-    for article, score in articles:
-        content_lower = (article.content or "").lower()
-        title_lower = article.title.lower()
-        
-        # Look for methodology/practice indicators
-        practice_indicators = [
-            'how to', 'step by step', 'methodology', 'process', 'workflow',
-            'best practices', 'innovative approach', 'efficiency gains',
-            'productivity improvement', 'cutting edge', 'advanced technique',
-            'implementation', 'framework', 'strategy'
-        ]
-        
-        has_practices = any(indicator in content_lower or indicator in title_lower 
-                          for indicator in practice_indicators)
-        
-        # Look for innovation indicators
-        innovation_indicators = [
-            'breakthrough', 'innovation', 'new method', 'revolutionary',
-            'advanced', 'next generation', 'futuristic', 'emerging technology'
-        ]
-        
-        has_innovation = any(indicator in content_lower or indicator in title_lower 
-                           for indicator in innovation_indicators)
-        
-        if has_practices or has_innovation or score.total_score >= 0.2:
-            relevant_articles.append((article, score))
-            
-        if len(relevant_articles) >= limit:
-            break
-    
-    articles = relevant_articles[:limit]
+    # Use all articles that meet the score threshold - no additional keyword filtering
+    articles = articles[:limit]
     
     result = []
     for article, score in articles:
@@ -271,7 +208,7 @@ async def get_systems_codes(
     ).filter(
         and_(
             ArticleScore.systems_score >= min_score,
-            ArticleScore.total_score >= 0.2,  # Minimum overall quality
+            ArticleScore.total_score >= 0.05,  # Minimum overall quality
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
