@@ -8,7 +8,7 @@ import aiohttp
 import feedparser
 import json
 from typing import List, Dict, Optional, AsyncGenerator
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 import time
@@ -49,8 +49,11 @@ class RSSCollector:
             await self.session.close()
     
     async def fetch_rss_feed(self, feed_url: str) -> List[ArticleData]:
-        """Fetch articles from a single RSS feed"""
+        """Fetch articles from a single RSS feed (only recent articles from last 72 hours)"""
         try:
+            # Calculate cutoff time for recent articles only
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=72)
+            
             async with self.session.get(feed_url) as response:
                 if response.status != 200:
                     print(f"RSS feed error: {feed_url} - Status {response.status}")
@@ -68,18 +71,22 @@ class RSSCollector:
                     if not url:
                         continue
                     
+                    # Extract metadata
+                    author = getattr(entry, 'author', None)
+                    published_at = None
+                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        published_at = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+                        
+                        # Skip articles older than 72 hours
+                        if published_at < cutoff_time:
+                            continue
+                    
                     # Extract content
                     content = ""
                     if hasattr(entry, 'content') and entry.content:
                         content = entry.content[0].value
                     elif hasattr(entry, 'summary'):
                         content = entry.summary
-                    
-                    # Extract metadata
-                    author = getattr(entry, 'author', None)
-                    published_at = None
-                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                        published_at = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
                     
                     # Extract source from feed
                     source = getattr(feed.feed, 'title', urlparse(feed_url).netloc)
@@ -95,6 +102,7 @@ class RSSCollector:
                         tags=getattr(entry, 'tags', [])
                     ))
                 
+                print(f"Collected {len(articles)} recent articles from {feed_url}")
                 return articles
                 
         except Exception as e:
@@ -147,7 +155,7 @@ class GoogleCollector:
                 'cx': self.config.data_sources.google_cse_id,
                 'q': query,
                 'num': min(num_results, 10),
-                'dateRestrict': 'd7',  # Last 7 days
+                'dateRestrict': 'd3',  # Last 3 days (72 hours)
                 'siteSearch': 'constructiondive.com OR enr.com OR bisnow.com OR commercialobserver.com'
             }
             
