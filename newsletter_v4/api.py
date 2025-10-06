@@ -988,6 +988,28 @@ async def process_videos():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/v4/admin/debug-scores")
+async def debug_scores(db: Session = Depends(get_db)):
+    """Debug endpoint to check article scores"""
+    articles = db.query(Article, ArticleScore).join(
+        ArticleScore, Article.id == ArticleScore.article_id
+    ).order_by(desc(ArticleScore.total_score)).limit(10).all()
+    
+    result = []
+    for article, score in articles:
+        result.append({
+            "id": article.id,
+            "title": article.title[:60],
+            "total_score": score.total_score,
+            "opportunities_score": score.opportunities_score,
+            "practices_score": score.practices_score,
+            "systems_score": score.systems_score,
+            "vision_score": score.vision_score
+        })
+    
+    return {"articles": result}
+
+
 @app.get("/api/v4/admin/stats")
 async def get_admin_stats(db: Session = Depends(get_db)):
     """Get admin statistics"""
