@@ -1030,33 +1030,10 @@
                 const publishedDate = article.published_at ? 
                     new Date(article.published_at).toLocaleDateString() : 'Today';
                 
-                // Generate image URL (try to extract from content first)
-                let imageUrl = article.thumbnail_url;
+                // Use server-provided image URL
+                let imageUrl = article.image_url || article.thumbnail_url;
                 
-                if (!imageUrl && article.content) {
-                    console.log('Extracting image from content for:', article.title);
-                    console.log('Article content length:', article.content.length);
-                    console.log('Content preview:', article.content.substring(0, 500));
-                    
-                    imageUrl = extractImageFromContent(article.content);
-                    console.log('Raw extracted image URL:', imageUrl);
-                    
-                    if (imageUrl) {
-                        imageUrl = cleanImageUrl(imageUrl, article.url);
-                        console.log('Cleaned image URL:', imageUrl);
-                    } else {
-                        console.log('No image found in content, trying summary...');
-                        if (article.summary) {
-                            imageUrl = extractImageFromContent(article.summary);
-                            if (imageUrl) {
-                                imageUrl = cleanImageUrl(imageUrl, article.url);
-                                console.log('Found image in summary:', imageUrl);
-                            }
-                        }
-                    }
-                }
-                
-                // If still no image, use a unique fallback based on article ID
+                // If no image URL provided, use a unique fallback based on article ID
                 if (!imageUrl) {
                     const fallbackImages = [
                         'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
@@ -1067,7 +1044,9 @@
                     ];
                     const imageIndex = (article.id || 0) % fallbackImages.length;
                     imageUrl = fallbackImages[imageIndex];
-                    console.log('Using unique fallback image for:', article.title, 'Index:', imageIndex);
+                    console.log('Using fallback image for:', article.title, 'Index:', imageIndex);
+                } else {
+                    console.log('Using server-provided image for:', article.title, 'URL:', imageUrl);
                 }
                 
                 // Generate takeaways from summary (simple bullet points)
@@ -1123,33 +1102,10 @@
                 
                 const totalScore = article.score.total || 0;
                 
-                // Generate image URL (try to extract from content first)
-                let imageUrl = article.thumbnail_url;
+                // Use server-provided image URL
+                let imageUrl = article.image_url || article.thumbnail_url;
                 
-                if (!imageUrl && article.content) {
-                    console.log('Extracting image from content for:', article.title);
-                    console.log('Article content length:', article.content.length);
-                    console.log('Content preview:', article.content.substring(0, 500));
-                    
-                    imageUrl = extractImageFromContent(article.content);
-                    console.log('Raw extracted image URL:', imageUrl);
-                    
-                    if (imageUrl) {
-                        imageUrl = cleanImageUrl(imageUrl, article.url);
-                        console.log('Cleaned image URL:', imageUrl);
-                    } else {
-                        console.log('No image found in content, trying summary...');
-                        if (article.summary) {
-                            imageUrl = extractImageFromContent(article.summary);
-                            if (imageUrl) {
-                                imageUrl = cleanImageUrl(imageUrl, article.url);
-                                console.log('Found image in summary:', imageUrl);
-                            }
-                        }
-                    }
-                }
-                
-                // If still no image, use a unique fallback based on article ID
+                // If no image URL provided, use a unique fallback based on article ID
                 if (!imageUrl) {
                     const fallbackImages = [
                         'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
@@ -1160,7 +1116,9 @@
                     ];
                     const imageIndex = (article.id || 0) % fallbackImages.length;
                     imageUrl = fallbackImages[imageIndex];
-                    console.log('Using unique fallback image for:', article.title, 'Index:', imageIndex);
+                    console.log('Using fallback image for:', article.title, 'Index:', imageIndex);
+                } else {
+                    console.log('Using server-provided image for:', article.title, 'URL:', imageUrl);
                 }
                 
                 // Generate takeaways from summary (simple bullet points)

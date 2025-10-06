@@ -28,6 +28,7 @@ class ArticleData:
     author: Optional[str] = None
     published_at: Optional[datetime] = None
     tags: Optional[List[str]] = None
+    image_url: Optional[str] = None
 
 
 class RSSCollector:

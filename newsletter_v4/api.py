@@ -19,6 +19,7 @@ from .scoring import score_article_v4, extract_insights_v4
 from .enhanced_scoring import score_article_enhanced
 from .data_collectors import collect_all_articles
 from .video_processor import find_construction_videos, process_youtube_video
+from .image_extractor import extract_article_image, get_fallback_image
 
 # Initialize configuration
 config = get_config()
@@ -242,6 +243,7 @@ async def get_practices(
             "summary": article.summary,
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
+            "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "practices": score.practices_score,
                 "total": score.total_score
@@ -647,6 +649,13 @@ async def collect_articles():
             if existing:
                 continue
             
+            # Extract image from article URL
+            image_url = None
+            try:
+                image_url = await extract_article_image(article_data.url)
+            except Exception as e:
+                print(f"Failed to extract image from {article_data.url}: {e}")
+            
             # Create new article
             article = Article(
                 title=article_data.title,
@@ -656,7 +665,8 @@ async def collect_articles():
                 source=article_data.source,
                 author=article_data.author,
                 published_at=article_data.published_at,
-                themes=json.dumps(getattr(article_data, 'tags', []) or [])
+                themes=json.dumps(getattr(article_data, 'tags', []) or []),
+                image_url=image_url
             )
             
             db.add(article)
@@ -736,6 +746,13 @@ async def collect_corporate_articles():
             if existing:
                 continue
             
+            # Extract image from article URL
+            image_url = None
+            try:
+                image_url = await extract_article_image(article_data.url)
+            except Exception as e:
+                print(f"Failed to extract image from {article_data.url}: {e}")
+            
             # Create new article
             article = Article(
                 title=article_data.title,
@@ -748,7 +765,8 @@ async def collect_corporate_articles():
                 word_count=len(article_data.content.split()) if article_data.content else 0,
                 reading_time=len(article_data.content.split()) // 200 if article_data.content else 0,
                 themes=json.dumps(getattr(article_data, 'tags', []) or []),
-                keywords=json.dumps([])
+                keywords=json.dumps([]),
+                image_url=image_url
             )
             
             db.add(article)
