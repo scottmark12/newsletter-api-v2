@@ -17,6 +17,7 @@ class ScoringResult:
     total_score: float
     theme_scores: Dict[str, float]
     narrative_signals: Dict[str, float]
+    narrative_signal: float  # Single value for API compatibility
     insight_quality: float
     actionability: float
     transformation_potential: float
@@ -314,6 +315,7 @@ class EnhancedScorer:
             total_score=total_score,
             theme_scores=theme_scores,
             narrative_signals=narrative_signals,
+            narrative_signal=sum(narrative_signals.values()) / len(narrative_signals),
             insight_quality=sum(insight_quality.values()) / len(insight_quality),
             actionability=actionability,
             transformation_potential=transformation_potential,
