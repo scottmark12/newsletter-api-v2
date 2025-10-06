@@ -1036,12 +1036,16 @@
                     let imageUrl = article.thumbnail_url;
                     
                     if (!imageUrl) {
+                        console.log('Extracting image for:', article.title);
+                        console.log('Article content preview:', article.content?.substring(0, 200));
                         imageUrl = await extractImageFromArticle(article.url, article.content);
+                        console.log('Extracted image URL:', imageUrl);
                     }
                     
                     // If still no image, use a fallback
                     if (!imageUrl) {
                         imageUrl = `https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80`;
+                        console.log('Using fallback image for:', article.title);
                     }
                 
                     // Generate takeaways from summary (simple bullet points)
@@ -1107,12 +1111,16 @@
                     let imageUrl = article.thumbnail_url;
                     
                     if (!imageUrl) {
+                        console.log('Extracting image for:', article.title);
+                        console.log('Article content preview:', article.content?.substring(0, 200));
                         imageUrl = await extractImageFromArticle(article.url, article.content);
+                        console.log('Extracted image URL:', imageUrl);
                     }
                     
                     // If still no image, use a fallback
                     if (!imageUrl) {
                         imageUrl = `https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80`;
+                        console.log('Using fallback image for:', article.title);
                     }
                 
                     // Generate takeaways from summary (simple bullet points)
@@ -1167,38 +1175,34 @@
             // First try to get image from article content if available
             if (articleContent) {
                 const contentImage = extractImageFromContent(articleContent);
-                if (contentImage) return contentImage;
+                if (contentImage) {
+                    return cleanImageUrl(contentImage, articleUrl);
+                }
             }
             
-            // If no image from content, try to fetch from the article URL
+            // Use a reliable link preview service
             try {
-                // Use a CORS proxy to fetch the article
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(articleUrl)}`;
-                const response = await fetch(proxyUrl);
+                // Use linkpreview.net which is more reliable
+                const previewUrl = `https://api.linkpreview.net/?key=5b54e&q=${encodeURIComponent(articleUrl)}`;
+                const response = await fetch(previewUrl);
                 
                 if (response.ok) {
-                    const html = await response.text();
-                    
-                    // Extract Open Graph image first (most reliable)
-                    const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i);
-                    if (ogImageMatch && ogImageMatch[1]) {
-                        return cleanImageUrl(ogImageMatch[1], articleUrl);
-                    }
-                    
-                    // Extract Twitter card image
-                    const twitterImageMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i);
-                    if (twitterImageMatch && twitterImageMatch[1]) {
-                        return cleanImageUrl(twitterImageMatch[1], articleUrl);
-                    }
-                    
-                    // Extract first meaningful image from content
-                    const contentImage = extractImageFromContent(html);
-                    if (contentImage) {
-                        return cleanImageUrl(contentImage, articleUrl);
+                    const data = await response.json();
+                    if (data.image && data.image !== '') {
+                        return data.image;
                     }
                 }
             } catch (error) {
-                console.log('Could not fetch article for image extraction:', error);
+                console.log('Link preview service failed:', error);
+            }
+            
+            // Fallback: Use a simple image proxy service
+            try {
+                // Try a different approach - use a screenshot service
+                const screenshotUrl = `https://api.screenshotmachine.com?key=demo&url=${encodeURIComponent(articleUrl)}&dimension=800x600&format=png&cacheLimit=0`;
+                return screenshotUrl;
+            } catch (error) {
+                console.log('Screenshot service failed:', error);
             }
             
             return null;
@@ -1207,30 +1211,47 @@
         function extractImageFromContent(content) {
             if (!content) return null;
             
+            // Clean up the content first
+            const cleanContent = content.replace(/\\"/g, '"').replace(/\\'/g, "'");
+            
             // Try multiple image extraction patterns
             const patterns = [
+                // Standard img tags
                 /<img[^>]+src="([^"]+)"/gi,
                 /<img[^>]+src='([^']+)'/gi,
+                // Figure tags with images
+                /<figure[^>]*>.*?<img[^>]+src="([^"]+)"/gis,
+                /<figure[^>]*>.*?<img[^>]+src='([^']+)'/gis,
+                // Any src attribute with image extensions
                 /src="([^"]*\.(?:jpg|jpeg|png|gif|webp|svg)[^"]*)"/gi,
                 /src='([^']*\.(?:jpg|jpeg|png|gif|webp|svg)[^']*)'/gi
             ];
             
             for (const pattern of patterns) {
-                const matches = content.match(pattern);
+                const matches = cleanContent.match(pattern);
                 if (matches && matches.length > 0) {
                     // Extract the URL from the match
                     const urlMatch = matches[0].match(/src=["']([^"']+)["']/i);
                     if (urlMatch && urlMatch[1]) {
                         let imageUrl = urlMatch[1];
                         
-                        // Filter out common non-image URLs
+                        // Clean up the URL
+                        imageUrl = imageUrl.replace(/\\/g, '');
+                        
+                        // Filter out common non-image URLs and check for valid image
                         if (!imageUrl.includes('logo') && 
                             !imageUrl.includes('icon') && 
                             !imageUrl.includes('avatar') &&
                             !imageUrl.includes('placeholder') &&
                             !imageUrl.includes('spacer') &&
                             !imageUrl.includes('pixel') &&
-                            imageUrl.length > 10) {
+                            !imageUrl.includes('banner') &&
+                            !imageUrl.includes('advertisement') &&
+                            !imageUrl.includes('ads') &&
+                            imageUrl.length > 10 &&
+                            (imageUrl.includes('.jpg') || imageUrl.includes('.jpeg') || 
+                             imageUrl.includes('.png') || imageUrl.includes('.gif') || 
+                             imageUrl.includes('.webp') || imageUrl.includes('.svg'))) {
                             return imageUrl;
                         }
                     }
