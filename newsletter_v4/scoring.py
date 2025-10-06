@@ -494,3 +494,4 @@ def score_article_v4(title: str, content: str, source: str, url: str) -> Scoring
 def extract_insights_v4(content: str, theme_scores: Dict[str, float]) -> List[Dict]:
     """Convenience function to extract insights"""
     return scorer.extract_insights(content, theme_scores)
+# Test deployment fix
