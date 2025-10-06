@@ -170,7 +170,7 @@ async def get_opportunities(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+        return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/practices")
@@ -251,7 +251,7 @@ async def get_practices(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+        return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/systems-codes")
@@ -332,7 +332,7 @@ async def get_systems_codes(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+        return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/vision")
@@ -365,7 +365,7 @@ async def get_vision(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+        return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 # ============================================================================
@@ -403,7 +403,7 @@ async def get_top_stories(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+        return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/home")
