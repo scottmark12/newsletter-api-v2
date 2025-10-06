@@ -21,6 +21,7 @@ class ScoringResult:
     insight_quality: float
     actionability: float
     transformation_potential: float
+    source_credibility: float  # Add missing field
     details: Dict[str, any]
 
 
@@ -319,6 +320,7 @@ class EnhancedScorer:
             insight_quality=sum(insight_quality.values()) / len(insight_quality),
             actionability=actionability,
             transformation_potential=transformation_potential,
+            source_credibility=source_credibility,
             details=details
         )
     
