@@ -353,58 +353,134 @@
         .article-card {
             background: white;
             border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-            transition: all 0.2s ease-in-out;
-            border: 1px solid #e5e7eb;
-            position: relative;
             overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            margin-bottom: 2rem;
         }
 
         .article-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
-            border-color: #d1d5db;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
         }
 
-        .article-card.opportunities { 
-            border-left: 3px solid #3b82f6; 
-        }
-        .article-card.practices { 
-            border-left: 3px solid #10b981; 
-        }
-        .article-card.vision { 
-            border-left: 3px solid #8b5cf6; 
-        }
-
-        .article-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .article-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #111827;
-            line-height: 1.5;
-            margin-bottom: 0.75rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        .article-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #f3f4f6;
             overflow: hidden;
         }
 
-        .article-score {
+        .article-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .article-card:hover .article-image {
+            transform: scale(1.05);
+        }
+
+        .article-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: #f3f4f6;
-            color: #6b7280;
+        }
+
+        .article-image-placeholder svg {
+            width: 80px;
+            height: 80px;
+            color: #9ca3af;
+            opacity: 0.5;
+        }
+
+        .source-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
             padding: 0.375rem 0.75rem;
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 500;
-            white-space: nowrap;
-            border: 1px solid #e5e7eb;
+            color: #111827;
+            border: 1px solid rgba(229, 231, 235, 0.8);
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+        }
+
+        .article-content {
+            padding: 1.5rem;
+        }
+
+        .article-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
+            transition: color 0.2s ease;
+        }
+
+        .article-card:hover .article-title {
+            color: #3b82f6;
+        }
+
+        .article-synopsis {
+            color: rgba(17, 24, 39, 0.9);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+
+        .article-takeaways {
+            margin-bottom: 1rem;
+        }
+
+        .takeaway-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .takeaway-checkmark {
+            font-size: 1.125rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .takeaway-text {
+            font-size: 0.875rem;
+            color: rgba(17, 24, 39, 0.8);
+            line-height: 1.5;
+        }
+
+        .why-it-matters {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(243, 244, 246, 0.5);
+            border-radius: 0.5rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .why-it-matters-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .why-it-matters-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.5;
         }
 
         .article-meta {
@@ -446,22 +522,27 @@
         }
 
         .article-link {
-            background: #3b82f6;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s ease-in-out;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            color: #3b82f6;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
         }
 
         .article-link:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
+            gap: 0.75rem;
+        }
+
+        .article-link-icon {
+            width: 1rem;
+            height: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .article-link:hover .article-link-icon {
+            transform: translate(0.125rem, -0.125rem);
         }
 
         .article-date {
@@ -895,28 +976,119 @@
                 
                 const totalScore = article.score.total || 0;
                 
+                // Generate image URL (try to extract from content or use placeholder)
+                const imageUrl = article.thumbnail_url || extractImageFromContent(article.content) || null;
+                
+                // Generate takeaways from summary (simple bullet points)
+                const takeaways = generateTakeaways(article.summary || article.content);
+                
+                // Generate "why it matters" from content
+                const whyItMatters = generateWhyItMatters(article.summary || article.content);
+                
                 articleCard.innerHTML = `
-                    <div class="article-header">
-                        <h3 class="article-title">${article.title}</h3>
-                        <span class="article-score">Score: ${totalScore.toFixed(1)}</span>
+                    <div class="article-image-container">
+                        ${imageUrl ? 
+                            `<img src="${imageUrl}" alt="${article.title}" class="article-image" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\"article-image-placeholder\\"><svg fill=\\"none\\" stroke=\\"currentColor\\" viewBox=\\"0 0 24 24\\"><path stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" stroke-width=\\"1.5\\" d=\\"M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z\\" /></svg></div>'">` :
+                            `<div class="article-image-placeholder">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                            </div>`
+                        }
+                        <div class="source-badge">${article.source}</div>
                     </div>
-                    <div class="article-meta">
-                        <span><i class="fas fa-calendar"></i> ${publishedDate}</span>
-                        <span><i class="fas fa-link"></i> External Link</span>
-                    </div>
-                    <div class="article-summary">
-                        ${article.summary || 'No summary available.'}
-                    </div>
-                    <div class="article-footer">
-                        <span class="article-date">Published: ${publishedDate}</span>
-                        <a href="${article.url}" target="_blank" class="article-link">
-                            Read Article <i class="fas fa-external-link-alt"></i>
+                    <div class="article-content">
+                        <h2 class="article-title">${article.title}</h2>
+                        <p class="article-synopsis">${article.summary || 'No summary available.'}</p>
+                        ${takeaways.length > 0 ? `
+                            <div class="article-takeaways">
+                                ${takeaways.map(takeaway => `
+                                    <div class="takeaway-item">
+                                        <span class="takeaway-checkmark">✅</span>
+                                        <p class="takeaway-text">${takeaway}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        ${whyItMatters ? `
+                            <div class="why-it-matters">
+                                <p class="why-it-matters-title">Why it matters</p>
+                                <p class="why-it-matters-text">${whyItMatters}</p>
+                            </div>
+                        ` : ''}
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span>Read full story</span>
+                            <svg class="article-link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
                         </a>
                     </div>
                 `;
                 
                 container.appendChild(articleCard);
             });
+        }
+
+        // Helper functions for article formatting
+        function extractImageFromContent(content) {
+            if (!content) return null;
+            const imgRegex = /<img[^>]+src="([^"]+)"/i;
+            const match = content.match(imgRegex);
+            return match ? match[1] : null;
+        }
+
+        function generateTakeaways(text) {
+            if (!text) return [];
+            // Simple extraction of key points from summary
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
+            const takeaways = [];
+            
+            // Look for sentences that contain key indicators
+            const indicators = ['will', 'could', 'should', 'expected', 'projected', 'planned', 'announced', 'reported'];
+            
+            for (let i = 0; i < Math.min(sentences.length, 3); i++) {
+                const sentence = sentences[i].trim();
+                if (indicators.some(indicator => sentence.toLowerCase().includes(indicator))) {
+                    takeaways.push(sentence.substring(0, 120) + (sentence.length > 120 ? '...' : ''));
+                }
+            }
+            
+            // If no indicators found, take first few sentences
+            if (takeaways.length === 0) {
+                for (let i = 0; i < Math.min(sentences.length, 2); i++) {
+                    const sentence = sentences[i].trim();
+                    if (sentence.length > 20) {
+                        takeaways.push(sentence.substring(0, 120) + (sentence.length > 120 ? '...' : ''));
+                    }
+                }
+            }
+            
+            return takeaways;
+        }
+
+        function generateWhyItMatters(text) {
+            if (!text) return null;
+            
+            // Look for sentences that explain impact or significance
+            const impactWords = ['impact', 'significance', 'important', 'crucial', 'key', 'major', 'significant', 'affects', 'influences'];
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 30);
+            
+            for (const sentence of sentences) {
+                const lowerSentence = sentence.toLowerCase();
+                if (impactWords.some(word => lowerSentence.includes(word))) {
+                    return sentence.trim().substring(0, 200) + (sentence.length > 200 ? '...' : '');
+                }
+            }
+            
+            // Fallback: return a middle sentence if it's substantial
+            if (sentences.length > 2) {
+                const middleSentence = sentences[Math.floor(sentences.length / 2)].trim();
+                if (middleSentence.length > 50) {
+                    return middleSentence.substring(0, 200) + (middleSentence.length > 200 ? '...' : '');
+                }
+            }
+            
+            return null;
         }
 
         // Utility functions
