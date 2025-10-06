@@ -88,7 +88,7 @@ async def health_check():
 
 @app.get("/api/v4/opportunities")
 async def get_opportunities(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     min_score: float = Query(0.3, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
@@ -174,7 +174,7 @@ async def get_opportunities(
 
 @app.get("/api/v4/practices")
 async def get_practices(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     min_score: float = Query(0.3, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
@@ -254,7 +254,7 @@ async def get_practices(
 
 @app.get("/api/v4/systems-codes")
 async def get_systems_codes(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     min_score: float = Query(0.1, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
@@ -335,7 +335,7 @@ async def get_systems_codes(
 
 @app.get("/api/v4/vision")
 async def get_vision(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     db: Session = Depends(get_db)
 ):
     """Get articles in the Vision category"""
@@ -372,7 +372,7 @@ async def get_vision(
 
 @app.get("/api/v4/top-stories")
 async def get_top_stories(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     db: Session = Depends(get_db)
 ):
     """Get top stories across all categories"""
@@ -406,7 +406,7 @@ async def get_top_stories(
 
 @app.get("/api/v4/home")
 async def get_home_page(
-    limit: int = Query(15, ge=1, le=50),
+    limit: int = Query(15, ge=1, le=500),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -473,7 +473,7 @@ async def get_home_page(
 
 @app.get("/api/v4/insights/high-impact")
 async def get_high_impact_insights(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     db: Session = Depends(get_db)
 ):
     """Get high-impact insights from articles"""
@@ -505,7 +505,7 @@ async def get_high_impact_insights(
 
 @app.get("/api/v4/insights/methodology")
 async def get_methodology_insights(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     db: Session = Depends(get_db)
 ):
     """Get methodology and process insights"""
@@ -541,7 +541,7 @@ async def get_methodology_insights(
 
 @app.get("/api/v4/developer/opportunities")
 async def get_developer_opportunities(
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=500),
     db: Session = Depends(get_db)
 ):
     """Get developer and technology opportunities"""
