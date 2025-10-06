@@ -22,7 +22,7 @@ class ScoringResult:
     actionability: float
     transformation_potential: float
     source_credibility: float  # Add missing field
-    details: Dict[str, any]
+    scoring_details: Dict[str, any]  # Renamed for API compatibility
 
 
 class NarrativeSignalDetector:
@@ -321,7 +321,7 @@ class EnhancedScorer:
             actionability=actionability,
             transformation_potential=transformation_potential,
             source_credibility=source_credibility,
-            details=details
+            scoring_details=details
         )
     
     def _get_source_credibility(self, source: str) -> float:
