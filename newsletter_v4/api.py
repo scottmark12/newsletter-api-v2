@@ -144,13 +144,12 @@ async def get_opportunities(
         has_insights = any(indicator in content_lower or indicator in title_lower 
                           for indicator in insight_indicators)
         
-        # Include if meets relevance criteria
-        if has_transformation or has_insights or score.total_score >= 0.1:
+        # Include if meets relevance criteria (more permissive)
+        if has_transformation or has_insights or score.total_score >= 0.1 or score.opportunities_score >= 0.1:
             relevant_articles.append((article, score))
-            
-        if len(relevant_articles) >= limit:
-            break
     
+    # Sort by relevance (total score first, then opportunities score)
+    relevant_articles.sort(key=lambda x: (x[1].total_score, x[1].opportunities_score), reverse=True)
     articles = relevant_articles[:limit]
     
     result = []
@@ -226,12 +225,12 @@ async def get_practices(
         has_innovation = any(indicator in content_lower or indicator in title_lower 
                            for indicator in innovation_indicators)
         
-        if has_practices or has_innovation or score.total_score >= 0.2:
+        # Include if meets relevance criteria (more permissive)
+        if has_practices or has_innovation or score.total_score >= 0.1 or score.practices_score >= 0.1:
             relevant_articles.append((article, score))
-            
-        if len(relevant_articles) >= limit:
-            break
     
+    # Sort by relevance (total score first, then practices score)
+    relevant_articles.sort(key=lambda x: (x[1].total_score, x[1].practices_score), reverse=True)
     articles = relevant_articles[:limit]
     
     result = []
@@ -408,7 +407,7 @@ async def get_top_stories(
 
 @app.get("/api/v4/home")
 async def get_home_page(
-    limit: int = Query(15, ge=1, le=500),
+    limit: int = Query(7, ge=1, le=500),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -437,6 +436,7 @@ async def get_home_page(
             "summary": article.summary,
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
+            "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "total": score.total_score,
                 "opportunities": score.opportunities_score,
