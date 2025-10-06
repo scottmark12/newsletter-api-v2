@@ -1035,17 +1035,39 @@
                 
                 if (!imageUrl && article.content) {
                     console.log('Extracting image from content for:', article.title);
+                    console.log('Article content length:', article.content.length);
+                    console.log('Content preview:', article.content.substring(0, 500));
+                    
                     imageUrl = extractImageFromContent(article.content);
+                    console.log('Raw extracted image URL:', imageUrl);
+                    
                     if (imageUrl) {
                         imageUrl = cleanImageUrl(imageUrl, article.url);
+                        console.log('Cleaned image URL:', imageUrl);
+                    } else {
+                        console.log('No image found in content, trying summary...');
+                        if (article.summary) {
+                            imageUrl = extractImageFromContent(article.summary);
+                            if (imageUrl) {
+                                imageUrl = cleanImageUrl(imageUrl, article.url);
+                                console.log('Found image in summary:', imageUrl);
+                            }
+                        }
                     }
-                    console.log('Extracted image URL:', imageUrl);
                 }
                 
-                // If still no image, use a fallback
+                // If still no image, use a unique fallback based on article ID
                 if (!imageUrl) {
-                    imageUrl = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80';
-                    console.log('Using fallback image for:', article.title);
+                    const fallbackImages = [
+                        'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'
+                    ];
+                    const imageIndex = (article.id || 0) % fallbackImages.length;
+                    imageUrl = fallbackImages[imageIndex];
+                    console.log('Using unique fallback image for:', article.title, 'Index:', imageIndex);
                 }
                 
                 // Generate takeaways from summary (simple bullet points)
@@ -1106,17 +1128,39 @@
                 
                 if (!imageUrl && article.content) {
                     console.log('Extracting image from content for:', article.title);
+                    console.log('Article content length:', article.content.length);
+                    console.log('Content preview:', article.content.substring(0, 500));
+                    
                     imageUrl = extractImageFromContent(article.content);
+                    console.log('Raw extracted image URL:', imageUrl);
+                    
                     if (imageUrl) {
                         imageUrl = cleanImageUrl(imageUrl, article.url);
+                        console.log('Cleaned image URL:', imageUrl);
+                    } else {
+                        console.log('No image found in content, trying summary...');
+                        if (article.summary) {
+                            imageUrl = extractImageFromContent(article.summary);
+                            if (imageUrl) {
+                                imageUrl = cleanImageUrl(imageUrl, article.url);
+                                console.log('Found image in summary:', imageUrl);
+                            }
+                        }
                     }
-                    console.log('Extracted image URL:', imageUrl);
                 }
                 
-                // If still no image, use a fallback
+                // If still no image, use a unique fallback based on article ID
                 if (!imageUrl) {
-                    imageUrl = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80';
-                    console.log('Using fallback image for:', article.title);
+                    const fallbackImages = [
+                        'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'
+                    ];
+                    const imageIndex = (article.id || 0) % fallbackImages.length;
+                    imageUrl = fallbackImages[imageIndex];
+                    console.log('Using unique fallback image for:', article.title, 'Index:', imageIndex);
                 }
                 
                 // Generate takeaways from summary (simple bullet points)
@@ -1203,6 +1247,8 @@
         function extractImageFromContent(content) {
             if (!content) return null;
             
+            console.log('Extracting images from content, length:', content.length);
+            
             // Clean up the content first
             const cleanContent = content.replace(/\\"/g, '"').replace(/\\'/g, "'");
             
@@ -1216,22 +1262,36 @@
                 /<figure[^>]*>.*?<img[^>]+src='([^']+)'/gis,
                 // Any src attribute with image extensions
                 /src="([^"]*\.(?:jpg|jpeg|png|gif|webp|svg)[^"]*)"/gi,
-                /src='([^']*\.(?:jpg|jpeg|png|gif|webp|svg)[^']*)'/gi
+                /src='([^']*\.(?:jpg|jpeg|png|gif|webp|svg)[^']*)'/gi,
+                // More aggressive patterns
+                /https?:\/\/[^"\s]+\.(?:jpg|jpeg|png|gif|webp|svg)/gi,
+                /\/[^"\s]*\.(?:jpg|jpeg|png|gif|webp|svg)/gi
             ];
+            
+            const foundImages = [];
             
             for (const pattern of patterns) {
                 const matches = cleanContent.match(pattern);
                 if (matches && matches.length > 0) {
-                    // Extract the URL from the match
-                    const urlMatch = matches[0].match(/src=["']([^"']+)["']/i);
-                    if (urlMatch && urlMatch[1]) {
-                        let imageUrl = urlMatch[1];
+                    console.log('Found matches with pattern:', pattern.toString(), matches.length);
+                    
+                    for (const match of matches) {
+                        let imageUrl = match;
+                        
+                        // Extract URL from img tags
+                        if (match.includes('src=')) {
+                            const urlMatch = match.match(/src=["']([^"']+)["']/i);
+                            if (urlMatch && urlMatch[1]) {
+                                imageUrl = urlMatch[1];
+                            }
+                        }
                         
                         // Clean up the URL
-                        imageUrl = imageUrl.replace(/\\/g, '');
+                        imageUrl = imageUrl.replace(/\\/g, '').trim();
                         
                         // Filter out common non-image URLs and check for valid image
-                        if (!imageUrl.includes('logo') && 
+                        if (imageUrl.length > 10 &&
+                            !imageUrl.includes('logo') && 
                             !imageUrl.includes('icon') && 
                             !imageUrl.includes('avatar') &&
                             !imageUrl.includes('placeholder') &&
@@ -1240,16 +1300,26 @@
                             !imageUrl.includes('banner') &&
                             !imageUrl.includes('advertisement') &&
                             !imageUrl.includes('ads') &&
-                            imageUrl.length > 10 &&
+                            !imageUrl.includes('favicon') &&
                             (imageUrl.includes('.jpg') || imageUrl.includes('.jpeg') || 
                              imageUrl.includes('.png') || imageUrl.includes('.gif') || 
-                             imageUrl.includes('.webp') || imageUrl.includes('.svg'))) {
-                            return imageUrl;
+                             imageUrl.includes('.webp') || imageUrl.includes('.svg') ||
+                             imageUrl.includes('images.') || imageUrl.includes('img.'))) {
+                            
+                            console.log('Valid image found:', imageUrl);
+                            foundImages.push(imageUrl);
                         }
                     }
                 }
             }
             
+            // Return the first valid image found
+            if (foundImages.length > 0) {
+                console.log('Returning first valid image:', foundImages[0]);
+                return foundImages[0];
+            }
+            
+            console.log('No valid images found in content');
             return null;
         }
 
