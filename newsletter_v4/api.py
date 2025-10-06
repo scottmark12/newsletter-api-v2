@@ -6,7 +6,7 @@ Clean, modern API with comprehensive endpoints
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from sqlalchemy import create_engine, func, desc, and_, or_
+from sqlalchemy import create_engine, func, desc, and_, or_, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
@@ -810,6 +810,51 @@ async def collect_corporate_articles():
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v4/admin/migrate-add-image-url")
+async def migrate_add_image_url():
+    """Add image_url column to articles_v4 table"""
+    try:
+        db = SessionLocal()
+        
+        # Check if column already exists
+        result = db.execute(text("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'articles_v4' 
+            AND column_name = 'image_url'
+        """))
+        
+        if result.fetchone():
+            db.close()
+            return {
+                "ok": True,
+                "message": "image_url column already exists",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        
+        # Add the image_url column
+        db.execute(text("""
+            ALTER TABLE articles_v4 
+            ADD COLUMN image_url VARCHAR(1000)
+        """))
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": "Successfully added image_url column to articles_v4 table",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
 
 @app.delete("/api/v4/admin/clear-articles")
