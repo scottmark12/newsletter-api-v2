@@ -105,18 +105,18 @@ async def get_opportunities(
     ).filter(
         and_(
             or_(
-                ArticleScore.opportunities_score >= min_score,
-                ArticleScore.systems_score >= min_score  # Include systems & codes articles
+                ArticleScore.opportunities_score >= 0.1,  # Lower threshold
+                ArticleScore.systems_score >= 0.1,  # Include systems & codes articles
+                ArticleScore.total_score >= 0.2  # Include high-quality articles regardless of theme
             ),
-            ArticleScore.total_score >= 0.1,  # Minimum overall quality
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
-            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
+            or_(func.length(Article.content) > 100, func.length(Article.summary) > 100),  # Lower content length requirement
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
         desc(ArticleScore.total_score),  # Rank by total score first
         desc(ArticleScore.opportunities_score)  # Then by opportunities score
-    ).limit(limit * 2).all()  # Get more to filter further
+    ).limit(limit * 3).all()  # Get more to filter further
     
     # Additional relevance filtering
     relevant_articles = []
@@ -144,8 +144,8 @@ async def get_opportunities(
         has_insights = any(indicator in content_lower or indicator in title_lower 
                           for indicator in insight_indicators)
         
-        # Include if meets relevance criteria (more permissive)
-        if has_transformation or has_insights or score.total_score >= 0.1 or score.opportunities_score >= 0.1:
+        # Include if meets relevance criteria (very permissive)
+        if has_transformation or has_insights or score.total_score >= 0.1 or score.opportunities_score >= 0.05 or score.systems_score >= 0.05:
             relevant_articles.append((article, score))
     
     # Sort by relevance (total score first, then opportunities score)
@@ -188,16 +188,18 @@ async def get_practices(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
         and_(
-            ArticleScore.practices_score >= min_score,
-            ArticleScore.total_score >= 0.2,
+            or_(
+                ArticleScore.practices_score >= 0.1,  # Lower threshold
+                ArticleScore.total_score >= 0.2  # Include high-quality articles regardless of theme
+            ),
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
-            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),
+            or_(func.length(Article.content) > 100, func.length(Article.summary) > 100),  # Lower content length requirement
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
         desc(ArticleScore.total_score),
         desc(ArticleScore.practices_score)
-    ).limit(limit * 2).all()
+    ).limit(limit * 3).all()
     
     # Filter for actionable practices and methodologies
     relevant_articles = []
@@ -225,8 +227,8 @@ async def get_practices(
         has_innovation = any(indicator in content_lower or indicator in title_lower 
                            for indicator in innovation_indicators)
         
-        # Include if meets relevance criteria (more permissive)
-        if has_practices or has_innovation or score.total_score >= 0.1 or score.practices_score >= 0.1:
+        # Include if meets relevance criteria (very permissive)
+        if has_practices or has_innovation or score.total_score >= 0.1 or score.practices_score >= 0.05:
             relevant_articles.append((article, score))
     
     # Sort by relevance (total score first, then practices score)
