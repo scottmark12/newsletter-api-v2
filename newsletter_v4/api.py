@@ -562,6 +562,83 @@ async def collect_articles():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/v4/admin/collect-corporate")
+async def collect_corporate_articles():
+    """Collect articles from corporate insights only"""
+    try:
+        from .data_collectors import collect_corporate_articles
+        
+        # Run corporate data collection
+        articles = await collect_corporate_articles()
+        
+        # Store in database
+        db = SessionLocal()
+        stored_count = 0
+        
+        for article_data in articles:
+            # Check if article already exists
+            existing = db.query(Article).filter(Article.url == article_data.url).first()
+            if existing:
+                continue
+            
+            # Create new article
+            article = Article(
+                title=article_data.title,
+                url=article_data.url,
+                content=article_data.content or "",
+                summary=article_data.summary or "",
+                source=article_data.source,
+                author=article_data.author,
+                published_at=article_data.published_at,
+                word_count=len(article_data.content.split()) if article_data.content else 0,
+                reading_time=len(article_data.content.split()) // 200 if article_data.content else 0,
+                themes=json.dumps(article_data.tags or []),
+                keywords=json.dumps([])
+            )
+            
+            db.add(article)
+            db.flush()  # Get the ID
+            
+            # Score the article
+            scoring_result = score_article_v4(
+                article_data.title,
+                article_data.content or "",
+                article_data.source,
+                article_data.url
+            )
+            
+            # Store score
+            score = ArticleScore(
+                article_id=article.id,
+                total_score=scoring_result.total_score,
+                opportunities_score=scoring_result.theme_scores.get('opportunities', 0),
+                practices_score=scoring_result.theme_scores.get('practices', 0),
+                systems_score=scoring_result.theme_scores.get('systems', 0),
+                vision_score=scoring_result.theme_scores.get('vision', 0),
+                insight_quality_score=scoring_result.insight_quality_score,
+                narrative_signal_score=scoring_result.narrative_signal_score,
+                source_credibility_score=scoring_result.source_credibility_score,
+                scoring_details=json.dumps(scoring_result.details)
+            )
+            
+            db.add(score)
+            stored_count += 1
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": f"Collected and stored {stored_count} new corporate articles",
+            "total_collected": len(articles),
+            "source": "corporate_insights",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/v4/admin/score")
 async def run_scoring():
     """Run scoring on all unscored articles"""
