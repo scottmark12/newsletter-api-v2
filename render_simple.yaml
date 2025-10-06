@@ -5,7 +5,7 @@ services:
     env: python
     plan: starter
     buildCommand: |
-      pip install -r requirements_v4_simple.txt
+      pip install -r requirements.txt
     startCommand: python main.py
     envVars:
       - key: PYTHON_VERSION
@@ -24,7 +24,7 @@ services:
     env: python
     plan: starter
     buildCommand: |
-      pip install -r requirements_v4_simple.txt
+      pip install -r requirements.txt
     startCommand: python -m app_v4.worker
     envVars:
       - key: PYTHON_VERSION
