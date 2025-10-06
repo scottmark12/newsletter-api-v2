@@ -701,10 +701,10 @@ async def collect_corporate_articles():
                 practices_score=scoring_result.theme_scores.get('practices', 0),
                 systems_score=scoring_result.theme_scores.get('systems', 0),
                 vision_score=scoring_result.theme_scores.get('vision', 0),
-                insight_quality_score=scoring_result.insight_quality_score,
-                narrative_signal_score=scoring_result.narrative_signal_score,
-                source_credibility_score=scoring_result.source_credibility_score,
-                scoring_details=json.dumps(scoring_result.details)
+                insight_quality_score=scoring_result.insight_quality,
+                narrative_signal_score=scoring_result.narrative_signal,
+                source_credibility_score=scoring_result.source_credibility,
+                scoring_details=json.dumps(scoring_result.scoring_details)
             )
             
             db.add(score)
