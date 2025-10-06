@@ -243,10 +243,10 @@ class WorkingCorporateScraper:
         return articles
     
     async def _extract_article_from_container(self, container, source: WorkingCorporateSource) -> Optional[ArticleData]:
-        """Extract article data from a container element (only recent articles from last 72 hours)"""
+        """Extract article data from a container element (only recent articles from last 30 days)"""
         
-        # Calculate cutoff time for recent articles only
-        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=72)
+        # Calculate cutoff time for recent articles only (30 days)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(days=30)
         
         # Extract title
         title_elem = container.select_one(source.article_selectors["title"])
@@ -286,7 +286,7 @@ class WorkingCorporateScraper:
         if not published_at:
             published_at = datetime.now(timezone.utc) - timedelta(days=30)
         
-        # Skip articles older than 72 hours
+        # Skip articles older than 30 days
         if published_at < cutoff_time:
             return None
         
