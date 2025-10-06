@@ -105,18 +105,18 @@ async def get_opportunities(
     ).filter(
         and_(
             or_(
-                ArticleScore.opportunities_score >= 0.1,  # Lower threshold
-                ArticleScore.systems_score >= 0.1,  # Include systems & codes articles
-                ArticleScore.total_score >= 0.2  # Include high-quality articles regardless of theme
+                ArticleScore.opportunities_score >= min_score,
+                ArticleScore.systems_score >= min_score  # Include systems & codes articles
             ),
+            ArticleScore.total_score >= 0.1,  # Minimum overall quality
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
-            or_(func.length(Article.content) > 100, func.length(Article.summary) > 100),  # Lower content length requirement
+            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
         desc(ArticleScore.total_score),  # Rank by total score first
         desc(ArticleScore.opportunities_score)  # Then by opportunities score
-    ).limit(limit * 3).all()  # Get more to filter further
+    ).limit(limit * 2).all()  # Get more to filter further
     
     # Additional relevance filtering
     relevant_articles = []
@@ -144,12 +144,13 @@ async def get_opportunities(
         has_insights = any(indicator in content_lower or indicator in title_lower 
                           for indicator in insight_indicators)
         
-        # Include if meets relevance criteria (very permissive)
-        if has_transformation or has_insights or score.total_score >= 0.1 or score.opportunities_score >= 0.05 or score.systems_score >= 0.05:
+        # Include if meets relevance criteria
+        if has_transformation or has_insights or score.total_score >= 0.1:
             relevant_articles.append((article, score))
+            
+        if len(relevant_articles) >= limit:
+            break
     
-    # Sort by relevance (total score first, then opportunities score)
-    relevant_articles.sort(key=lambda x: (x[1].total_score, x[1].opportunities_score), reverse=True)
     articles = relevant_articles[:limit]
     
     result = []
@@ -188,18 +189,16 @@ async def get_practices(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
         and_(
-            or_(
-                ArticleScore.practices_score >= 0.1,  # Lower threshold
-                ArticleScore.total_score >= 0.2  # Include high-quality articles regardless of theme
-            ),
+            ArticleScore.practices_score >= min_score,
+            ArticleScore.total_score >= 0.2,
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
-            or_(func.length(Article.content) > 100, func.length(Article.summary) > 100),  # Lower content length requirement
+            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
         desc(ArticleScore.total_score),
         desc(ArticleScore.practices_score)
-    ).limit(limit * 3).all()
+    ).limit(limit * 2).all()
     
     # Filter for actionable practices and methodologies
     relevant_articles = []
@@ -227,12 +226,12 @@ async def get_practices(
         has_innovation = any(indicator in content_lower or indicator in title_lower 
                            for indicator in innovation_indicators)
         
-        # Include if meets relevance criteria (very permissive)
-        if has_practices or has_innovation or score.total_score >= 0.1 or score.practices_score >= 0.05:
+        if has_practices or has_innovation or score.total_score >= 0.2:
             relevant_articles.append((article, score))
+            
+        if len(relevant_articles) >= limit:
+            break
     
-    # Sort by relevance (total score first, then practices score)
-    relevant_articles.sort(key=lambda x: (x[1].total_score, x[1].practices_score), reverse=True)
     articles = relevant_articles[:limit]
     
     result = []
