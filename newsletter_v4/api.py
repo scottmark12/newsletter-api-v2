@@ -15,7 +15,8 @@ import json
 
 from .config import get_config
 from .models import Base, Article, ArticleScore, ArticleInsight, Video, ContentSource
-from .scoring import score_article_v4, extract_insights_v4
+from .scoring import score_article_v4
+from .enhanced_scoring import score_article_enhanced
 from .data_collectors import collect_all_articles
 from .video_processor import find_construction_videos, process_youtube_video
 
@@ -88,16 +89,59 @@ async def health_check():
 @app.get("/api/v4/opportunities")
 async def get_opportunities(
     limit: int = Query(10, ge=1, le=50),
+    min_score: float = Query(0.3, ge=0.0, le=1.0),
     db: Session = Depends(get_db)
 ):
-    """Get articles in the Opportunities category"""
+    """Get high-relevance articles in the Opportunities category"""
+    # Enhanced query with relevance filtering and better ranking
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
-        ArticleScore.opportunities_score > 0
+        and_(
+            ArticleScore.opportunities_score >= min_score,
+            ArticleScore.total_score >= 0.4,  # Minimum overall quality
+            Article.content.isnot(None),
+            func.length(Article.content) > 200  # Minimum content length
+        )
     ).order_by(
-        desc(ArticleScore.opportunities_score)
-    ).limit(limit).all()
+        desc(ArticleScore.total_score),  # Rank by total score first
+        desc(ArticleScore.opportunities_score)  # Then by opportunities score
+    ).limit(limit * 2).all()  # Get more to filter further
+    
+    # Additional relevance filtering
+    relevant_articles = []
+    for article, score in articles:
+        # Check for high-value content indicators
+        content_lower = (article.content or "").lower()
+        title_lower = article.title.lower()
+        
+        # Look for transformation/success indicators
+        transformation_indicators = [
+            'turned into', 'grew from', 'scaled up', 'transformed', 'converted',
+            'success story', 'case study', 'wealth creation', 'portfolio growth',
+            'investment returns', 'market opportunity', 'emerging market'
+        ]
+        
+        has_transformation = any(indicator in content_lower or indicator in title_lower 
+                               for indicator in transformation_indicators)
+        
+        # Look for actionable insights
+        insight_indicators = [
+            'how to', 'framework', 'strategy', 'approach', 'methodology',
+            'best practices', 'lessons learned', 'insights', 'analysis'
+        ]
+        
+        has_insights = any(indicator in content_lower or indicator in title_lower 
+                          for indicator in insight_indicators)
+        
+        # Include if meets relevance criteria
+        if has_transformation or has_insights or score.total_score >= 0.6:
+            relevant_articles.append((article, score))
+            
+        if len(relevant_articles) >= limit:
+            break
+    
+    articles = relevant_articles[:limit]
     
     result = []
     for article, score in articles:
@@ -121,16 +165,58 @@ async def get_opportunities(
 @app.get("/api/v4/practices")
 async def get_practices(
     limit: int = Query(10, ge=1, le=50),
+    min_score: float = Query(0.3, ge=0.0, le=1.0),
     db: Session = Depends(get_db)
 ):
-    """Get articles in the Practices category"""
+    """Get high-relevance articles in the Practices category"""
+    # Enhanced query with relevance filtering for actionable insights
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
-        ArticleScore.practices_score > 0
+        and_(
+            ArticleScore.practices_score >= min_score,
+            ArticleScore.total_score >= 0.4,
+            Article.content.isnot(None),
+            func.length(Article.content) > 200
+        )
     ).order_by(
+        desc(ArticleScore.total_score),
         desc(ArticleScore.practices_score)
-    ).limit(limit).all()
+    ).limit(limit * 2).all()
+    
+    # Filter for actionable practices and methodologies
+    relevant_articles = []
+    for article, score in articles:
+        content_lower = (article.content or "").lower()
+        title_lower = article.title.lower()
+        
+        # Look for methodology/practice indicators
+        practice_indicators = [
+            'how to', 'step by step', 'methodology', 'process', 'workflow',
+            'best practices', 'innovative approach', 'efficiency gains',
+            'productivity improvement', 'cutting edge', 'advanced technique',
+            'implementation', 'framework', 'strategy'
+        ]
+        
+        has_practices = any(indicator in content_lower or indicator in title_lower 
+                          for indicator in practice_indicators)
+        
+        # Look for innovation indicators
+        innovation_indicators = [
+            'breakthrough', 'innovation', 'new method', 'revolutionary',
+            'advanced', 'next generation', 'futuristic', 'emerging technology'
+        ]
+        
+        has_innovation = any(indicator in content_lower or indicator in title_lower 
+                           for indicator in innovation_indicators)
+        
+        if has_practices or has_innovation or score.total_score >= 0.6:
+            relevant_articles.append((article, score))
+            
+        if len(relevant_articles) >= limit:
+            break
+    
+    articles = relevant_articles[:limit]
     
     result = []
     for article, score in articles:
@@ -507,8 +593,8 @@ async def collect_articles():
             db.add(article)
             db.flush()  # Get the ID
             
-            # Score the article
-            scoring_result = score_article_v4(
+            # Score the article with enhanced system
+            scoring_result = score_article_enhanced(
                 article_data.title,
                 article_data.content or "",
                 article_data.source,
@@ -599,8 +685,8 @@ async def collect_corporate_articles():
             db.add(article)
             db.flush()  # Get the ID
             
-            # Score the article
-            scoring_result = score_article_v4(
+            # Score the article with enhanced system
+            scoring_result = score_article_enhanced(
                 article_data.title,
                 article_data.content or "",
                 article_data.source,
