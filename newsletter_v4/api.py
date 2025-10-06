@@ -6,7 +6,7 @@ Clean, modern API with comprehensive endpoints
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from sqlalchemy import create_engine, func, desc, and_
+from sqlalchemy import create_engine, func, desc, and_, or_
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
@@ -104,8 +104,8 @@ async def get_opportunities(
         and_(
             ArticleScore.opportunities_score >= min_score,
             ArticleScore.total_score >= 0.2,  # Minimum overall quality
-            Article.content.isnot(None),
-            func.length(Article.content) > 200,  # Minimum content length
+            or_(Article.content.isnot(None), Article.summary.isnot(None)),
+            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
@@ -185,8 +185,8 @@ async def get_practices(
         and_(
             ArticleScore.practices_score >= min_score,
             ArticleScore.total_score >= 0.2,
-            Article.content.isnot(None),
-            func.length(Article.content) > 200,
+            or_(Article.content.isnot(None), Article.summary.isnot(None)),
+            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
