@@ -23,11 +23,13 @@ from .video_processor import find_construction_videos, process_youtube_video
 config = get_config()
 
 # Create database engine and session
-engine = create_engine(config.database.url, echo=config.database.echo)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from .database import create_database_engine, get_session_maker, create_tables
+
+engine = create_database_engine()
+SessionLocal = get_session_maker()
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+create_tables()
 
 # Initialize FastAPI app
 app = FastAPI(
