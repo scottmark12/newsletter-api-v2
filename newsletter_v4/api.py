@@ -354,12 +354,18 @@ async def get_top_stories(
 @app.get("/api/v4/home")
 async def get_home_page(
     limit: int = Query(15, ge=1, le=50),
+    hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
     """Get homepage content with featured video"""
-    # Get top articles
+    # Calculate cutoff time
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+    
+    # Get top articles from the specified time period
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
+    ).filter(
+        Article.published_at >= cutoff_time
     ).order_by(
         desc(ArticleScore.total_score)
     ).limit(limit).all()
