@@ -860,19 +860,10 @@
                 // Group articles by themes
                 const themes = Object.keys(THEMES).map(themeName => {
                     const config = THEMES[themeName];
-                    let themeArticles = [];
-                    
-                    // Filter articles by theme scores
-                    if (homeData.articles) {
-                        themeArticles = homeData.articles.filter(article => {
-                            const score = article.score[themeName] || 0;
-                            return score > 0;
-                        });
-                    }
                     
                     return {
                         name: themeName,
-                        data: { articles: themeArticles },
+                        data: { articles: [] }, // Will be populated when clicked
                         config: config
                     };
                 });
@@ -882,7 +873,7 @@
                     displayTopStories(topStoriesData.articles);
                 }
                 
-                displayThemes(themes);
+                await displayThemes(themes);
                 hideLoading('loading');
                 showContent('themes-container');
             } catch (error) {
@@ -967,16 +958,16 @@
         }
 
         // Display themes on home page
-        function displayThemes(themes) {
+        async function displayThemes(themes) {
             const container = document.getElementById('themes-grid');
             container.innerHTML = '';
 
-            themes.forEach(theme => {
+            // Create theme cards and fetch article counts
+            for (const theme of themes) {
                 const themeCard = document.createElement('div');
                 themeCard.className = 'theme-card';
                 
-                const articleCount = theme.data.articles ? theme.data.articles.length : 0;
-                
+                // Show loading state initially
                 themeCard.innerHTML = `
                     <div class="theme-header">
                         <div class="theme-icon ${theme.name}">
@@ -986,7 +977,7 @@
                     </div>
                     <p class="theme-description">${theme.config.description}</p>
                     <div class="theme-stats">
-                        <span class="article-count">${articleCount} articles</span>
+                        <span class="article-count">Loading...</span>
                         <a class="view-articles" onclick="showTheme('${theme.name}')">
                             View Articles
                         </a>
@@ -994,7 +985,22 @@
                 `;
                 
                 container.appendChild(themeCard);
-            });
+                
+                // Fetch actual article count for this theme
+                try {
+                    const response = await fetch(`${API_BASE}/api/v4/${theme.name}?limit=50`);
+                    const data = await response.json();
+                    const articleCount = data.articles ? data.articles.length : 0;
+                    
+                    // Update the count
+                    const countElement = themeCard.querySelector('.article-count');
+                    countElement.textContent = `${articleCount} articles`;
+                } catch (error) {
+                    console.error(`Error fetching ${theme.name} count:`, error);
+                    const countElement = themeCard.querySelector('.article-count');
+                    countElement.textContent = '0 articles';
+                }
+            }
         }
 
         // Display today's top stories
