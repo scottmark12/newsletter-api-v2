@@ -611,12 +611,12 @@ async def collect_articles():
             db.flush()  # Get the ID
             
             # Score the article with enhanced system
-                # Temporarily use basic scoring to fix deployment issue
-                scoring_result = score_article_v4(
-                    article_data.title,
-                    article_data.content or "",
-                    article_data.source
-                )
+            # Temporarily use basic scoring to fix deployment issue
+            scoring_result = score_article_v4(
+                article_data.title,
+                article_data.content or "",
+                article_data.source
+            )
             
             # Store score
             score = ArticleScore(
@@ -711,12 +711,12 @@ async def collect_corporate_articles():
             db.flush()  # Get the ID
             
             # Score the article with enhanced system
-                # Temporarily use basic scoring to fix deployment issue
-                scoring_result = score_article_v4(
-                    article_data.title,
-                    article_data.content or "",
-                    article_data.source
-                )
+            # Temporarily use basic scoring to fix deployment issue
+            scoring_result = score_article_v4(
+                article_data.title,
+                article_data.content or "",
+                article_data.source
+            )
             
             # Store score
             score = ArticleScore(
