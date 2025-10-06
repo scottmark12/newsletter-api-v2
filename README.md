@@ -1,135 +1,217 @@
-# 🏗️ Newsletter API v2 - Developer Intelligence System
+# 🚀 Newsletter API v4
 
-A **construction & real estate intelligence API** designed for aspiring developers. Crawls industry sources, scores content with AI, and delivers actionable insights in a "Chill CEO" executive format.
+A completely fresh, modern newsletter platform for construction and real estate intelligence.
 
-## 🎯 **What It Does**
+## ✨ Features
 
-- **Crawls Tier-1 Sources**: ENR, Dodge, Commercial Observer, Bisnow, ULI, Construction Dive
-- **AI-Powered Scoring**: Prioritizes $1B+ projects, tech innovations, and opportunities  
-- **Developer-Focused**: Surfaces JVs, financing deals, policy changes, and breakthrough tech
-- **Executive Format**: "Why it matters" + "CEO takeaway" for each story
-- **YouTube Integration**: Construction tech videos from The B1M, Practical Engineering, etc.
+### 🎯 **Intelligent Categorization**
+- **Opportunities**: Market growth, investments, emerging trends
+- **Practices**: Best practices, technology, methodologies  
+- **Systems & Codes**: Infrastructure, regulations, compliance
+- **Vision**: Future trends, strategy, industry outlook
 
-## 🚀 **Live Example**
+### 🧠 **Smart Scoring System**
+- Theme-based content analysis
+- Insight quality assessment
+- Narrative signal detection
+- Source credibility evaluation
+- Configurable scoring weights
 
-**Top Story Today**: Cleveland Browns $2.4B Stadium (Score: 187.3)
-- **Why it matters**: AECOM Hunt-Turner JV shows major partnership model
-- **CEO Takeaway**: Study mixed funding structure ($1.2B private + $1.2B public)
+### 📊 **Data Sources**
+- RSS feed aggregation
+- Google Custom Search integration
+- Web scraping and crawling
+- YouTube video processing
 
-## 📊 **API Endpoints**
+### 🎥 **Video Integration**
+- YouTube transcript extraction
+- Video content scoring
+- Featured video on homepage
+- Construction-specific video discovery
 
-```bash
-# Daily developer intelligence brief
-GET /api/brief/daily
+## 🏗️ Architecture
 
-# Weekly summary with best video/podcast
-GET /api/brief/weekly  
-
-# Video feed from construction YouTube channels
-GET /api/videos/feed
-
-# Trigger article crawling
-POST /ingest/start?limit=20
-
-# Run AI scoring on articles
-POST /score/run?limit=25
+### Clean Module Structure
+```
+newsletter_v4/
+├── __init__.py          # Package initialization
+├── config.py            # Configuration management
+├── models.py            # Database models
+├── scoring.py           # Intelligent scoring system
+├── data_collectors.py   # Data collection modules
+├── video_processor.py   # Video processing
+├── api.py              # FastAPI application
+└── database.py         # Database utilities
 ```
 
-## 🛠️ **Quick Start**
+### Modern Tech Stack
+- **FastAPI** - Modern, fast web framework
+- **SQLAlchemy** - Advanced ORM with async support
+- **Pydantic** - Data validation and settings
+- **aiohttp** - Async HTTP client
+- **BeautifulSoup** - Web scraping
+- **feedparser** - RSS feed processing
 
-### Local Development
+## 🚀 Quick Start
+
+### 1. Installation
 ```bash
-# Clone and setup
-git clone <your-repo-url>
-cd NEWSLETTER-API-main
 pip install -r requirements.txt
-
-# Set environment variables
-cp .env.example .env
-# Add your OPENAI_API_KEY
-
-# Run locally
-./run_local.sh
-# API available at http://localhost:10000
 ```
 
-### Deploy to Render (Free)
-1. Push to GitHub
-2. Connect to [Render](https://render.com)
-3. Uses `render.yaml` config automatically
-4. Set `OPENAI_API_KEY` in environment variables
+### 2. Configuration
+Set environment variables:
+```bash
+# Optional: Google Search API
+export GOOGLE_API_KEY="your_google_api_key"
+export GOOGLE_CSE_ID="your_custom_search_engine_id"
 
-## 🎨 **Lovable Integration**
+# Optional: YouTube API
+export YOUTUBE_API_KEY="your_youtube_api_key"
 
-Perfect for building construction intelligence dashboards:
-
-```javascript
-// Get developer opportunities
-const brief = await fetch('https://your-api.onrender.com/api/brief/daily');
-const data = await brief.json();
-
-// Display high-scoring projects
-data.top_stories.forEach(story => {
-  if (story.score > 100) {
-    console.log(`🚀 ${story.headline} (${story.score})`);
-    console.log(`Action: ${story.ceo_takeaway}`);
-  }
-});
+# Optional: Database (defaults to SQLite)
+export DATABASE_URL="postgresql://user:pass@host:port/db"
 ```
 
-See `lovable-integration.md` for complete integration guide.
-
-## 🏗️ **Scoring Algorithm**
-
-Prioritizes content for aspiring developers:
-
-- **🚀 Breakthrough Tech** (15pts): 3D printing, modular, mass timber, AI design
-- **🏗️ Major Projects** (25pts): Stadiums, hospitals, data centers  
-- **💰 Big Deals** (2.5x multiplier): $1B+ projects get massive score boost
-- **🤝 Partnerships** (1.2x): JVs, consortiums show collaboration opportunities
-- **❌ Penalties** (-20pts): Filters out retail/restaurant operational news
-
-## 📁 **Project Structure**
-
-```
-app/
-├── main.py              # FastAPI app & endpoints
-├── crawler.py           # RSS/HTML crawling
-├── scoring.py           # Developer-focused AI scoring  
-├── db.py               # SQLite database schema
-├── ceo_voice.py        # "Chill CEO" formatting
-├── youtube_handler.py   # Video processing
-├── macro_data.py       # Economic indicators
-└── seeds.json          # RSS feeds & YouTube channels
-
-render.yaml             # Deployment configuration
-requirements.txt        # Python dependencies
-lovable-integration.md  # Frontend integration guide
+### 3. Initialize Database
+```bash
+python -c "from newsletter_v4.database import create_database; create_database()"
 ```
 
-## 🔧 **Tech Stack**
+### 4. Run Application
+```bash
+python main.py
+```
 
-- **Backend**: FastAPI, SQLAlchemy, SQLite
-- **AI**: OpenAI GPT for scoring & summaries
-- **Crawling**: RSS feeds, HTML parsing
-- **Deployment**: Render (free tier)
-- **Frontend Ready**: CORS enabled, JSON API
+The API will be available at `http://localhost:8000`
 
-## 📈 **Key Features**
+## 📡 API Endpoints
 
-- **Dollar Value Detection**: Automatically scores $2.4B projects higher
-- **Project Stage Tracking**: Groundbreaking → Topping Out → Opens
-- **Fact-Check Flagging**: Identifies content needing verification
-- **Geographic Intelligence**: Tracks opportunity zones and emerging markets
-- **Technology Focus**: Prioritizes repeatable, scalable construction methods
+### Theme Categories
+- `GET /api/v4/opportunities` - Opportunities articles
+- `GET /api/v4/practices` - Practices articles  
+- `GET /api/v4/systems-codes` - Systems & Codes articles
+- `GET /api/v4/vision` - Vision articles
 
-## 🎯 **Perfect For**
+### Main Endpoints
+- `GET /api/v4/home` - Homepage with featured content
+- `GET /api/v4/top-stories` - Top stories across categories
 
-- **Aspiring Developers**: Find project opportunities and partnership models
-- **Construction Tech**: Track innovation adoption and breakthrough methods  
-- **Real Estate Intelligence**: Policy changes, financing trends, market signals
-- **Executive Dashboards**: "So what, now what" actionable intelligence
+### Intelligence
+- `GET /api/v4/insights/high-impact` - High-impact insights
+- `GET /api/v4/insights/methodology` - Methodology insights
+- `GET /api/v4/synthesis/daily-brief` - AI daily brief
+
+### Developer
+- `GET /api/v4/developer/opportunities` - Tech opportunities
+
+### Admin
+- `POST /api/v4/admin/collect` - Collect articles
+- `POST /api/v4/admin/score` - Run scoring
+- `POST /api/v4/admin/process-videos` - Process videos
+- `GET /api/v4/admin/stats` - System statistics
+
+### System
+- `GET /` - API information
+- `GET /health` - Health check
+- `GET /website` - Web interface
+
+## 🎯 Scoring System
+
+### Theme Detection
+Automatically categorizes content into 4 themes using pattern matching:
+- **Opportunities**: Investment, growth, expansion keywords
+- **Practices**: Technology, methodology, process keywords  
+- **Systems**: Infrastructure, regulation, compliance keywords
+- **Vision**: Future, strategy, innovation keywords
+
+### Quality Factors
+- **Insight Quality**: Depth of analysis and evidence
+- **Narrative Signal**: Storytelling and coherence
+- **Source Credibility**: Authority and reputation
+
+### Configurable Weights
+All scoring parameters can be adjusted via environment variables:
+```bash
+OPPORTUNITIES_WEIGHT=1.0
+PRACTICES_WEIGHT=1.2
+SYSTEMS_WEIGHT=0.8
+VISION_WEIGHT=1.1
+INSIGHT_QUALITY_WEIGHT=1.5
+NARRATIVE_SIGNAL_WEIGHT=1.2
+```
+
+## 🔧 Development
+
+### Running Tests
+```bash
+# Test scoring system
+python -c "from newsletter_v4.scoring import score_article_v4; print(score_article_v4('Construction Innovation', 'New technology in construction...', 'ENR', 'https://enr.com'))"
+
+# Test data collection
+python -c "import asyncio; from newsletter_v4.data_collectors import collect_rss_articles; print(asyncio.run(collect_rss_articles()))"
+```
+
+### Database Management
+```bash
+# Initialize database
+python -c "from newsletter_v4.database import create_database; create_database()"
+
+# View stats
+curl http://localhost:8000/api/v4/admin/stats
+```
+
+## 🚀 Deployment
+
+### Render.com
+1. Push code to GitHub
+2. Connect repository to Render
+3. Use provided `render.yaml` configuration
+4. Set environment variables in Render dashboard
+
+### Docker (Optional)
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "main.py"]
+```
+
+## 📊 Monitoring
+
+### Health Checks
+- `GET /health` - Basic health status
+- `GET /api/v4/admin/stats` - Detailed statistics
+
+### Metrics
+- Total articles collected
+- Scoring coverage percentage
+- Recent activity (24h)
+- Video processing status
+
+## 🔮 Future Enhancements
+
+- [ ] AI-powered content summarization
+- [ ] Advanced video transcript analysis
+- [ ] Real-time notifications
+- [ ] Mobile app integration
+- [ ] Advanced analytics dashboard
+- [ ] Multi-language support
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
 ---
 
-**Built for developers who want to leverage unhuman tech to create deep human connection through space** 🏗️✨
+**Built with ❤️ for the construction and real estate industry**

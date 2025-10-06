@@ -1,38 +1,40 @@
 services:
-  # Web API Service
+  # Main API Service
   - type: web
-    name: newsletter-api-v2
+    name: newsletter-api-v4
     env: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python -m uvicorn app:app --host 0.0.0.0 --port $PORT"
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
     envVars:
-      - key: DATABASE_URL
-        value: "postgresql://newsletter_db_v3_user:VHpHOSx5hObdEa6nKTG0iv03i54QIjTm@dpg-d3h9c2juibrs73aome20-a/newsletter_db_v3"
-      - key: OPENAI_API_KEY
-        sync: false  # You'll set this manually in Render dashboard
-      - key: GOOGLE_CSE_API_KEY
-        sync: false  # Optional - set if you want CSE features
-      - key: GOOGLE_CSE_CX_ID
-        sync: false  # Optional - set if you want CSE features
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
+    healthCheckPath: /health
 
-  # Background Worker Service
+  # Background Worker for Data Collection
   - type: worker
-    name: newsletter-bg-worker
+    name: newsletter-v4-worker
     env: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python standalone_worker.py"  # Use standalone worker with explicit environment setup
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -c "import asyncio; from newsletter_v4.data_collectors import collect_all_articles; asyncio.run(collect_all_articles())"
     envVars:
-      - key: DATABASE_URL
-        value: "postgresql://newsletter_db_v3_user:VHpHOSx5hObdEa6nKTG0iv03i54QIjTm@dpg-d3h9c2juibrs73aome20-a/newsletter_db_v3"
-      - key: OPENAI_API_KEY
-        sync: false  # You'll set this manually in Render dashboard
-      - key: GOOGLE_CSE_API_KEY
-        sync: false  # Optional - set if you want CSE features
-      - key: GOOGLE_CSE_CX_ID
-        sync: false  # Optional - set if you want CSE features
-      - key: TIMEZONE
-        value: "America/New_York"  # Adjust to your timezone
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
 
-# Using external database - configuration removed
+  # Background Worker for Video Processing
+  - type: worker
+    name: newsletter-v4-video-worker
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -c "import asyncio; from newsletter_v4.video_processor import find_construction_videos; asyncio.run(find_construction_videos())"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
