@@ -22,9 +22,9 @@ class ArticleData:
     """Standardized article data structure"""
     title: str
     url: str
+    source: str
     content: Optional[str] = None
     summary: Optional[str] = None
-    source: str
     author: Optional[str] = None
     published_at: Optional[datetime] = None
     tags: Optional[List[str]] = None
