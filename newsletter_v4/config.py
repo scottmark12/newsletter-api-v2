@@ -66,29 +66,49 @@ class DataSourcesConfig:
 
     def __post_init__(self):
         if self.rss_feeds is None:
-            # Load comprehensive RSS feeds from seeds.json
-            import json
-            import os
-            
-            seeds_path = os.path.join(os.path.dirname(__file__), '..', 'working_feeds.json')
             try:
-                with open(seeds_path, 'r') as f:
-                    seeds_data = json.load(f)
+                # Load comprehensive RSS feeds from multiple sources
+                import json
+                import os
                 
-                # Extract all RSS feeds from seeds
                 all_feeds = []
-                for category, feeds in seeds_data.items():
-                    if isinstance(feeds, list):
-                        all_feeds.extend(feeds)
+                
+                # Load working RSS feeds
+                seeds_path = os.path.join(os.path.dirname(__file__), '..', 'working_feeds.json')
+                try:
+                    with open(seeds_path, 'r') as f:
+                        seeds_data = json.load(f)
+                    
+                    # Extract all RSS feeds from seeds
+                    for category, feeds in seeds_data.items():
+                        if isinstance(feeds, list):
+                            all_feeds.extend(feeds)
+                            
+                except Exception as e:
+                    print(f"Error loading working RSS feeds: {e}")
+                
+                # Load Google News RSS feeds
+                google_news_path = os.path.join(os.path.dirname(__file__), '..', 'google_news_feeds.json')
+                try:
+                    with open(google_news_path, 'r') as f:
+                        google_news_data = json.load(f)
+                    
+                    # Extract all Google News RSS feeds
+                    for category, feeds in google_news_data.items():
+                        if isinstance(feeds, list):
+                            all_feeds.extend(feeds)
+                            
+                except Exception as e:
+                    print(f"Error loading Google News RSS feeds: {e}")
                 
                 # Remove duplicates and filter valid RSS URLs
                 unique_feeds = list(set(all_feeds))
                 valid_feeds = [feed for feed in unique_feeds if feed.startswith('http')]
                 
-                self.rss_feeds = valid_feeds[:50]  # Limit to 50 feeds for performance
-                
+                self.rss_feeds = valid_feeds[:100]  # Increased limit to 100 feeds
+                    
             except Exception as e:
-                print(f"Warning: Could not load seeds.json: {e}")
+                print(f"Warning: Could not load RSS feeds: {e}")
                 # Fallback to basic feeds
                 self.rss_feeds = [
                     "https://feeds.feedburner.com/ConstructionDive",
