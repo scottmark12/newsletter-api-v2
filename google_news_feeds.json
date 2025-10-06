@@ -1,0 +1,38 @@
+{
+  "opportunities": [
+    "https://news.google.com/rss/search?q=real+estate+development+case+study+OR+success+story",
+    "https://news.google.com/rss/search?q=multifamily+investment+ROI+OR+returns",
+    "https://news.google.com/rss/search?q=Airbnb+investment+success+OR+portfolio",
+    "https://news.google.com/rss/search?q=adaptive+reuse+commercial+real+estate",
+    "https://news.google.com/rss/search?q=small+developer+growth+OR+scaled+up"
+  ],
+  "practices": [
+    "https://news.google.com/rss/search?q=modular+construction+OR+prefab+construction",
+    "https://news.google.com/rss/search?q=timber+construction+OR+mass+timber",
+    "https://news.google.com/rss/search?q=construction+productivity+study+OR+research",
+    "https://news.google.com/rss/search?q=building+practices+innovation+OR+efficiency",
+    "https://news.google.com/rss/search?q=architecture+design+biophilic+OR+wellness+productivity"
+  ],
+  "systems_codes": [
+    "https://news.google.com/rss/search?q=zoning+reform+real+estate",
+    "https://news.google.com/rss/search?q=building+code+timber+OR+update+OR+reform",
+    "https://news.google.com/rss/search?q=incentives+development+OR+opportunity+zone",
+    "https://news.google.com/rss/search?q=construction+regulation+update+OR+change",
+    "https://news.google.com/rss/search?q=sustainable+building+code+OR+green+building+policy"
+  ],
+  "vision": [
+    "https://news.google.com/rss/search?q=smart+city+development+OR+infrastructure",
+    "https://news.google.com/rss/search?q=future+of+real+estate+OR+future+of+cities",
+    "https://news.google.com/rss/search?q=urban+planning+insights+OR+innovation",
+    "https://news.google.com/rss/search?q=placemaking+community+impact",
+    "https://news.google.com/rss/search?q=architecture+of+the+future+OR+visionary+design"
+  ],
+  "big_firm_insights": [
+    "https://news.google.com/rss/search?q=CBRE+insights+site%3Acbre.com",
+    "https://news.google.com/rss/search?q=JLL+research+site%3Ajll.com",
+    "https://news.google.com/rss/search?q=Colliers+site%3Acolliers.com+research+OR+insights",
+    "https://news.google.com/rss/search?q=Brookfield+site%3Abrookfield.com+insights",
+    "https://news.google.com/rss/search?q=Prologis+site%3Aprologis.com+insights",
+    "https://news.google.com/rss/search?q=market+insights+site%3Anar.realtor"
+  ]
+}
