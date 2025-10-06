@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Pulse v4 - Construction Intelligence Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .score-display {
+            background: #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #718096;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        /* Theme Grid */
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .theme-icon.opportunities { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .theme-icon.practices { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+        .theme-icon.systems_codes { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .theme-icon.vision { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+
+        .theme-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .theme-description {
+            color: #718096;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .theme-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .article-count {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .view-articles {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .view-articles:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Featured Video */
+        .featured-video {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .video-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .video-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .video-thumbnail {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            background: #EF4444;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .video-description {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .video-scores {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .score-badge {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Articles Section */
+        .articles-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #e2e8f0;
+        }
+
+        .articles-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-card.opportunities { border-left-color: #10B981; }
+        .article-card.practices { border-left-color: #3B82F6; }
+        .article-card.systems_codes { border-left-color: #F59E0B; }
+        .article-card.vision { border-left-color: #8B5CF6; }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-score {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .article-summary {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .article-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .article-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .article-date {
+            color: #718096;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .themes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .video-content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .article-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Hidden class for navigation */
+        .hidden {
+            display: none;
+        }
+
+        /* Score visualization */
+        .score-visualization {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .score-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            flex: 1;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: #667eea;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        /* Loading animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+                Urban Pulse v4
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showHome()" class="active">Home</a></li>
+                <li><a href="#" onclick="showTheme('opportunities')">Opportunities</a></li>
+                <li><a href="#" onclick="showTheme('practices')">Practices</a></li>
+                <li><a href="#" onclick="showTheme('systems_codes')">Systems & Codes</a></li>
+                <li><a href="#" onclick="showTheme('vision')">Vision</a></li>
+                <li><a href="#" onclick="showTopStories()">Top Stories</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="score-display" id="score-display">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Loading scores...</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page" class="fade-in">
+            <div class="hero">
+                <h1>Urban Pulse v4</h1>
+                <p>Your intelligent construction and real estate platform with video content, AI-powered scoring, and comprehensive market insights</p>
+                
+                <div class="hero-stats" id="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number" id="total-articles">-</div>
+                        <div class="stat-label">Total Articles</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="high-quality">-</div>
+                        <div class="stat-label">High Quality</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="videos-processed">-</div>
+                        <div class="stat-label">Videos Processed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading latest insights and video content...</p>
+            </div>
+
+            <div id="error" class="error hidden">
+                <p>Unable to load content. Please try again later.</p>
+            </div>
+
+            <!-- Featured Video -->
+            <div id="featured-video" class="featured-video hidden">
+                <div class="video-header">
+                    <div class="video-icon">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <h2 class="video-title">Featured Video</h2>
+                </div>
+                <div class="video-content" id="video-content">
+                    <!-- Video content will be populated here -->
+                </div>
+            </div>
+
+            <div id="themes-container" class="hidden">
+                <div class="themes-grid" id="themes-grid">
+                    <!-- Themes will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Pages -->
+        <div id="theme-page" class="hidden">
+            <div class="articles-section">
+                <div class="section-header">
+                    <div>
+                        <div class="back-link" onclick="showHome()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </div>
+                        <h2 class="section-title" id="theme-title">Theme Articles</h2>
+                    </div>
+                </div>
+
+                <div id="theme-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading articles...</p>
+                </div>
+
+                <div id="theme-error" class="error hidden">
+                    <p>Unable to load articles for this theme.</p>
+                </div>
+
+                <div id="articles-grid" class="articles-grid hidden">
+                    <!-- Articles will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Stories Page -->
+        <div id="top-stories-page" class="hidden">
+            <div class="articles-section">
+                <div class="section-header">
+                    <div>
+                        <div class="back-link" onclick="showHome()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </div>
+                        <h2 class="section-title">Top Stories</h2>
+                    </div>
+                </div>
+
+                <div id="top-stories-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading top stories...</p>
+                </div>
+
+                <div id="top-stories-error" class="error hidden">
+                    <p>Unable to load top stories.</p>
+                </div>
+
+                <div id="top-stories-grid" class="articles-grid hidden">
+                    <!-- Top stories will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = window.location.origin;
+        
+        // Theme configuration
+        const THEMES = {
+            opportunities: {
+                name: 'Opportunities',
+                description: 'Transformation stories, scaling examples, and wealth-building opportunities',
+                icon: 'fas fa-chart-line',
+                color: 'opportunities'
+            },
+            practices: {
+                name: 'Practices',
+                description: 'Building methods, design principles, and process improvements',
+                icon: 'fas fa-tools',
+                color: 'practices'
+            },
+            systems_codes: {
+                name: 'Systems & Codes',
+                description: 'Policy updates, building code changes, and regulatory unlocks',
+                icon: 'fas fa-gavel',
+                color: 'systems_codes'
+            },
+            vision: {
+                name: 'Vision',
+                description: 'Smart cities, future-of-living models, and community impact',
+                icon: 'fas fa-eye',
+                color: 'vision'
+            }
+        };
+
+        // Current page state
+        let currentPage = 'home';
+        let currentTheme = null;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHomePage();
+        });
+
+        // Navigation functions
+        function showHome() {
+            currentPage = 'home';
+            updateNavigation('home');
+            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('theme-page').classList.add('hidden');
+            document.getElementById('top-stories-page').classList.add('hidden');
+            loadHomePage();
+        }
+
+        function showTheme(themeName) {
+            currentPage = 'theme';
+            currentTheme = themeName;
+            updateNavigation(themeName);
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('theme-page').classList.remove('hidden');
+            document.getElementById('top-stories-page').classList.add('hidden');
+            loadThemePage(themeName);
+        }
+
+        function showTopStories() {
+            currentPage = 'top-stories';
+            updateNavigation('top-stories');
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('theme-page').classList.add('hidden');
+            document.getElementById('top-stories-page').classList.remove('hidden');
+            loadTopStories();
+        }
+
+        function updateNavigation(activeItem) {
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            if (activeItem === 'home') {
+                document.querySelector('.nav-links a[onclick="showHome()"]').classList.add('active');
+            } else if (activeItem === 'top-stories') {
+                document.querySelector('.nav-links a[onclick="showTopStories()"]').classList.add('active');
+            } else {
+                document.querySelector(`.nav-links a[onclick="showTheme('${activeItem}')"]`).classList.add('active');
+            }
+        }
+
+        // Load home page
+        async function loadHomePage() {
+            showLoading('loading');
+            hideError('error');
+            hideContent('themes-container');
+            hideContent('featured-video');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/home?include_videos=true`);
+                const data = await response.json();
+                
+                if (data.ok) {
+                    displayHomePage(data);
+                    updateScoreDisplay(data.stats);
+                    hideLoading('loading');
+                    showContent('themes-container');
+                } else {
+                    throw new Error('API returned error');
+                }
+            } catch (error) {
+                console.error('Error loading home page:', error);
+                hideLoading('loading');
+                showError('error');
+            }
+        }
+
+        // Load theme page
+        async function loadThemePage(themeName) {
+            const themeConfig = THEMES[themeName];
+            
+            document.getElementById('theme-title').textContent = themeConfig.name;
+            
+            showLoading('theme-loading');
+            hideError('theme-error');
+            hideContent('articles-grid');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/${themeName}?include_videos=true`);
+                const data = await response.json();
+                
+                if (data.ok && data.articles && data.articles.length > 0) {
+                    displayArticles(data.articles, themeName);
+                    hideLoading('theme-loading');
+                    showContent('articles-grid');
+                } else {
+                    hideLoading('theme-loading');
+                    showError('theme-error');
+                }
+            } catch (error) {
+                console.error('Error loading theme:', error);
+                hideLoading('theme-loading');
+                showError('theme-error');
+            }
+        }
+
+        // Load top stories
+        async function loadTopStories() {
+            showLoading('top-stories-loading');
+            hideError('top-stories-error');
+            hideContent('top-stories-grid');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v4/top-stories?include_insights=true`);
+                const data = await response.json();
+                
+                if (data.ok && data.articles && data.articles.length > 0) {
+                    displayArticles(data.articles, 'top-stories');
+                    hideLoading('top-stories-loading');
+                    showContent('top-stories-grid');
+                } else {
+                    hideLoading('top-stories-loading');
+                    showError('top-stories-error');
+                }
+            } catch (error) {
+                console.error('Error loading top stories:', error);
+                hideLoading('top-stories-loading');
+                showError('top-stories-error');
+            }
+        }
+
+        // Display home page
+        function displayHomePage(data) {
+            // Update hero stats
+            if (data.stats) {
+                document.getElementById('total-articles').textContent = data.stats.total_articles || 0;
+                document.getElementById('high-quality').textContent = data.stats.high_quality_articles || 0;
+                document.getElementById('videos-processed').textContent = data.stats.video_content?.processed_videos || 0;
+            }
+
+            // Display featured video
+            if (data.featured_video) {
+                displayFeaturedVideo(data.featured_video);
+            }
+
+            // Display themes
+            displayThemes(data.themes);
+        }
+
+        // Display featured video
+        function displayFeaturedVideo(video) {
+            const videoContainer = document.getElementById('video-content');
+            const videoSection = document.getElementById('featured-video');
+            
+            const duration = video.duration ? formatDuration(video.duration) : 'Unknown duration';
+            const publishedDate = new Date(video.published_at).toLocaleDateString();
+            
+            videoContainer.innerHTML = `
+                <div class="video-thumbnail">
+                    <img src="${video.thumbnail_url}" alt="${video.title}">
+                    <div class="play-button" onclick="playVideo('${video.video_url}')">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <h3>${video.title}</h3>
+                    <div class="video-meta">
+                        <span><i class="fas fa-user"></i> ${video.channel_name}</span>
+                        <span><i class="fas fa-clock"></i> ${duration}</span>
+                        <span><i class="fas fa-calendar"></i> ${publishedDate}</span>
+                    </div>
+                    <p class="video-description">${video.description || 'No description available.'}</p>
+                    <div class="video-scores">
+                        <div class="score-badge">
+                            <i class="fas fa-chart-line"></i>
+                            Actionability: ${video.actionability_score?.toFixed(1) || 'N/A'}
+                        </div>
+                        <div class="score-badge">
+                            <i class="fas fa-lightbulb"></i>
+                            Quality: ${video.insight_quality?.toFixed(1) || 'N/A'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showContent('featured-video');
+        }
+
+        // Display themes on home page
+        function displayThemes(themes) {
+            const container = document.getElementById('themes-grid');
+            container.innerHTML = '';
+
+            Object.keys(THEMES).forEach(themeName => {
+                const themeData = themes[themeName];
+                const config = THEMES[themeName];
+                
+                const themeCard = document.createElement('div');
+                themeCard.className = 'theme-card fade-in';
+                
+                const articleCount = themeData ? themeData.count : 0;
+                
+                themeCard.innerHTML = `
+                    <div class="theme-header">
+                        <div class="theme-icon ${themeName}">
+                            <i class="${config.icon}"></i>
+                        </div>
+                        <h3 class="theme-title">${config.name}</h3>
+                    </div>
+                    <p class="theme-description">${config.description}</p>
+                    <div class="theme-stats">
+                        <span class="article-count">${articleCount} articles</span>
+                        <a href="#" class="view-articles" onclick="showTheme('${themeName}')">
+                            View Articles
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(themeCard);
+            });
+        }
+
+        // Display articles
+        function displayArticles(articles, context) {
+            let container;
+            if (context === 'top-stories') {
+                container = document.getElementById('top-stories-grid');
+            } else {
+                container = document.getElementById('articles-grid');
+            }
+            
+            container.innerHTML = '';
+
+            if (articles.length === 0) {
+                container.innerHTML = '<div class="error">No articles available.</div>';
+                return;
+            }
+
+            articles.forEach((article, index) => {
+                const articleCard = document.createElement('div');
+                articleCard.className = `article-card ${article.primary_theme || context} fade-in`;
+                articleCard.style.animationDelay = `${index * 0.1}s`;
+                
+                const publishedDate = article.published_at ? 
+                    new Date(article.published_at).toLocaleDateString() : 'Unknown date';
+                
+                const insightsHtml = article.insights && article.insights.length > 0 ? 
+                    `<div class="score-visualization">
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${article.composite_score}%"></div>
+                        </div>
+                        <small>${article.insights.length} insights</small>
+                    </div>` : '';
+                
+                articleCard.innerHTML = `
+                    <div class="article-header">
+                        <h3 class="article-title">${article.title}</h3>
+                        <span class="article-score">Score: ${article.composite_score?.toFixed(1) || 'N/A'}</span>
+                    </div>
+                    <div class="article-meta">
+                        <span><i class="fas fa-calendar"></i> ${publishedDate}</span>
+                        <span><i class="fas fa-link"></i> ${article.source}</span>
+                        <span><i class="fas fa-tag"></i> ${article.primary_theme || 'Uncategorized'}</span>
+                    </div>
+                    <div class="article-summary">
+                        ${article.summary || 'No summary available.'}
+                    </div>
+                    ${insightsHtml}
+                    <div class="article-footer">
+                        <span class="article-date">Published: ${publishedDate}</span>
+                        <a href="${article.url}" target="_blank" class="article-link">
+                            Read Article <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(articleCard);
+            });
+        }
+
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showError(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function showContent(elementId) {
+            document.getElementById(elementId).classList.remove('hidden');
+        }
+
+        function hideContent(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds) return 'Unknown';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${secs.toString().padStart(2, '0')}`;
+            }
+        }
+
+        function playVideo(videoUrl) {
+            window.open(videoUrl, '_blank');
+        }
+
+        function updateScoreDisplay(stats) {
+            const scoreDisplay = document.getElementById('score-display');
+            if (stats && stats.high_quality_articles) {
+                scoreDisplay.innerHTML = `
+                    <i class="fas fa-chart-line"></i>
+                    <span>${stats.high_quality_articles} high-quality articles</span>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -11,6 +11,10 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: newsletter-v4-db
+          property: connectionString
       - key: ENVIRONMENT
         value: production
       - key: ENABLE_VIDEO_SUPPORT
@@ -48,10 +52,30 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: newsletter-v4-db
+          property: connectionString
       - key: ENVIRONMENT
         value: production
       - key: ENABLE_VIDEO_SUPPORT
         value: true
+      - key: GOOGLE_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: GOOGLE_CSE_ID
+        sync: false  # Set this in Render dashboard
+      - key: YOUTUBE_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: CRAWLER_DELAY
+        value: 0.1
+      - key: CRAWLER_TIMEOUT
+        value: 10
+      - key: MAX_ARTICLES_PER_SOURCE
+        value: 50
+      - key: REQUESTS_PER_MINUTE
+        value: 60
 
   # Video Processing Worker
   - type: worker
@@ -64,10 +88,18 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: newsletter-v4-db
+          property: connectionString
       - key: ENVIRONMENT
         value: production
+      - key: YOUTUBE_API_KEY
+        sync: false  # Set this in Render dashboard
       - key: ENABLE_VIDEO_SUPPORT
         value: true
+      - key: CRAWLER_DELAY
+        value: 0.1
 
   # Website Service
   - type: web
@@ -80,6 +112,9 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: NODE_ENV
+        value: production
 
 databases:
   - name: newsletter-v4-db
