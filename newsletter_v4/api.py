@@ -501,7 +501,7 @@ async def collect_articles():
                 source=article_data.source,
                 author=article_data.author,
                 published_at=article_data.published_at,
-                tags=article_data.tags
+                themes=json.dumps(getattr(article_data, 'tags', []) or [])
             )
             
             db.add(article)
@@ -592,7 +592,7 @@ async def collect_corporate_articles():
                 published_at=article_data.published_at,
                 word_count=len(article_data.content.split()) if article_data.content else 0,
                 reading_time=len(article_data.content.split()) // 200 if article_data.content else 0,
-                themes=json.dumps(article_data.tags or []),
+                themes=json.dumps(getattr(article_data, 'tags', []) or []),
                 keywords=json.dumps([])
             )
             
