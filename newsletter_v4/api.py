@@ -90,7 +90,7 @@ async def health_check():
 async def get_opportunities(
     limit: int = Query(10, ge=1, le=50),
     min_score: float = Query(0.3, ge=0.0, le=1.0),
-    hours: int = Query(72, ge=1, le=168, description="Only articles from last N hours"),
+    hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
     """Get high-relevance articles in the Opportunities category"""
@@ -171,7 +171,7 @@ async def get_opportunities(
 async def get_practices(
     limit: int = Query(10, ge=1, le=50),
     min_score: float = Query(0.3, ge=0.0, le=1.0),
-    hours: int = Query(72, ge=1, le=168, description="Only articles from last N hours"),
+    hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
     """Get high-relevance articles in the Practices category"""
