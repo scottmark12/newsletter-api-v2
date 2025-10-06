@@ -70,7 +70,7 @@ class DataSourcesConfig:
             import json
             import os
             
-            seeds_path = os.path.join(os.path.dirname(__file__), '..', 'app', 'seeds.json')
+            seeds_path = os.path.join(os.path.dirname(__file__), '..', 'working_feeds.json')
             try:
                 with open(seeds_path, 'r') as f:
                     seeds_data = json.load(f)

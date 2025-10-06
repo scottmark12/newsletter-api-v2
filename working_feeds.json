@@ -1,0 +1,47 @@
+{
+  "tier_1_sources": [
+    "https://commercialobserver.com/feed/",
+    "https://www.constructiondive.com/feeds/news/",
+    "https://www.dezeen.com/feed/",
+    "https://www.smartcitiesdive.com/feeds/news/",
+    "https://aecmag.com/feed/",
+    "https://www.archdaily.com/feed",
+    "https://therealdeal.com/national/feed/",
+    "https://therealdeal.com/miami/feed/",
+    "https://therealdeal.com/new-york/feed/",
+    "https://therealdeal.com/la/feed/"
+  ],
+  "innovation_engineering": [
+    "https://www.constructiondive.com/feeds/news/",
+    "https://www.dezeen.com/feed/",
+    "https://www.dezeen.com/technology/feed/",
+    "https://www.smartcitiesdive.com/feeds/news/",
+    "https://aecmag.com/feed/",
+    "https://builtworlds.com/news/feed/",
+    "https://www.construction.com/feed/",
+    "https://www.engineering.com/feed/",
+    "https://www.greenbuildingadvisor.com/feed/",
+    "https://www.buildinggreen.com/feed/"
+  ],
+  "sustainability_buildings": [
+    "https://rmi.org/feed/",
+    "https://architecture2030.org/feed/",
+    "https://carbonleadershipforum.org/feed/",
+    "https://www.woodworks.org/feed/",
+    "https://www.thinkwood.com/feed/"
+  ],
+  "real_estate_news": [
+    "https://therealdeal.com/national/feed/",
+    "https://therealdeal.com/miami/feed/",
+    "https://therealdeal.com/new-york/feed/",
+    "https://therealdeal.com/la/feed/",
+    "https://www.redfin.com/news/feed/",
+    "https://www.zillow.com/research/feed/",
+    "https://www.yardimatrix.com/blog/feed/"
+  ],
+  "youtube_channels": [
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UC0intLFzLaudFG-xAvUEO-A",
+    "https://www.youtube.com/feeds/videos.xml?channel_id=UCAL3JXZSzSm8AlZyD3nQdBA"
+  ]
+}
