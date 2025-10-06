@@ -54,7 +54,29 @@ class NarrativeSignalDetector:
         self.opportunity_patterns = [
             r'\bemerging\b', r'\buntapped\b', r'\bpotential\b', r'\bopportunity\b',
             r'\bmarket.*gap\b', r'\bunderserved\b', r'\binnovative.*approach\b',
-            r'\bcreative.*solution\b', r'\bbreakthrough\b', r'\bgame.changer\b'
+            r'\bcreative.*solution\b', r'\bbreakthrough\b', r'\bgame.changer\b',
+            r'\bmodular\b', r'\bprefab\b', r'\btimber\b', r'\bmass.*timber\b',
+            r'\baffordable.*housing\b', r'\bsmart.*city\b', r'\beco.*smart\b',
+            r'\bgreen.*building\b', r'\bsustainable.*construction\b', r'\bconstruction.*growth\b',
+            r'\bmarket.*growth\b', r'\binvestment.*growth\b', r'\bdevelopment.*growth\b',
+            r'\bproject.*growth\b', r'\bbuilding.*growth\b', r'\bconstruction.*project\b',
+            r'\bdevelopment.*project\b', r'\bbuilding.*project\b', r'\bconstruction.*opportunity\b',
+            r'\bdevelopment.*opportunity\b', r'\bbuilding.*opportunity\b', r'\bconstruction.*potential\b',
+            r'\bdevelopment.*potential\b', r'\bbuilding.*potential\b', r'\bconstruction.*market\b',
+            r'\bdevelopment.*market\b', r'\bbuilding.*market\b', r'\bconstruction.*industry\b',
+            r'\bdevelopment.*industry\b', r'\bbuilding.*industry\b', r'\breal.*estate.*market\b',
+            r'\bproperty.*market\b', r'\bmarket.*analysis\b', r'\bmarket.*report\b',
+            r'\bmarket.*value\b', r'\bproperty.*value\b', r'\basset.*value\b',
+            r'\bmillion\b', r'\bbillion\b', r'\b\$.*[mb]\b', r'\b\$.*million\b', r'\b\$.*billion\b',
+            r'\brevenue.*growth\b', r'\bprofit.*growth\b', r'\bROI\b', r'\breturn.*on.*investment\b',
+            r'\bgrowth.*potential\b', r'\bgrowth.*opportunity\b', r'\bgrowth.*analysis\b',
+            r'\bexpansion.*project\b', r'\bexpansion.*opportunity\b', r'\bexpansion.*plan\b',
+            r'\bscaling.*up\b', r'\bscaling.*opportunity\b', r'\bscaling.*potential\b',
+            r'\binnovative.*approach\b', r'\binnovative.*solution\b', r'\binnovative.*method\b',
+            r'\bbreakthrough.*technology\b', r'\bbreakthrough.*method\b', r'\bbreakthrough.*approach\b',
+            r'\bcutting.*edge\b', r'\bstate.*of.*the.*art\b', r'\bnext.*generation\b',
+            r'\brevival\b', r'\brevitalization\b', r'\bredevelopment\b', r'\brenovation\b',
+            r'\btransformation\b', r'\bconversion\b', r'\badaptive.*reuse\b'
         ]
         
         # Compile patterns for efficiency
@@ -139,7 +161,7 @@ class EnhancedThemeDetector:
     """Enhanced theme detection based on narrative context, not just keywords"""
     
     def __init__(self):
-        # Opportunity Theme: Stories of transformation, wealth creation, scaling
+        # Opportunity Theme: Stories of transformation, wealth creation, scaling, and market opportunities
         self.opportunity_indicators = [
             # Wealth creation patterns
             r'\bwealth.*creation\b', r'\bbuild.*wealth\b', r'\bwealth.*building\b',
@@ -155,10 +177,47 @@ class EnhancedThemeDetector:
             
             # Market opportunities
             r'\bemerging.*market\b', r'\buntapped.*potential\b', r'\bmarket.*gap\b',
-            r'\bunderserved.*market\b', r'\bnew.*opportunity\b'
+            r'\bunderserved.*market\b', r'\bnew.*opportunity\b',
+            
+            # Construction and development opportunities
+            r'\bmodular.*construction\b', r'\bprefab.*construction\b', r'\bprefabricated\b',
+            r'\bmass.*timber\b', r'\btimber.*construction\b', r'\bwood.*construction\b',
+            r'\baffordable.*housing\b', r'\baffordable.*homes\b', r'\bhousing.*development\b',
+            r'\bsmart.*city\b', r'\beco.*smart\b', r'\bgreen.*building\b',
+            r'\bsustainable.*construction\b', r'\bgreen.*construction\b',
+            
+            # Market and investment terms
+            r'\bmarket.*growth\b', r'\bmarket.*analysis\b', r'\bmarket.*report\b',
+            r'\binvestment.*opportunity\b', r'\binvestment.*potential\b', r'\binvestment.*growth\b',
+            r'\bdevelopment.*project\b', r'\bdevelopment.*opportunity\b', r'\bdevelopment.*potential\b',
+            r'\bconstruction.*project\b', r'\bconstruction.*opportunity\b', r'\bconstruction.*growth\b',
+            r'\bbuilding.*project\b', r'\bbuilding.*development\b', r'\bbuilding.*opportunity\b',
+            
+            # Financial and business terms
+            r'\bmillion\b', r'\bbillion\b', r'\b\$.*[mb]\b', r'\b\$.*million\b', r'\b\$.*billion\b',
+            r'\brevenue.*growth\b', r'\bprofit.*growth\b', r'\bROI\b', r'\breturn.*on.*investment\b',
+            r'\bmarket.*value\b', r'\bproperty.*value\b', r'\basset.*value\b',
+            
+            # Growth and expansion terms
+            r'\bgrowth.*potential\b', r'\bgrowth.*opportunity\b', r'\bgrowth.*analysis\b',
+            r'\bexpansion.*project\b', r'\bexpansion.*opportunity\b', r'\bexpansion.*plan\b',
+            r'\bscaling.*up\b', r'\bscaling.*opportunity\b', r'\bscaling.*potential\b',
+            
+            # Innovation and breakthrough terms
+            r'\binnovative.*approach\b', r'\binnovative.*solution\b', r'\binnovative.*method\b',
+            r'\bbreakthrough.*technology\b', r'\bbreakthrough.*method\b', r'\bbreakthrough.*approach\b',
+            r'\bcutting.*edge\b', r'\bstate.*of.*the.*art\b', r'\bnext.*generation\b',
+            
+            # Revival and transformation terms
+            r'\brevival\b', r'\brevitalization\b', r'\bredevelopment\b', r'\brenovation\b',
+            r'\btransformation\b', r'\bconversion\b', r'\badaptive.*reuse\b',
+            
+            # Industry-specific opportunities
+            r'\bconstruction.*industry\b', r'\breal.*estate.*market\b', r'\bproperty.*market\b',
+            r'\bdevelopment.*market\b', r'\bconstruction.*market\b', r'\bbuilding.*market\b'
         ]
         
-        # Practices Theme: Methods, techniques, productivity improvements
+        # Practices Theme: Methods, techniques, productivity improvements, and building practices
         self.practices_indicators = [
             # Methodology/process
             r'\bhow.*to.*\b', r'\bstep.*by.*step\b', r'\bprocess.*improvement\b',
@@ -174,7 +233,34 @@ class EnhancedThemeDetector:
             
             # Best practices
             r'\bbest.*practices\b', r'\blearned.*lessons\b', r'\bproven.*methods\b',
-            r'\btested.*approach\b', r'\bvalidated.*process\b'
+            r'\btested.*approach\b', r'\bvalidated.*process\b',
+            
+            # Building and construction practices
+            r'\bbuilding.*practices\b', r'\bconstruction.*practices\b', r'\bconstruction.*methods\b',
+            r'\bbuilding.*methods\b', r'\bconstruction.*techniques\b', r'\bbuilding.*techniques\b',
+            r'\bconstruction.*technology\b', r'\bbuilding.*technology\b', r'\bconstruction.*innovation\b',
+            r'\bbuilding.*innovation\b', r'\bconstruction.*advancement\b', r'\bbuilding.*advancement\b',
+            
+            # Design and architecture practices
+            r'\bdesign.*principles\b', r'\barchitecture.*design\b', r'\bdesign.*approach\b',
+            r'\barchitectural.*practice\b', r'\bdesign.*methodology\b', r'\barchitectural.*methodology\b',
+            r'\bdesign.*innovation\b', r'\barchitectural.*innovation\b', r'\bdesign.*solution\b',
+            r'\barchitectural.*solution\b',
+            
+            # Technology and tools
+            r'\btechnology.*implementation\b', r'\btech.*integration\b', r'\bdigital.*tools\b',
+            r'\bsoftware.*solution\b', r'\bautomation\b', r'\bAI.*implementation\b',
+            r'\bmachine.*learning\b', r'\bdata.*analytics\b', r'\bIoT.*implementation\b',
+            
+            # Sustainability practices
+            r'\bsustainable.*practices\b', r'\bgreen.*practices\b', r'\benvironmental.*practices\b',
+            r'\bsustainability.*approach\b', r'\bgreen.*building.*practices\b', r'\bLEED\b',
+            r'\benergy.*efficiency\b', r'\benergy.*savings\b', r'\bcarbon.*reduction\b',
+            
+            # Quality and standards
+            r'\bquality.*improvement\b', r'\bquality.*standards\b', r'\bquality.*control\b',
+            r'\bstandards.*compliance\b', r'\bcode.*compliance\b', r'\bregulatory.*compliance\b',
+            r'\bsafety.*practices\b', r'\bsafety.*standards\b', r'\bsafety.*improvement\b'
         ]
         
         # Systems & Codes Theme: Policy, regulation, frameworks that enable new building
@@ -195,7 +281,7 @@ class EnhancedThemeDetector:
             r'\binfrastructure.*investment\b', r'\bpublic.*works\b', r'\bdevelopment.*incentives\b'
         ]
         
-        # Vision Theme: Future trends, smart cities, community development
+        # Vision Theme: Future trends, smart cities, community development, and visionary concepts
         self.vision_indicators = [
             # Future trends
             r'\bfuture.*of\b', r'\btrends.*shaping\b', r'\bwhat.*lies.*ahead\b',
@@ -211,7 +297,32 @@ class EnhancedThemeDetector:
             
             # Innovation in design
             r'\binnovative.*design\b', r'\bfuturistic.*architecture\b', r'\bnext.*gen.*buildings\b',
-            r'\brevolutionary.*concept\b', r'\bparadigm.*shift\b'
+            r'\brevolutionary.*concept\b', r'\bparadigm.*shift\b',
+            
+            # Future of cities and urban development
+            r'\bfuture.*cities\b', r'\burban.*future\b', r'\bcity.*of.*tomorrow\b',
+            r'\bfuture.*urban\b', r'\burban.*innovation\b', r'\bcity.*transformation\b',
+            r'\burban.*development\b', r'\bcity.*planning\b', r'\burban.*planning\b',
+            
+            # Technology and innovation
+            r'\btechnology.*trends\b', r'\binnovation.*trends\b', r'\btech.*trends\b',
+            r'\bdigital.*innovation\b', r'\bAI.*trends\b', r'\bmachine.*learning\b',
+            r'\bautomation.*trends\b', r'\bIoT.*trends\b', r'\bdata.*trends\b',
+            
+            # Sustainability and green future
+            r'\bsustainable.*future\b', r'\bgreen.*future\b', r'\benvironmental.*future\b',
+            r'\bclimate.*solutions\b', r'\bcarbon.*neutral\b', r'\bnet.*zero\b',
+            r'\bcircular.*economy\b', r'\bgreen.*economy\b', r'\bsustainable.*development\b',
+            
+            # Architecture and design vision
+            r'\barchitecture.*of.*the.*future\b', r'\bfuture.*architecture\b', r'\bvisionary.*design\b',
+            r'\bfuturistic.*design\b', r'\bnext.*generation.*design\b', r'\binnovative.*architecture\b',
+            r'\bcutting.*edge.*design\b', r'\bstate.*of.*the.*art.*design\b',
+            
+            # Community and lifestyle vision
+            r'\bfuture.*living\b', r'\bfuture.*lifestyle\b', r'\bfuture.*communities\b',
+            r'\bnew.*urbanism\b', r'\btransit.*oriented\b', r'\bmixed.*use.*development\b',
+            r'\bpedestrian.*friendly\b', r'\bcyclist.*friendly\b', r'\bgreen.*infrastructure\b'
         ]
         
         # Compile all patterns
