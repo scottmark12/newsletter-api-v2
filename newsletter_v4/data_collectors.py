@@ -49,17 +49,10 @@ class RSSCollector:
             await self.session.close()
     
     async def fetch_rss_feed(self, feed_url: str) -> List[ArticleData]:
-        """Fetch articles from a single RSS feed (72 hours for normal sites, 30 days for Google RSS)"""
+        """Fetch articles from a single RSS feed (only articles from past 72 hours)"""
         try:
-            # Check if this is a Google RSS feed
-            is_google_rss = "news.google.com/rss" in feed_url
-            
-            if is_google_rss:
-                # Google RSS feeds: allow 30 days but will be filtered by high scores later
-                cutoff_time = datetime.now(timezone.utc) - timedelta(days=30)
-            else:
-                # Normal RSS sites: only 72 hours
-                cutoff_time = datetime.now(timezone.utc) - timedelta(hours=72)
+            # All RSS feeds: only 72 hours
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=72)
             
             async with self.session.get(feed_url) as response:
                 if response.status != 200:
@@ -109,10 +102,7 @@ class RSSCollector:
                         tags=getattr(entry, 'tags', [])
                     ))
                 
-                if is_google_rss:
-                    print(f"Collected {len(articles)} articles from Google RSS: {feed_url}")
-                else:
-                    print(f"Collected {len(articles)} recent articles (72h) from {feed_url}")
+                print(f"Collected {len(articles)} recent articles (72h) from {feed_url}")
                 return articles
                 
         except Exception as e:

@@ -116,13 +116,6 @@ async def get_opportunities(
     # Additional relevance filtering
     relevant_articles = []
     for article, score in articles:
-        # Check if this is from Google RSS (older articles need higher scores)
-        is_google_rss = "news.google.com" in (article.source or "")
-        
-        # Google RSS articles need exceptional scores (0.5+) to be shown
-        if is_google_rss and score.total_score < 0.5:
-            continue
-            
         # Check for high-value content indicators
         content_lower = (article.content or "").lower()
         title_lower = article.title.lower()
@@ -204,13 +197,6 @@ async def get_practices(
     # Filter for actionable practices and methodologies
     relevant_articles = []
     for article, score in articles:
-        # Check if this is from Google RSS (older articles need higher scores)
-        is_google_rss = "news.google.com" in (article.source or "")
-        
-        # Google RSS articles need exceptional scores (0.5+) to be shown
-        if is_google_rss and score.total_score < 0.5:
-            continue
-            
         content_lower = (article.content or "").lower()
         title_lower = article.title.lower()
         
