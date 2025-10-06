@@ -98,11 +98,15 @@ async def get_opportunities(
     cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
     
     # Enhanced query with relevance filtering and better ranking
+    # Include both opportunities and systems & codes articles
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
         and_(
-            ArticleScore.opportunities_score >= min_score,
+            or_(
+                ArticleScore.opportunities_score >= min_score,
+                ArticleScore.systems_score >= min_score  # Include systems & codes articles
+            ),
             ArticleScore.total_score >= 0.2,  # Minimum overall quality
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
@@ -159,6 +163,7 @@ async def get_opportunities(
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "score": {
                 "opportunities": score.opportunities_score,
+                "systems": score.systems_score,  # Show systems score too
                 "total": score.total_score
             },
             "themes": article.themes
@@ -250,16 +255,63 @@ async def get_practices(
 @app.get("/api/v4/systems-codes")
 async def get_systems_codes(
     limit: int = Query(10, ge=1, le=50),
+    min_score: float = Query(0.1, ge=0.0, le=1.0),
+    hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
-    """Get articles in the Systems & Codes category"""
+    """Get articles in the Systems & Codes category - redirected to Opportunities for better visibility"""
+    # Calculate cutoff time for recent articles
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+    
+    # Get Systems & Codes articles but treat them as opportunities for better visibility
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
-        ArticleScore.systems_score > 0
+        and_(
+            ArticleScore.systems_score >= min_score,
+            ArticleScore.total_score >= 0.2,  # Minimum overall quality
+            or_(Article.content.isnot(None), Article.summary.isnot(None)),
+            or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
+            Article.published_at >= cutoff_time  # Only recent articles
+        )
     ).order_by(
-        desc(ArticleScore.systems_score)
-    ).limit(limit).all()
+        desc(ArticleScore.total_score),  # Rank by total score first
+        desc(ArticleScore.systems_score)  # Then by systems score
+    ).limit(limit * 2).all()  # Get more to filter further
+    
+    # Additional relevance filtering for systems/codes content
+    relevant_articles = []
+    for article, score in articles:
+        # Check for high-value content indicators
+        content_lower = (article.content or "").lower()
+        title_lower = article.title.lower()
+        
+        # Look for policy/regulation indicators
+        policy_indicators = [
+            'policy', 'regulation', 'code', 'zoning', 'incentive', 'reform',
+            'legislation', 'compliance', 'standard', 'framework', 'guideline',
+            'permit', 'approval', 'government', 'municipal', 'federal'
+        ]
+        
+        has_policy = any(indicator in content_lower or indicator in title_lower 
+                        for indicator in policy_indicators)
+        
+        # Look for opportunity indicators
+        opportunity_indicators = [
+            'opportunity', 'investment', 'growth', 'development', 'market',
+            'potential', 'emerging', 'new', 'breakthrough', 'innovation'
+        ]
+        
+        has_opportunity = any(indicator in content_lower or indicator in title_lower 
+                             for indicator in opportunity_indicators)
+        
+        if has_policy or has_opportunity or score.total_score >= 0.2:
+            relevant_articles.append((article, score))
+            
+        if len(relevant_articles) >= limit:
+            break
+    
+    articles = relevant_articles[:limit]
     
     result = []
     for article, score in articles:
@@ -272,6 +324,7 @@ async def get_systems_codes(
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "score": {
                 "systems": score.systems_score,
+                "opportunities": score.opportunities_score,  # Show both scores
                 "total": score.total_score
             },
             "themes": article.themes
