@@ -90,9 +90,13 @@ async def health_check():
 async def get_opportunities(
     limit: int = Query(10, ge=1, le=50),
     min_score: float = Query(0.3, ge=0.0, le=1.0),
+    hours: int = Query(72, ge=1, le=168, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
     """Get high-relevance articles in the Opportunities category"""
+    # Calculate cutoff time for recent articles
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+    
     # Enhanced query with relevance filtering and better ranking
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
@@ -101,7 +105,8 @@ async def get_opportunities(
             ArticleScore.opportunities_score >= min_score,
             ArticleScore.total_score >= 0.4,  # Minimum overall quality
             Article.content.isnot(None),
-            func.length(Article.content) > 200  # Minimum content length
+            func.length(Article.content) > 200,  # Minimum content length
+            Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
         desc(ArticleScore.total_score),  # Rank by total score first
@@ -166,9 +171,13 @@ async def get_opportunities(
 async def get_practices(
     limit: int = Query(10, ge=1, le=50),
     min_score: float = Query(0.3, ge=0.0, le=1.0),
+    hours: int = Query(72, ge=1, le=168, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
     """Get high-relevance articles in the Practices category"""
+    # Calculate cutoff time for recent articles
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+    
     # Enhanced query with relevance filtering for actionable insights
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
@@ -177,7 +186,8 @@ async def get_practices(
             ArticleScore.practices_score >= min_score,
             ArticleScore.total_score >= 0.4,
             Article.content.isnot(None),
-            func.length(Article.content) > 200
+            func.length(Article.content) > 200,
+            Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
         desc(ArticleScore.total_score),
