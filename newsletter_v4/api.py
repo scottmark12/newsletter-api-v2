@@ -15,7 +15,7 @@ import json
 
 from .config import get_config
 from .models import Base, Article, ArticleScore, ArticleInsight, Video, ContentSource
-from .scoring import score_article_v4
+from .scoring import score_article_v4, extract_insights_v4
 from .enhanced_scoring import score_article_enhanced
 from .data_collectors import collect_all_articles
 from .video_processor import find_construction_videos, process_youtube_video
