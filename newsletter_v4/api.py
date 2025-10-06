@@ -89,7 +89,7 @@ async def health_check():
 @app.get("/api/v4/opportunities")
 async def get_opportunities(
     limit: int = Query(10, ge=1, le=500),
-    min_score: float = Query(0.3, ge=0.0, le=1.0),
+    min_score: float = Query(0.2, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -107,7 +107,7 @@ async def get_opportunities(
                 ArticleScore.opportunities_score >= min_score,
                 ArticleScore.systems_score >= min_score  # Include systems & codes articles
             ),
-            ArticleScore.total_score >= 0.2,  # Minimum overall quality
+            ArticleScore.total_score >= 0.1,  # Minimum overall quality
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
@@ -144,7 +144,7 @@ async def get_opportunities(
                           for indicator in insight_indicators)
         
         # Include if meets relevance criteria
-        if has_transformation or has_insights or score.total_score >= 0.2:
+        if has_transformation or has_insights or score.total_score >= 0.1:
             relevant_articles.append((article, score))
             
         if len(relevant_articles) >= limit:
