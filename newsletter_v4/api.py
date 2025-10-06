@@ -725,6 +725,29 @@ async def collect_corporate_articles():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.delete("/api/v4/admin/clear-articles")
+async def clear_all_articles():
+    """Clear all articles and scores from the database"""
+    try:
+        db = SessionLocal()
+        
+        # Delete in correct order due to foreign key constraints
+        db.query(ArticleInsight).delete()
+        db.query(ArticleScore).delete()
+        db.query(Article).delete()
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": "All articles and scores cleared from database",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/v4/admin/score")
 async def run_scoring():
     """Run scoring on all unscored articles"""
