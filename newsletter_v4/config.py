@@ -66,13 +66,37 @@ class DataSourcesConfig:
 
     def __post_init__(self):
         if self.rss_feeds is None:
-            self.rss_feeds = [
-                "https://feeds.feedburner.com/ConstructionDive",
-                "https://www.constructiondive.com/feeds/news/",
-                "https://www.enr.com/rss.xml",
-                "https://feeds.feedburner.com/CommercialObserver",
-                "https://www.bisnow.com/rss",
-            ]
+            # Load comprehensive RSS feeds from seeds.json
+            import json
+            import os
+            
+            seeds_path = os.path.join(os.path.dirname(__file__), '..', 'app', 'seeds.json')
+            try:
+                with open(seeds_path, 'r') as f:
+                    seeds_data = json.load(f)
+                
+                # Extract all RSS feeds from seeds
+                all_feeds = []
+                for category, feeds in seeds_data.items():
+                    if isinstance(feeds, list):
+                        all_feeds.extend(feeds)
+                
+                # Remove duplicates and filter valid RSS URLs
+                unique_feeds = list(set(all_feeds))
+                valid_feeds = [feed for feed in unique_feeds if feed.startswith('http')]
+                
+                self.rss_feeds = valid_feeds[:50]  # Limit to 50 feeds for performance
+                
+            except Exception as e:
+                print(f"Warning: Could not load seeds.json: {e}")
+                # Fallback to basic feeds
+                self.rss_feeds = [
+                    "https://feeds.feedburner.com/ConstructionDive",
+                    "https://www.constructiondive.com/feeds/news/",
+                    "https://www.enr.com/rss.xml",
+                    "https://feeds.feedburner.com/CommercialObserver",
+                    "https://www.bisnow.com/rss",
+                ]
 
 
 @dataclass
