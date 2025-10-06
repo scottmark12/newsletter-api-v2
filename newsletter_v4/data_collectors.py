@@ -51,8 +51,8 @@ class RSSCollector:
     async def fetch_rss_feed(self, feed_url: str) -> List[ArticleData]:
         """Fetch articles from a single RSS feed (only articles from past 72 hours)"""
         try:
-            # All RSS feeds: only 72 hours
-            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=72)
+            # All RSS feeds: 7 days (168 hours) to get more sources
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=168)
             
             async with self.session.get(feed_url) as response:
                 if response.status != 200:
@@ -111,7 +111,7 @@ class RSSCollector:
                         tags=getattr(entry, 'tags', [])
                     ))
                 
-                print(f"Collected {len(articles)} recent articles (72h) from {feed_url}")
+                print(f"Collected {len(articles)} recent articles (7d) from {feed_url}")
                 return articles
                 
         except Exception as e:
