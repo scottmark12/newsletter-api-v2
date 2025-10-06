@@ -1,6 +1,6 @@
 """
-NEWSLETTER API - COMPLETELY NEW VERSION
-This will force a new deployment
+NEWSLETTER API - FORCE NEW DEPLOYMENT V3
+This will force a new deployment with database initialization
 """
 
 from fastapi import FastAPI, Query, HTTPException
@@ -11,8 +11,8 @@ from typing import List, Dict, Any
 
 # Create FastAPI app with completely new structure
 app = FastAPI(
-    title="Newsletter API - DB INITIALIZATION",
-    version="2.1.1-DB-INIT",
+    title="Newsletter API - FORCE DEPLOYMENT V3",
+    version="3.0.0-FORCE-DEPLOY",
     description="Completely new API version with guaranteed database initialization"
 )
 
@@ -107,7 +107,7 @@ def health_check():
     """Health check endpoint"""
     return {
         "ok": True,
-        "version": "2.1.1-DB-INIT",
+        "version": "3.0.0-FORCE-DEPLOY",
         "timestamp": datetime.now().isoformat(),
         "database": "initialized",
         "status": "active"
@@ -119,7 +119,7 @@ def root_endpoint():
     """Root endpoint"""
     return {
         "status": "ok",
-        "version": "2.1.1-DB-INIT",
+        "version": "3.0.0-FORCE-DEPLOY",
         "message": "Newsletter API - NEW VERSION",
         "docs": "/docs",
         "health": "/health",
