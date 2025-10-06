@@ -322,6 +322,15 @@ class DataCollectorManager:
                 all_articles.extend(google_articles)
                 print(f"Collected {len(google_articles)} articles from Google")
         
+        # Collect from Corporate Insights (NEW!)
+        try:
+            from .working_corporate_scraper import scrape_working_corporate_insights
+            corporate_articles = await scrape_working_corporate_insights()
+            all_articles.extend(corporate_articles)
+            print(f"Collected {len(corporate_articles)} articles from Corporate Insights")
+        except Exception as e:
+            print(f"Corporate scraping failed: {e}")
+        
         # Remove duplicates based on URL
         unique_articles = {}
         for article in all_articles:
@@ -351,3 +360,9 @@ async def collect_google_articles() -> List[ArticleData]:
     """Collect articles from Google search only"""
     async with GoogleCollector() as collector:
         return await collector.collect_construction_news()
+
+
+async def collect_corporate_articles() -> List[ArticleData]:
+    """Collect articles from corporate insights only"""
+    from .working_corporate_scraper import scrape_working_corporate_insights
+    return await scrape_working_corporate_insights()
