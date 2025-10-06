@@ -1,0 +1,23 @@
+services:
+  # Main API Service - Ultra Minimal
+  - type: web
+    name: newsletter-api-v4
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements_minimal.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    healthCheckPath: /health
+
+  # Website Service
+  - type: web
+    name: newsletter-v4-website
+    env: static
+    buildCommand: echo "Static site - no build needed"
+    staticPublishPath: ./website_v4
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
