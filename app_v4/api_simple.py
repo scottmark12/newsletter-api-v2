@@ -138,3 +138,13 @@ async def run_scoring():
         "message": "Scoring endpoint ready. Full functionality will be available after database setup.",
         "status": "ready"
     }
+
+@app.get("/initialize-database")
+async def initialize_database():
+    """Initialize database endpoint for Render"""
+    return {
+        "ok": True,
+        "message": "Database initialization endpoint ready",
+        "status": "ready",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }

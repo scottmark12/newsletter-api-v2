@@ -4,8 +4,7 @@ services:
     name: newsletter-api-v4
     env: python
     plan: starter
-    buildCommand: |
-      pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python main.py
     envVars:
       - key: PYTHON_VERSION
@@ -23,8 +22,7 @@ services:
     name: newsletter-v4-worker
     env: python
     plan: starter
-    buildCommand: |
-      pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python -m app_v4.worker
     envVars:
       - key: PYTHON_VERSION
