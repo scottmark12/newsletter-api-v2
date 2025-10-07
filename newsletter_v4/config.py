@@ -32,11 +32,10 @@ class APIConfig:
 @dataclass
 class ScoringConfig:
     """Scoring system configuration"""
-    # Theme weights
-    opportunities_weight: float = float(os.getenv("OPPORTUNITIES_WEIGHT", "1.0"))
-    practices_weight: float = float(os.getenv("PRACTICES_WEIGHT", "1.0"))
-    systems_weight: float = float(os.getenv("SYSTEMS_WEIGHT", "1.0"))
-    vision_weight: float = float(os.getenv("VISION_WEIGHT", "1.0"))
+    # Theme weights - new category system
+    development_deals_weight: float = float(os.getenv("DEVELOPMENT_DEALS_WEIGHT", "1.0"))
+    building_better_weight: float = float(os.getenv("BUILDING_BETTER_WEIGHT", "1.0"))
+    forces_frameworks_weight: float = float(os.getenv("FORCES_FRAMEWORKS_WEIGHT", "1.0"))
     
     # Quality factors
     insight_quality_weight: float = float(os.getenv("INSIGHT_QUALITY_WEIGHT", "1.5"))

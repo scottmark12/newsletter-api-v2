@@ -113,25 +113,19 @@ async def get_opportunities(
     # Calculate cutoff time for recent articles
     cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
     
-    # Enhanced query with relevance filtering and better ranking
-    # Include both opportunities and systems & codes articles
+    # Query using only category-specific scores (not total_score)
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
         and_(
-            or_(
-                ArticleScore.opportunities_score >= min_score,
-                ArticleScore.systems_score >= min_score  # Include systems & codes articles
-            ),
-            ArticleScore.total_score >= 0.1,  # Minimum overall quality
+            ArticleScore.opportunities_score >= min_score,  # Only category-specific score
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
-        desc(ArticleScore.total_score),  # Rank by total score first
-        desc(ArticleScore.opportunities_score)  # Then by opportunities score
-    ).limit(limit * 2).all()  # Get more to filter further
+        desc(ArticleScore.opportunities_score)  # Rank by category-specific score only
+    ).limit(limit).all()
     
     # Use all articles that meet the score threshold - no additional keyword filtering
     articles = articles[:limit]
@@ -168,21 +162,19 @@ async def get_practices(
     # Calculate cutoff time for recent articles
     cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
     
-    # Enhanced query with relevance filtering for actionable insights
+    # Query using only category-specific scores (not total_score)
     articles = db.query(Article, ArticleScore).join(
         ArticleScore, Article.id == ArticleScore.article_id
     ).filter(
         and_(
-            ArticleScore.practices_score >= min_score,
-            ArticleScore.total_score >= 0.05,
+            ArticleScore.practices_score >= min_score,  # Only category-specific score
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),
             Article.published_at >= cutoff_time  # Only recent articles
         )
     ).order_by(
-        desc(ArticleScore.total_score),
-        desc(ArticleScore.practices_score)
-    ).limit(limit * 2).all()
+        desc(ArticleScore.practices_score)  # Rank by category-specific score only
+    ).limit(limit).all()
     
     # Use all articles that meet the score threshold - no additional keyword filtering
     articles = articles[:limit]

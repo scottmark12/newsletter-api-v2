@@ -246,6 +246,14 @@
             margin-top: 2rem;
         }
 
+        /* Homepage Articles Grid - Single Column */
+        .articles-grid.homepage {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 2rem auto 0;
+        }
+
         /* Article Card */
         .article-card {
             background: var(--card);
@@ -447,6 +455,9 @@
                 <h1 class="page-title">Construction & Real Estate Intelligence</h1>
                 <p class="page-subtitle">Discover insights, opportunities, and innovations shaping the built environment</p>
                 
+                <div id="home-articles-grid" class="articles-grid homepage">
+                    <!-- Top 7 articles will be populated by JavaScript -->
+                </div>
         </div>
 
         <!-- Theme Pages -->
@@ -474,21 +485,21 @@
         
         const THEMES = {
             opportunities: {
-                name: 'Creative Opportunities',
-                description: 'Entrepreneurial success stories, wealth creation, and innovative deal structures',
+                name: 'Development & Deals',
+                description: 'Where the money and momentum are. People and projects building wealth through development, investment, and smart risk-taking.',
                 icon: '💰',
                 color: '#3b82f6'
             },
             practices: {
-                name: 'Building Practices',
-                description: 'Construction methods, productivity insights, and efficiency improvements',
+                name: 'Building Better',
+                description: 'How the next generation builds. The craft and science of modern construction and design.',
                 icon: '🔧',
                 color: '#10b981'
             },
             vision: {
-                name: 'Smart Cities & Vision',
-                description: 'Future-focused insights on urban development and smart city technologies',
-                icon: '🔮',
+                name: 'Forces & Frameworks',
+                description: 'Why markets move, and how to position yourself before they do. Demand drivers, migration patterns, policy changes, and regional growth strategies.',
+                icon: '📊',
                 color: '#8b5cf6'
             }
         };
@@ -1086,13 +1097,47 @@
             }
         }
 
+        // Load top articles for homepage
+        async function loadHomeArticles() {
+            const container = document.getElementById('home-articles-grid');
+            container.innerHTML = '';
+
+            showLoading(true);
+            
+            try {
+                console.log('Loading top 7 articles for homepage');
+                const response = await fetch(`${API_BASE}/api/v4/home?limit=7`);
+                const data = await response.json();
+                
+                if (data.articles && data.articles.length > 0) {
+                    console.log(`Creating ${data.articles.length} homepage article cards`);
+                    data.articles.forEach((article, index) => {
+                        console.log(`Creating homepage card ${index + 1} for article: ${article.title}`);
+                        const articleCard = createArticleCard(article, 'homepage');
+                        container.appendChild(articleCard);
+                    });
+                } else {
+                    console.log('No articles found for homepage');
+                    container.innerHTML = '<p>No articles found for homepage.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading homepage articles:', error);
+                container.innerHTML = '<p>Error loading articles.</p>';
+            } finally {
+                showLoading(false);
+            }
+        }
+
         // Navigation functions
-        function showHome() {
+        async function showHome() {
             currentTheme = 'home';
             document.getElementById('home-page').classList.remove('hidden');
             document.getElementById('theme-page').classList.add('hidden');
             // Remove active class from all nav links when on home
             updateNavigation(null);
+            
+            // Load top 7 articles for homepage
+            await loadHomeArticles();
         }
 
         async function showTheme(theme, targetElement = null) {

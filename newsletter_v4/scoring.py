@@ -25,14 +25,15 @@ class ThemeDetector:
     """Detects themes in article content using comprehensive keyword sets"""
     
     def __init__(self):
-        # New comprehensive keyword sets focused on insights, case studies, and actionable content
+        # New scoring system with three distinct categories
         self.theme_keywords = {
-            "creative_opportunities": {
+            "development_deals": {
+                # ROI, case study, "scaled up," investment, incentives, market entry, redevelopment
                 # Entrepreneurial success stories and wealth creation
-                "airbnb portfolio", "bootstrap", "family office", "wealth creation", "small investor", 
-                "case study", "exit strategy", "from.*to.*", "scaled up", "grew from", "turned into",
-                "success story", "startup", "entrepreneur", "founder", "portfolio", "investment returns",
-                "roi", "return on investment", "profit", "revenue growth", "expansion", "acquisition",
+                "roi", "return on investment", "case study", "scaled up", "grew from", "turned into",
+                "success story", "wealth creation", "small investor", "bootstrap", "family office",
+                "airbnb portfolio", "exit strategy", "from.*to.*", "startup", "entrepreneur", "founder", 
+                "portfolio", "investment returns", "profit", "revenue growth", "expansion", "acquisition",
                 "funding round", "venture capital", "private equity", "angel investor", "seed funding",
                 "series a", "series b", "unicorn", "valuation", "market cap", "ipo", "exit",
                 "wealth building", "financial success", "business growth", "scaling", "growth strategy",
@@ -42,13 +43,13 @@ class ThemeDetector:
                 "real estate development", "property development", "development project", "construction project",
                 "new development", "mixed use", "commercial development", "residential development",
                 "adaptive reuse", "redevelopment", "infill development", "transit oriented development",
-                "smart growth", "sustainable development", "green development", "leed certification",
-                "energy efficient", "net zero", "carbon neutral", "sustainable building",
+                "smart growth", "sustainable development", "green development", "market entry",
                 
                 # Investment and financial terms
                 "investment opportunity", "investment returns", "cash flow", "cap rate", "net operating income",
                 "property value", "appreciation", "equity", "debt", "leverage", "refinancing",
                 "1031 exchange", "opportunity zone", "tax incentive", "tax credit", "incentive program",
+                "incentives", "market entry", "redevelopment",
                 
                 # Development process and methodology
                 "development process", "project management", "construction management", "development strategy",
@@ -62,93 +63,8 @@ class ThemeDetector:
                 "urban migration", "suburban growth", "city center", "downtown", "urban core",
                 "gentrification", "revitalization", "renewal", "transformation", "renaissance"
             },
-            "smart_cities_productivity": {
-                # Human-centered design and wellness
-                "human centered design", "human-centred design", "user experience", "ux design",
-                "biophilic", "biophilic design", "nature inspired", "natural elements", "green space",
-                "wellness design", "healthy building", "well building standard", "fitwel",
-                "indoor air quality", "natural light", "daylighting", "ventilation", "thermal comfort",
-                "acoustic design", "sound design", "noise reduction", "quiet space", "peaceful",
-                
-                # Placemaking and community impact
-                "placemaking", "place making", "public realm", "public space", "civic space",
-                "community space", "social space", "gathering space", "activation", "programming",
-                "community engagement", "stakeholder engagement", "public participation", "community input",
-                "social impact", "community impact", "neighborhood", "local community", "sense of place",
-                "place identity", "cultural identity", "local culture", "authentic", "character",
-                
-                # Productivity and performance studies
-                "productivity study", "productivity research", "performance study", "efficiency study",
-                "workplace productivity", "office productivity", "employee productivity", "worker productivity",
-                "productivity metrics", "performance metrics", "efficiency metrics", "kpi", "key performance indicator",
-                "productivity improvement", "efficiency improvement", "performance improvement", "optimization",
-                "workplace wellness", "employee wellness", "worker wellness", "health and wellness",
-                "stress reduction", "mental health", "cognitive performance", "focus", "concentration",
-                
-                # Urban wellness and peaceful architecture
-                "urban wellness", "city wellness", "urban health", "city health", "public health",
-                "peaceful architecture", "calming design", "serene", "tranquil", "meditation space",
-                "mindfulness", "wellness center", "health center", "medical facility", "hospital design",
-                "healing environment", "therapeutic environment", "restorative", "rejuvenating",
-                
-                # Smart city and technology integration
-                "smart city", "smart building", "smart infrastructure", "iot", "internet of things",
-                "sensors", "data collection", "analytics", "big data", "predictive analytics",
-                "artificial intelligence", "machine learning", "automation", "building automation",
-                "energy management", "smart grid", "renewable energy", "solar", "wind", "geothermal",
-                "energy storage", "battery storage", "microgrid", "distributed energy", "clean energy",
-                
-                # Accessibility and inclusive design
-                "accessibility", "accessible design", "universal design", "inclusive design",
-                "ada compliance", "barrier free", "mobility", "wheelchair accessible", "assistive technology",
-                "aging in place", "senior housing", "multigenerational", "intergenerational", "diversity",
-                "equity", "inclusion", "social equity", "environmental justice", "climate justice"
-            },
-            "policy_code_evolution": {
-                # Building codes and regulations
-                "mass timber code", "timber code", "wood code", "cross laminated timber", "clt",
-                "glulam", "glued laminated timber", "engineered wood", "wood construction", "timber construction",
-                "fire rating", "fire resistance", "fire safety", "fire protection", "fire suppression",
-                "sprinkler system", "fire alarm", "egress", "exit", "life safety", "building safety",
-                "building code", "construction code", "fire code", "electrical code", "plumbing code",
-                "mechanical code", "energy code", "green code", "sustainable code", "resilience code",
-                
-                # Zoning and land use
-                "zoning reform", "zoning update", "zoning change", "zoning amendment", "rezoning",
-                "upzoning", "downzoning", "zoning variance", "special permit", "conditional use",
-                "land use", "land use policy", "comprehensive plan", "master plan", "general plan",
-                "development plan", "area plan", "neighborhood plan", "transit plan", "transportation plan",
-                
-                # Incentives and policy programs
-                "incentive expansion", "tax incentive", "development incentive", "construction incentive",
-                "green incentive", "sustainability incentive", "energy incentive", "renewable incentive",
-                "solar incentive", "wind incentive", "geothermal incentive", "efficiency incentive",
-                "tax credit", "development tax credit", "historic tax credit", "low income tax credit",
-                "new markets tax credit", "opportunity zone", "enterprise zone", "empowerment zone",
-                "brownfield", "brownfield redevelopment", "contaminated site", "environmental cleanup",
-                "remediation", "environmental remediation", "site cleanup", "landfill", "superfund",
-                
-                # Building code updates and changes
-                "building code update", "code change", "code revision", "code amendment", "code modification",
-                "code update", "new code", "updated code", "revised code", "amended code",
-                "construction regulation", "building regulation", "development regulation", "permit process",
-                "approval process", "review process", "inspection", "building inspection", "code enforcement",
-                
-                # Sustainability and green building codes
-                "sustainable building code", "green building code", "energy code", "energy efficiency code",
-                "renewable energy code", "solar code", "wind code", "geothermal code", "efficiency standard",
-                "performance standard", "green standard", "sustainable standard", "resilience standard",
-                "climate adaptation", "climate mitigation", "carbon reduction", "net zero", "carbon neutral",
-                "leed", "green globes", "living building challenge", "well building standard", "fitwel",
-                
-                # Timber and wood construction updates
-                "timber skyscraper", "wood skyscraper", "tall wood", "mass timber tower", "wood tower",
-                "timber high rise", "wood high rise", "tall timber", "tall wood building", "wood building",
-                "engineered wood", "structural wood", "wood frame", "timber frame", "post and beam",
-                "heavy timber", "light frame", "platform frame", "balloon frame", "stick built",
-                "prefabricated", "prefab", "modular", "panelized", "system built", "factory built"
-            },
-            "building_practices_efficiency": {
+            "building_better": {
+                # prefab, modular, mass timber, automation, BIM, process, cost savings, safety, efficiency
                 # Prefabrication and modular construction
                 "prefab", "prefabricated", "prefabrication", "off site construction", "offsite construction",
                 "factory built", "manufactured", "modular", "modular construction", "modular building",
@@ -156,39 +72,29 @@ class ThemeDetector:
                 "shipping container", "container home", "tiny home", "micro housing", "accessory dwelling unit",
                 "adu", "granny flat", "in law suite", "backyard cottage", "laneway house",
                 
+                # Mass timber and wood construction
+                "mass timber", "cross laminated timber", "clt", "glulam", "glued laminated timber",
+                "engineered wood", "wood construction", "timber construction", "timber skyscraper",
+                "wood skyscraper", "tall wood", "mass timber tower", "wood tower", "timber high rise",
+                "wood high rise", "tall timber", "tall wood building", "wood building",
+                "engineered wood", "structural wood", "wood frame", "timber frame", "post and beam",
+                "heavy timber", "light frame", "platform frame", "balloon frame", "stick built",
+                
+                # Construction technology and automation
+                "automation", "robotics", "ai", "artificial intelligence", "machine learning", "predictive analytics",
+                "construction technology", "building technology", "construction innovation", "building innovation",
+                "construction tech", "proptech", "contech", "construction software", "building software",
+                "bim", "building information modeling", "cad", "computer aided design", "3d modeling",
+                "virtual reality", "vr", "augmented reality", "ar", "mixed reality", "mr",
+                "drone", "uav", "unmanned aerial vehicle", "surveying", "mapping", "scanning",
+                
                 # Construction methodology and processes
                 "construction methodology", "construction method", "building method", "construction technique",
                 "construction process", "building process", "assembly process", "installation process",
                 "construction sequence", "construction phasing", "construction scheduling", "project scheduling",
                 "critical path", "gantt chart", "project management", "construction management", "cm",
                 "general contractor", "subcontractor", "trade contractor", "specialty contractor",
-                
-                # ROI case studies and financial performance
-                "roi case study", "return on investment", "roi", "financial performance", "cost benefit",
-                "cost effectiveness", "value engineering", "life cycle cost", "total cost of ownership",
-                "payback period", "net present value", "npv", "internal rate of return", "irr",
-                "profit margin", "gross margin", "operating margin", "ebitda", "cash flow",
-                "net operating income", "noi", "cap rate", "capitalization rate", "yield",
-                
-                # Repeatable models and standardization
-                "repeatable model", "standardized", "standardization", "prototype", "template",
-                "best practice", "proven method", "established practice", "industry standard",
-                "quality standard", "performance standard", "efficiency standard", "benchmark",
-                "benchmarking", "comparison", "competitive analysis", "market analysis",
-                
-                # Process improvement and optimization
-                "process improvement", "continuous improvement", "lean construction", "lean building",
-                "six sigma", "quality improvement", "efficiency improvement", "productivity improvement",
-                "optimization", "optimize", "streamline", "automation", "robotics", "ai", "artificial intelligence",
-                "machine learning", "predictive analytics", "data analytics", "performance analytics",
-                "kpi", "key performance indicator", "metrics", "measurement", "monitoring",
-                
-                # Construction technology and innovation
-                "construction technology", "building technology", "construction innovation", "building innovation",
-                "construction tech", "proptech", "contech", "construction software", "building software",
-                "bim", "building information modeling", "cad", "computer aided design", "3d modeling",
-                "virtual reality", "vr", "augmented reality", "ar", "mixed reality", "mr",
-                "drone", "uav", "unmanned aerial vehicle", "surveying", "mapping", "scanning",
+                "process", "cost savings", "safety", "efficiency",
                 
                 # Quality control and assurance
                 "quality control", "quality assurance", "qa", "qc", "testing", "inspection",
@@ -196,6 +102,43 @@ class ThemeDetector:
                 "sustainability", "sustainable construction", "green construction", "eco friendly",
                 "environmental impact", "carbon footprint", "embodied carbon", "operational carbon",
                 "energy efficiency", "water efficiency", "material efficiency", "waste efficiency"
+            },
+            "forces_frameworks": {
+                # zoning, migration, policy, infrastructure, demand, regulation, regional trend, demographic shift, technology adoption
+                # Zoning and land use
+                "zoning", "zoning reform", "zoning update", "zoning change", "zoning amendment", "rezoning",
+                "upzoning", "downzoning", "zoning variance", "special permit", "conditional use",
+                "land use", "land use policy", "comprehensive plan", "master plan", "general plan",
+                "development plan", "area plan", "neighborhood plan", "transit plan", "transportation plan",
+                
+                # Migration and demographic trends
+                "migration", "demographic shift", "population shift", "urban migration", "suburban growth",
+                "city center", "downtown", "urban core", "gentrification", "revitalization", "renewal",
+                "transformation", "renaissance", "demographic trend", "population trend", "regional trend",
+                "lifestyle change", "work from home", "remote work", "hybrid work",
+                
+                # Policy and regulation
+                "policy", "regulation", "regulatory", "building code", "construction code", "fire code",
+                "electrical code", "plumbing code", "mechanical code", "energy code", "green code",
+                "sustainable code", "resilience code", "building code update", "code change", "code revision",
+                "code amendment", "code modification", "code update", "new code", "updated code",
+                "revised code", "amended code", "construction regulation", "building regulation",
+                "development regulation", "permit process", "approval process", "review process",
+                "inspection", "building inspection", "code enforcement",
+                
+                # Infrastructure and demand
+                "infrastructure", "infrastructure investment", "transit oriented development", "smart growth",
+                "public private partnership", "ppp", "infrastructure spending", "transportation infrastructure",
+                "demand", "market demand", "housing demand", "commercial demand", "industrial demand",
+                "demand curve", "supply and demand", "market supply", "demand growth", "demand shift",
+                
+                # Regional trends and technology adoption
+                "regional trend", "regional development", "regional growth", "regional planning",
+                "technology adoption", "digital transformation", "smart city", "smart building",
+                "smart infrastructure", "iot", "internet of things", "sensors", "data collection",
+                "analytics", "big data", "building automation", "energy management", "smart grid",
+                "renewable energy", "solar", "wind", "geothermal", "energy storage", "battery storage",
+                "microgrid", "distributed energy", "clean energy"
             }
         }
     
@@ -203,10 +146,9 @@ class ThemeDetector:
         """Detect theme relevance scores using comprehensive keyword matching"""
         if not content:
             return {
-                "creative_opportunities": 0.0, 
-                "smart_cities_productivity": 0.0, 
-                "policy_code_evolution": 0.0, 
-                "building_practices_efficiency": 0.0
+                "development_deals": 0.0, 
+                "building_better": 0.0, 
+                "forces_frameworks": 0.0
             }
         
         content_lower = content.lower()
@@ -436,10 +378,9 @@ class V4Scorer:
         
         # Map new categories to API-compatible names
         api_theme_scores = {
-            "opportunities": weighted_theme_scores.get("creative_opportunities", 0.0),
-            "practices": weighted_theme_scores.get("building_practices_efficiency", 0.0),
-            "systems": weighted_theme_scores.get("policy_code_evolution", 0.0),
-            "vision": weighted_theme_scores.get("smart_cities_productivity", 0.0)
+            "opportunities": weighted_theme_scores.get("development_deals", 0.0),
+            "practices": weighted_theme_scores.get("building_better", 0.0),
+            "vision": weighted_theme_scores.get("forces_frameworks", 0.0)
         }
         
         return ScoringResult(
