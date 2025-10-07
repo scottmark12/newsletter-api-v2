@@ -91,6 +91,21 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            height: 40px;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .logo svg {
+            height: 40px;
+            width: auto;
         }
 
         .nav {
@@ -474,9 +489,17 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo">Urban Pulse</div>
+                <a href="#" class="logo" onclick="showHome()">
+                    <svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- House roof graphic -->
+                        <path d="M15 8 L20 3 L25 8 L25 12 L15 12 Z" fill="currentColor" opacity="0.9"/>
+                        <!-- BUILT text -->
+                        <text x="30" y="20" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="currentColor">BUILT</text>
+                        <!-- BY MARK SCOTT text -->
+                        <text x="30" y="32" font-family="Inter, sans-serif" font-size="8" font-weight="400" fill="currentColor" opacity="0.8">BY MARK SCOTT</text>
+                    </svg>
+                </a>
                 <nav class="nav">
-                    <a href="#" class="nav-link active" onclick="showHome()">Home</a>
                     <a href="#" class="nav-link" onclick="showTheme('opportunities')">Opportunities</a>
                     <a href="#" class="nav-link" onclick="showTheme('practices')">Practices</a>
                     <a href="#" class="nav-link" onclick="showTheme('vision')">Vision</a>
@@ -974,7 +997,8 @@
             currentTheme = 'home';
             document.getElementById('home-page').classList.remove('hidden');
             document.getElementById('theme-page').classList.add('hidden');
-            updateNavigation(document.querySelector('.nav-link'));
+            // Remove active class from all nav links when on home
+            updateNavigation(null);
             displayThemes();
         }
 
