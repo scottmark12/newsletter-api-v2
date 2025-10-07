@@ -755,6 +755,12 @@
             
             // Extract specific details to make each response unique
             const extractNumbers = (str) => {
+                const matches = str.match(/\d+(?:\.\d+)?(?:%|\$|million|billion|thousand)?/gi);
+                return matches ? matches.slice(0, 3) : [];
+            };
+
+            const extractLocations = (str) => {
+                const locationPatterns = [
                     /\b(?:New York|Los Angeles|Chicago|Houston|Phoenix|Philadelphia|San Antonio|San Diego|Dallas|San Jose|Austin|Jacksonville|Fort Worth|Columbus|Charlotte|San Francisco|Indianapolis|Seattle|Denver|Washington|Boston|El Paso|Nashville|Detroit|Oklahoma City|Portland|Las Vegas|Memphis|Louisville|Baltimore|Milwaukee|Albuquerque|Tucson|Fresno|Sacramento|Mesa|Kansas City|Atlanta|Long Beach|Colorado Springs|Raleigh|Miami|Virginia Beach|Omaha|Oakland|Minneapolis|Tulsa|Arlington|Tampa|New Orleans|Wichita|Cleveland|Bakersfield|Aurora|Anaheim|Honolulu|Santa Ana|Corpus Christi|Riverside|Lexington|Stockton|Henderson|Saint Paul|St\. Louis)\b/g,
                     /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:City|County|State|Province|District)\b/g,
                     /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b(?=\s+(?:project|development|building|construction|facility|center|park|district|neighborhood|area|region))\b/g
@@ -955,36 +961,39 @@
             // Format date
             const publishedDate = article.published_at ? new Date(article.published_at).toLocaleDateString() : 'Recent';
             
+            // Build takeaways HTML
+            const takeawaysHtml = takeaways.length > 0 ? `
+                <div class="takeaways">
+                    ${takeaways.map(takeaway => `
+                        <div class="takeaway-item">
+                            <span>${takeaway}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+            
+            // Build fallback image URL
+            const fallbackImageUrl = getFallbackImage(article.id);
+            
             card.innerHTML = `
-                    <div class="article-image-container">
+                <div class="article-image-container">
                     <img src="${imageUrl}" alt="${article.title}" class="article-image" 
                          referrerPolicy="no-referrer" loading="lazy"
-                         onerror="handleImageError(this, '${imageProxy}', '${getFallbackImage(article.id)}')">
-                        <div class="source-badge">${article.source}</div>
-                    </div>
-                    <div class="article-content">
+                         onerror="handleImageError(this, '${imageProxy}', '${fallbackImageUrl}')">
+                    <div class="source-badge">${article.source}</div>
+                </div>
+                <div class="article-content">
                     <h3 class="article-title">${article.title}</h3>
-                    
-                        ${takeaways.length > 0 ? `
-                        <div class="takeaways">
-                                ${takeaways.map(takeaway => `
-                                    <div class="takeaway-item">
-                                    <span>${takeaway}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                    
-                            <div class="why-it-matters">
+                    ${takeawaysHtml}
+                    <div class="why-it-matters">
                         <div class="why-it-matters-title">Why it matters</div>
                         <div class="why-it-matters-text">${whyItMatters}</div>
-                            </div>
-                    
+                    </div>
                     <div class="article-footer">
                         <span class="article-date">${publishedDate}</span>
                     </div>
-                    </div>
-                `;
+                </div>
+            `;
                 
                 // Add click event listener to open article
                 card.addEventListener('click', (e) => {
