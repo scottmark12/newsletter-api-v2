@@ -719,102 +719,136 @@
             return takeaways.slice(0, 3);
         }
 
-        // Generate "why it matters" text
+        // Generate unique "why it matters" text for each article
         function generateWhyItMatters(content, title, theme) {
             const text = content ? content.replace(/<[^>]*>/g, '') : '';
             const lowerText = text.toLowerCase();
             const lowerTitle = title.toLowerCase();
             const combinedText = lowerTitle + ' ' + lowerText;
-
-            // Mass Timber / Wood Construction
+            
+            // Extract specific details to make each response unique
+            const extractNumbers = (str) => {
+                const matches = str.match(/\d+(?:\.\d+)?(?:%|\$|million|billion|thousand)?/g);
+                return matches ? matches.slice(0, 3) : [];
+            };
+            
+            const extractLocations = (str) => {
+                const locationPatterns = [
+                    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:City|County|State|Province)\b/g,
+                    /\b(?:New York|Los Angeles|Chicago|Houston|Phoenix|Philadelphia|San Antonio|San Diego|Dallas|San Jose|Austin|Jacksonville|Fort Worth|Columbus|Charlotte|San Francisco|Indianapolis|Seattle|Denver|Washington|Boston|El Paso|Nashville|Detroit|Oklahoma City|Portland|Las Vegas|Memphis|Louisville|Baltimore|Milwaukee|Albuquerque|Tucson|Fresno|Sacramento|Mesa|Kansas City|Atlanta|Long Beach|Colorado Springs|Raleigh|Miami|Virginia Beach|Omaha|Oakland|Minneapolis|Tulsa|Arlington|Tampa|New Orleans|Wichita|Cleveland|Bakersfield|Aurora|Anaheim|Honolulu|Santa Ana|Corpus Christi|Riverside|Lexington|Stockton|Henderson|Saint Paul|St\. Louis|Milwaukee|Baltimore|Las Vegas|Portland|Memphis|Louisville|Jacksonville|Fort Worth|Columbus|Charlotte|San Francisco|Indianapolis|Seattle|Denver|Washington|Boston|El Paso|Nashville|Detroit|Oklahoma City|Portland|Las Vegas|Memphis|Louisville|Baltimore|Milwaukee|Albuquerque|Tucson|Fresno|Sacramento|Mesa|Kansas City|Atlanta|Long Beach|Colorado Springs|Raleigh|Miami|Virginia Beach|Omaha|Oakland|Minneapolis|Tulsa|Arlington|Tampa|New Orleans|Wichita|Cleveland|Bakersfield|Aurora|Anaheim|Honolulu|Santa Ana|Corpus Christi|Riverside|Lexington|Stockton|Henderson|Saint Paul|St\. Louis)\b/g,
+                    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b(?=\s+(?:project|development|building|construction|facility|center|park|district|neighborhood|area|region))/g
+                ];
+                
+                let locations = [];
+                locationPatterns.forEach(pattern => {
+                    const matches = str.match(pattern);
+                    if (matches) locations = locations.concat(matches);
+                });
+                return [...new Set(locations)].slice(0, 2); // Remove duplicates and limit
+            };
+            
+            const extractCompanies = (str) => {
+                const companyPatterns = [
+                    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+(?:Inc|Corp|LLC|Ltd|Company|Group|Partners|Associates|Development|Construction|Building|Realty|Properties|Capital|Investments|Holdings|Management))\b/g,
+                    /\b[A-Z]{2,}(?:\s+[A-Z]{2,})*\b/g // Acronyms like CBRE, JLL, etc.
+                ];
+                
+                let companies = [];
+                companyPatterns.forEach(pattern => {
+                    const matches = str.match(pattern);
+                    if (matches) companies = companies.concat(matches);
+                });
+                return [...new Set(companies)].slice(0, 2);
+            };
+            
+            const numbers = extractNumbers(combinedText);
+            const locations = extractLocations(combinedText);
+            const companies = extractCompanies(combinedText);
+            
+            // Create unique base templates with variations
+            const getUniqueTemplate = (category, specifics) => {
+                const templates = {
+                    massTimber: [
+                        `This ${specifics.location || 'innovative'} mass timber ${specifics.project || 'project'} represents a seismic shift in construction economics, potentially reducing costs by ${specifics.cost || '20-30%'} while creating ${specifics.benefit || 'sustainable, carbon-negative buildings'} - early adopters in ${specifics.market || 'emerging markets'} will capture massive competitive advantages.`,
+                        `The ${specifics.scale || 'large-scale'} adoption of mass timber in ${specifics.location || 'major cities'} signals a fundamental change in building codes that could make high-rise construction viable in ${specifics.market || 'secondary markets'} previously considered uneconomical - this creates unprecedented development opportunities.`,
+                        `Mass timber construction in ${specifics.location || 'urban centers'} is proving that ${specifics.efficiency || 'sustainable building'} can be more cost-effective than traditional methods, potentially revolutionizing how we think about ${specifics.application || 'urban development'} and creating new investment categories.`
+                    ],
+                    prefab: [
+                        `This ${specifics.method || 'prefabricated'} approach is solving the ${specifics.problem || 'labor shortage crisis'} by delivering projects ${specifics.speed || '30-50% faster'} with ${specifics.quality || 'consistent quality'} - companies mastering this method in ${specifics.market || 'competitive markets'} will dominate their sectors.`,
+                        `The ${specifics.innovation || 'off-site construction'} revolution demonstrated here shows how ${specifics.efficiency || 'manufacturing principles'} can transform construction timelines and costs, creating scalable business models that traditional builders cannot replicate.`,
+                        `Prefabrication in ${specifics.location || 'this market'} represents a fundamental shift toward ${specifics.outcome || 'industrialized construction'}, offering developers a clear path to ${specifics.benefit || 'predictable schedules and budgets'} in an industry known for delays and overruns.`
+                    ],
+                    smartCity: [
+                        `This ${specifics.technology || 'smart city'} initiative in ${specifics.location || 'urban areas'} creates new revenue streams through ${specifics.monetization || 'data-driven services'} while improving operational efficiency - properties integrating these technologies will command premium rents from ${specifics.tenants || 'tech-forward tenants'}.`,
+                        `The ${specifics.application || 'IoT integration'} showcased here demonstrates how ${specifics.benefit || 'connected infrastructure'} can generate additional income streams for property owners while enhancing tenant satisfaction and retention rates.`,
+                        `Smart city technology adoption in ${specifics.location || 'major metropolitan areas'} is creating a new asset class of ${specifics.category || 'data-enabled properties'} that will significantly outperform traditional buildings in both rental income and appreciation.`
+                    ],
+                    investment: [
+                        `This ${specifics.strategy || 'investment approach'} capitalizes on ${specifics.trend || 'demographic shifts'} that most traditional investors are overlooking, potentially generating ${specifics.returns || 'superior returns'} through ${specifics.method || 'market positioning'} and ${specifics.timing || 'strategic timing'}.`,
+                        `The ${specifics.opportunity || 'development strategy'} outlined here leverages ${specifics.inefficiency || 'market inefficiencies'} in ${specifics.location || 'underserved markets'}, creating a blueprint for ${specifics.scaling || 'scalable expansion'} that could transform local economies.`,
+                        `This investment thesis in ${specifics.sector || 'emerging sectors'} represents early recognition of trends that will reshape entire markets - ${specifics.advantage || 'first-mover advantages'} here could generate exponential returns as the trend accelerates.`
+                    ],
+                    technology: [
+                        `This ${specifics.innovation || 'construction technology'} adoption is accelerating as ${specifics.driver || 'labor costs rise'} and ${specifics.pressure || 'efficiency demands'} increase - companies implementing these solutions now will establish ${specifics.advantage || 'insurmountable competitive advantages'} in their markets.`,
+                        `The ${specifics.breakthrough || 'technological advancement'} demonstrated here creates new market categories and ${specifics.moat || 'competitive moats'} that first movers can exploit to establish ${specifics.position || 'market leadership'} positions.`,
+                        `Construction technology integration in ${specifics.application || 'this sector'} represents a paradigm shift toward ${specifics.future || 'automated building processes'}, offering companies a path to ${specifics.outcome || 'dramatic cost reduction'} and improved project outcomes.`
+                    ],
+                    sustainability: [
+                        `This ${specifics.approach || 'sustainable building'} strategy positions developers for ${specifics.compliance || 'regulatory compliance'} while meeting growing consumer demand for ${specifics.requirement || 'environmentally responsible'} properties - early adopters will maintain higher valuations as ${specifics.regulation || 'standards tighten'}.`,
+                        `The ${specifics.method || 'green construction'} methodology showcased here delivers immediate ${specifics.benefit || 'cost savings'} while building long-term competitive advantages through ${specifics.credential || 'superior environmental credentials'} that command premium pricing.`,
+                        `Sustainable development practices in ${specifics.location || 'major markets'} are becoming mandatory rather than optional - properties with ${specifics.standard || 'advanced green features'} will maintain higher valuations and attract premium tenants.`
+                    ]
+                };
+                
+                const categoryTemplates = templates[category] || templates.investment;
+                const randomTemplate = categoryTemplates[Math.floor(Math.random() * categoryTemplates.length)];
+                return randomTemplate;
+            };
+            
+            // Determine category and generate specifics
+            let category = 'investment';
+            let specifics = { numbers, locations, companies };
+            
             if (combinedText.includes('mass timber') || combinedText.includes('wood construction') || combinedText.includes('timber skyscraper')) {
-                return 'Mass timber represents a fundamental shift in building codes that enables dramatically lower construction costs while creating unique, sustainable skyscrapers - this could revolutionize urban development economics and make high-rise construction viable in smaller markets.';
-            }
-
-            // Prefab/Modular Construction
-            if (combinedText.includes('prefab') || combinedText.includes('modular') || combinedText.includes('off-site construction')) {
-                return 'Prefabrication is solving the labor shortage crisis while delivering 30-50% faster completion times and consistent quality - early adopters are capturing market share as traditional construction struggles with skilled worker availability.';
-            }
-
-            // Smart Cities / Technology
-            if (combinedText.includes('smart city') || combinedText.includes('iot') || combinedText.includes('sensor') || combinedText.includes('connected')) {
-                return 'Smart city infrastructure creates new revenue streams for property owners through data monetization and operational efficiency - buildings that integrate these technologies will command premium rents and attract high-value tenants.';
-            }
-
-            // Green/Sustainable Building
-            if (combinedText.includes('green building') || combinedText.includes('leed') || combinedText.includes('net zero') || combinedText.includes('carbon neutral')) {
-                return 'Green building standards are becoming mandatory in major markets, creating a competitive advantage for developers who master sustainable construction now - properties with superior environmental credentials will maintain higher valuations as regulations tighten.';
-            }
-
-            // Real Estate Investment/Development
-            if (combinedText.includes('investment') || combinedText.includes('development') || combinedText.includes('acquisition')) {
-                return 'This investment strategy capitalizes on demographic shifts and market inefficiencies that traditional investors are missing - the early mover advantage here could generate outsized returns as the trend becomes mainstream.';
-            }
-
-            // Construction Technology
-            if (combinedText.includes('construction tech') || combinedText.includes('building technology') || combinedText.includes('automation')) {
-                return 'Construction technology adoption is accelerating as labor costs rise - companies implementing these solutions now will dominate their markets as competitors struggle with outdated methods and shrinking profit margins.';
-            }
-
-            // Zoning/Land Use
-            if (combinedText.includes('zoning') || combinedText.includes('land use') || combinedText.includes('density') || combinedText.includes('adus')) {
-                return 'Zoning reforms are unlocking development potential in previously constrained markets - savvy developers who understand these changes can acquire undervalued properties and dramatically increase their development potential.';
-            }
-
-            // Affordable Housing
-            if (combinedText.includes('affordable housing') || combinedText.includes('low-income') || combinedText.includes('workforce housing')) {
-                return 'Affordable housing development offers stable, government-backed returns while solving critical social needs - this sector provides recession-resistant income streams that institutional investors are increasingly targeting.';
-            }
-
-            // Industrial/Logistics
-            if (combinedText.includes('industrial') || combinedText.includes('warehouse') || combinedText.includes('logistics') || combinedText.includes('distribution')) {
-                return 'E-commerce growth is driving unprecedented demand for industrial space, creating opportunities to develop last-mile facilities that command premium rents from logistics companies desperate for strategically located properties.';
-            }
-
-            // Multifamily/Apartments
-            if (combinedText.includes('multifamily') || combinedText.includes('apartment') || combinedText.includes('rental housing')) {
-                return 'Demographic trends favor rental housing as homeownership becomes less accessible - multifamily investments in growing markets offer stable cash flow with potential for significant appreciation as demand outpaces supply.';
-            }
-
-            // Office/Commercial
-            if (combinedText.includes('office') || combinedText.includes('commercial') || combinedText.includes('retail')) {
-                return 'The office market is undergoing fundamental transformation as hybrid work models reshape space requirements - flexible, amenity-rich properties will thrive while outdated buildings face obsolescence and declining values.';
-            }
-
-            // Return on Investment specific
-            if (combinedText.includes('roi') || combinedText.includes('return on investment') || combinedText.includes('cash flow')) {
-                return 'This investment approach generates superior returns through operational efficiency and market positioning - the combination of reduced costs and increased revenue creates a compounding advantage that grows over time.';
-            }
-
-            // Innovation/Technology
-            if (combinedText.includes('innovation') || combinedText.includes('breakthrough') || combinedText.includes('disruptive')) {
-                return 'This innovation creates new market categories and competitive moats - first movers who master these technologies will establish market leadership positions that competitors cannot easily replicate.';
-            }
-
-            // Efficiency/Productivity
-            if (combinedText.includes('efficiency') || combinedText.includes('productivity') || combinedText.includes('optimization')) {
-                return 'Operational efficiency improvements compound over time, creating sustainable competitive advantages - companies that master these practices will consistently outperform competitors and capture market share.';
-            }
-
-            // Growth/Expansion
-            if (combinedText.includes('growth') || combinedText.includes('expansion') || combinedText.includes('scale')) {
-                return 'This growth strategy leverages market opportunities that most competitors are overlooking - the combination of market timing and execution excellence creates exponential value creation potential.';
-            }
-
-            // Default fallback based on theme
-            if (theme === 'opportunities') {
-                return 'This opportunity represents a market inefficiency that creates wealth-building potential for those who understand the underlying trends - early recognition and action here could generate significant competitive advantages.';
+                category = 'massTimber';
+                specifics.project = combinedText.includes('skyscraper') ? 'skyscraper' : 'development';
+                specifics.cost = numbers.find(n => n.includes('%')) || '20-30%';
+                specifics.location = locations[0] || 'innovative markets';
+            } else if (combinedText.includes('prefab') || combinedText.includes('modular') || combinedText.includes('off-site')) {
+                category = 'prefab';
+                specifics.method = combinedText.includes('modular') ? 'modular' : 'prefabricated';
+                specifics.speed = numbers.find(n => n.includes('%')) || '30-50% faster';
+                specifics.location = locations[0] || 'competitive markets';
+            } else if (combinedText.includes('smart city') || combinedText.includes('iot') || combinedText.includes('sensor')) {
+                category = 'smartCity';
+                specifics.technology = combinedText.includes('iot') ? 'IoT infrastructure' : 'smart city';
+                specifics.location = locations[0] || 'urban areas';
+                specifics.monetization = 'data-driven services';
+            } else if (combinedText.includes('construction tech') || combinedText.includes('building technology') || combinedText.includes('automation')) {
+                category = 'technology';
+                specifics.innovation = 'construction technology';
+                specifics.driver = 'labor costs rise';
+                specifics.pressure = 'efficiency demands';
+            } else if (combinedText.includes('green') || combinedText.includes('sustainable') || combinedText.includes('leed')) {
+                category = 'sustainability';
+                specifics.approach = 'sustainable building';
+                specifics.compliance = 'regulatory compliance';
+                specifics.location = locations[0] || 'major markets';
             }
             
-            if (theme === 'practices') {
-                return 'This methodology delivers measurable improvements that compound over time - companies implementing these practices will build sustainable competitive advantages that drive long-term growth and profitability.';
+            // Add more randomness with article-specific details
+            const titleWords = title.split(' ').slice(0, 3);
+            const contentWords = text.split(' ').filter(word => word.length > 5).slice(0, 5);
+            
+            // Inject some article-specific terms
+            if (titleWords.length > 0) {
+                specifics.project = titleWords[0];
+            }
+            if (contentWords.length > 0) {
+                specifics.innovation = contentWords[0];
             }
             
-            if (theme === 'vision') {
-                return 'This trend represents the future direction of the industry - understanding and positioning for these changes now will determine which companies thrive versus those that become obsolete.';
-            }
-            
-            return 'This development signals important industry changes that will create winners and losers - strategic positioning now will determine long-term success.';
+            return getUniqueTemplate(category, specifics);
         }
 
         // Display theme cards on home page
