@@ -616,7 +616,8 @@ async def collect_articles():
             scoring_result = score_article_v4(
                 article_data.title,
                 article_data.content or "",
-                article_data.source
+                article_data.source,
+                article_data.url
             )
             
             # Store score
@@ -716,7 +717,8 @@ async def collect_corporate_articles():
             scoring_result = score_article_v4(
                 article_data.title,
                 article_data.content or "",
-                article_data.source
+                article_data.source,
+                article_data.url
             )
             
             # Store score
