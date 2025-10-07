@@ -29,6 +29,7 @@ class Article(Base):
     # Metadata
     word_count = Column(Integer, default=0)
     reading_time = Column(Integer, default=0)  # in minutes
+    image_url = Column(String(1000))  # Extracted article image URL
     
     # Content analysis
     themes = Column(JSON)  # List of detected themes

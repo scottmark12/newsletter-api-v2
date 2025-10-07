@@ -6,7 +6,7 @@ Clean, modern API with comprehensive endpoints
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from sqlalchemy import create_engine, func, desc, and_, or_
+from sqlalchemy import create_engine, func, desc, and_, or_, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
@@ -19,6 +19,8 @@ from .scoring import score_article_v4, extract_insights_v4
 from .enhanced_scoring import score_article_enhanced
 from .data_collectors import collect_all_articles
 from .video_processor import find_construction_videos, process_youtube_video
+from .image_extractor import extract_article_image, get_fallback_image
+from bs4 import BeautifulSoup
 
 # Initialize configuration
 config = get_config()
@@ -36,7 +38,7 @@ create_tables()
 app = FastAPI(
     title=config.api.title,
     description=config.api.description,
-    version=config.api.version,
+    version="v4.2.0",  # Force deployment update
     debug=config.api.debug
 )
 
@@ -89,7 +91,7 @@ async def health_check():
 @app.get("/api/v4/opportunities")
 async def get_opportunities(
     limit: int = Query(10, ge=1, le=500),
-    min_score: float = Query(0.2, ge=0.0, le=1.0),
+    min_score: float = Query(0.1, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -117,40 +119,8 @@ async def get_opportunities(
         desc(ArticleScore.opportunities_score)  # Then by opportunities score
     ).limit(limit * 2).all()  # Get more to filter further
     
-    # Additional relevance filtering
-    relevant_articles = []
-    for article, score in articles:
-        # Check for high-value content indicators
-        content_lower = (article.content or "").lower()
-        title_lower = article.title.lower()
-        
-        # Look for transformation/success indicators
-        transformation_indicators = [
-            'turned into', 'grew from', 'scaled up', 'transformed', 'converted',
-            'success story', 'case study', 'wealth creation', 'portfolio growth',
-            'investment returns', 'market opportunity', 'emerging market'
-        ]
-        
-        has_transformation = any(indicator in content_lower or indicator in title_lower 
-                               for indicator in transformation_indicators)
-        
-        # Look for actionable insights
-        insight_indicators = [
-            'how to', 'framework', 'strategy', 'approach', 'methodology',
-            'best practices', 'lessons learned', 'insights', 'analysis'
-        ]
-        
-        has_insights = any(indicator in content_lower or indicator in title_lower 
-                          for indicator in insight_indicators)
-        
-        # Include if meets relevance criteria
-        if has_transformation or has_insights or score.total_score >= 0.1:
-            relevant_articles.append((article, score))
-            
-        if len(relevant_articles) >= limit:
-            break
-    
-    articles = relevant_articles[:limit]
+    # Use all articles that meet the score threshold - no additional keyword filtering
+    articles = articles[:limit]
     
     result = []
     for article, score in articles:
@@ -169,13 +139,13 @@ async def get_opportunities(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+    return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/practices")
 async def get_practices(
     limit: int = Query(10, ge=1, le=500),
-    min_score: float = Query(0.3, ge=0.0, le=1.0),
+    min_score: float = Query(0.1, ge=0.0, le=1.0),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -189,7 +159,7 @@ async def get_practices(
     ).filter(
         and_(
             ArticleScore.practices_score >= min_score,
-            ArticleScore.total_score >= 0.2,
+            ArticleScore.total_score >= 0.05,
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),
             Article.published_at >= cutoff_time  # Only recent articles
@@ -199,39 +169,8 @@ async def get_practices(
         desc(ArticleScore.practices_score)
     ).limit(limit * 2).all()
     
-    # Filter for actionable practices and methodologies
-    relevant_articles = []
-    for article, score in articles:
-        content_lower = (article.content or "").lower()
-        title_lower = article.title.lower()
-        
-        # Look for methodology/practice indicators
-        practice_indicators = [
-            'how to', 'step by step', 'methodology', 'process', 'workflow',
-            'best practices', 'innovative approach', 'efficiency gains',
-            'productivity improvement', 'cutting edge', 'advanced technique',
-            'implementation', 'framework', 'strategy'
-        ]
-        
-        has_practices = any(indicator in content_lower or indicator in title_lower 
-                          for indicator in practice_indicators)
-        
-        # Look for innovation indicators
-        innovation_indicators = [
-            'breakthrough', 'innovation', 'new method', 'revolutionary',
-            'advanced', 'next generation', 'futuristic', 'emerging technology'
-        ]
-        
-        has_innovation = any(indicator in content_lower or indicator in title_lower 
-                           for indicator in innovation_indicators)
-        
-        if has_practices or has_innovation or score.total_score >= 0.2:
-            relevant_articles.append((article, score))
-            
-        if len(relevant_articles) >= limit:
-            break
-    
-    articles = relevant_articles[:limit]
+    # Use all articles that meet the score threshold - no additional keyword filtering
+    articles = articles[:limit]
     
     result = []
     for article, score in articles:
@@ -242,6 +181,7 @@ async def get_practices(
             "summary": article.summary,
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
+            "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "practices": score.practices_score,
                 "total": score.total_score
@@ -249,7 +189,7 @@ async def get_practices(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+    return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/systems-codes")
@@ -269,7 +209,7 @@ async def get_systems_codes(
     ).filter(
         and_(
             ArticleScore.systems_score >= min_score,
-            ArticleScore.total_score >= 0.2,  # Minimum overall quality
+            ArticleScore.total_score >= 0.05,  # Minimum overall quality
             or_(Article.content.isnot(None), Article.summary.isnot(None)),
             or_(func.length(Article.content) > 200, func.length(Article.summary) > 200),  # Minimum content length
             Article.published_at >= cutoff_time  # Only recent articles
@@ -330,7 +270,7 @@ async def get_systems_codes(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+    return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/vision")
@@ -363,7 +303,7 @@ async def get_vision(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+    return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 # ============================================================================
@@ -401,12 +341,12 @@ async def get_top_stories(
             "themes": article.themes
         })
     
-    return {"articles": result, "count": len(result)}
+    return {"articles": result, "count": len(result), "version": "v4.1.0"}
 
 
 @app.get("/api/v4/home")
 async def get_home_page(
-    limit: int = Query(15, ge=1, le=500),
+    limit: int = Query(7, ge=1, le=500),
     hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
     db: Session = Depends(get_db)
 ):
@@ -435,6 +375,7 @@ async def get_home_page(
             "summary": article.summary,
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
+            "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "total": score.total_score,
                 "opportunities": score.opportunities_score,
@@ -647,6 +588,13 @@ async def collect_articles():
             if existing:
                 continue
             
+            # Extract image from article URL
+            image_url = None
+            try:
+                image_url = await extract_article_image(article_data.url)
+            except Exception as e:
+                print(f"Failed to extract image from {article_data.url}: {e}")
+            
             # Create new article
             article = Article(
                 title=article_data.title,
@@ -656,7 +604,8 @@ async def collect_articles():
                 source=article_data.source,
                 author=article_data.author,
                 published_at=article_data.published_at,
-                themes=json.dumps(getattr(article_data, 'tags', []) or [])
+                themes=json.dumps(getattr(article_data, 'tags', []) or []),
+                image_url=image_url
             )
             
             db.add(article)
@@ -736,6 +685,13 @@ async def collect_corporate_articles():
             if existing:
                 continue
             
+            # Extract image from article URL
+            image_url = None
+            try:
+                image_url = await extract_article_image(article_data.url)
+            except Exception as e:
+                print(f"Failed to extract image from {article_data.url}: {e}")
+            
             # Create new article
             article = Article(
                 title=article_data.title,
@@ -748,7 +704,8 @@ async def collect_corporate_articles():
                 word_count=len(article_data.content.split()) if article_data.content else 0,
                 reading_time=len(article_data.content.split()) // 200 if article_data.content else 0,
                 themes=json.dumps(getattr(article_data, 'tags', []) or []),
-                keywords=json.dumps([])
+                keywords=json.dumps([]),
+                image_url=image_url
             )
             
             db.add(article)
@@ -792,6 +749,51 @@ async def collect_corporate_articles():
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v4/admin/migrate-add-image-url")
+async def migrate_add_image_url():
+    """Add image_url column to articles_v4 table"""
+    try:
+        db = SessionLocal()
+        
+        # Check if column already exists
+        result = db.execute(text("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'articles_v4' 
+            AND column_name = 'image_url'
+        """))
+        
+        if result.fetchone():
+            db.close()
+            return {
+                "ok": True,
+                "message": "image_url column already exists",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        
+        # Add the image_url column
+        db.execute(text("""
+            ALTER TABLE articles_v4 
+            ADD COLUMN image_url VARCHAR(1000)
+        """))
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": "Successfully added image_url column to articles_v4 table",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
 
 @app.delete("/api/v4/admin/clear-articles")
@@ -923,6 +925,28 @@ async def process_videos():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/v4/admin/debug-scores")
+async def debug_scores(db: Session = Depends(get_db)):
+    """Debug endpoint to check article scores"""
+    articles = db.query(Article, ArticleScore).join(
+        ArticleScore, Article.id == ArticleScore.article_id
+    ).order_by(desc(ArticleScore.total_score)).limit(10).all()
+    
+    result = []
+    for article, score in articles:
+        result.append({
+            "id": article.id,
+            "title": article.title[:60],
+            "total_score": score.total_score,
+            "opportunities_score": score.opportunities_score,
+            "practices_score": score.practices_score,
+            "systems_score": score.systems_score,
+            "vision_score": score.vision_score
+        })
+    
+    return {"articles": result}
+
+
 @app.get("/api/v4/admin/stats")
 async def get_admin_stats(db: Session = Depends(get_db)):
     """Get admin statistics"""
@@ -943,6 +967,79 @@ async def get_admin_stats(db: Session = Depends(get_db)):
         "recent_articles_24h": recent_articles,
         "scoring_coverage": f"{(scored_articles / total_articles * 100):.1f}%" if total_articles > 0 else "0%"
     }
+
+
+# ============================================================================
+# IMAGE PROXY ENDPOINT
+# ============================================================================
+
+@app.get("/api/v4/proxy/image")
+async def proxy_image(
+    image: str = Query(..., description="Image URL to proxy"),
+    url: str = Query(None, description="Article URL to extract image from")
+):
+    """
+    Proxy images to handle CORS and hotlink protection
+    """
+    import aiohttp
+    from urllib.parse import urlparse, urljoin
+    
+    try:
+        # If URL is provided, extract image from the page first
+        if url:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=10, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36'
+                }) as response:
+                    if response.status == 200:
+                        html = await response.text()
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(html, 'lxml')
+                        
+                        # Try to find Open Graph image first
+                        og_image = soup.find('meta', property='og:image')
+                        if og_image and og_image.get('content'):
+                            image = og_image['content']
+                        else:
+                            # Try to find first suitable content image
+                            for img in soup.find_all('img', src=True):
+                                src = img['src']
+                                if not any(x in src.lower() for x in ['logo', 'icon', 'avatar', 'placeholder', 'spacer']):
+                                    image = src
+                                    break
+        
+        # Normalize relative URLs
+        if image and not image.startswith(('http://', 'https://')):
+            if url:
+                image = urljoin(url, image)
+            else:
+                raise HTTPException(status_code=400, detail="Invalid image URL")
+        
+        # Fetch the image with proper headers
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image, timeout=15, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+                'Referer': f"{urlparse(image).scheme}://{urlparse(image).netloc}" if image.startswith('http') else '',
+                'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8'
+            }) as response:
+                if response.status == 200:
+                    from fastapi.responses import Response
+                    content = await response.read()
+                    content_type = response.headers.get('content-type', 'image/jpeg')
+                    
+                    return Response(
+                        content=content,
+                        media_type=content_type,
+                        headers={
+                            'Cache-Control': 'public, max-age=3600',
+                            'Access-Control-Allow-Origin': '*'
+                        }
+                    )
+                else:
+                    raise HTTPException(status_code=response.status, detail=f"Failed to fetch image: {response.status}")
+                    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error proxying image: {str(e)}")
 
 
 # ============================================================================

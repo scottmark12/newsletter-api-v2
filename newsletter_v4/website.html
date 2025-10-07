@@ -3,9 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urban Pulse - Construction & Real Estate Intelligence</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Urban Pulse - Construction & Real Estate Intelligence v4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #0f172a;
+            --card: #ffffff;
+            --card-foreground: #0f172a;
+            --popover: #ffffff;
+            --popover-foreground: #0f172a;
+            --primary: #0f172a;
+            --primary-foreground: #f8fafc;
+            --secondary: #f1f5f9;
+            --secondary-foreground: #0f172a;
+            --muted: #f1f5f9;
+            --muted-foreground: #64748b;
+            --accent: #f1f5f9;
+            --accent-foreground: #0f172a;
+            --destructive: #ef4444;
+            --destructive-foreground: #f8fafc;
+            --border: #e2e8f0;
+            --input: #e2e8f0;
+            --ring: #0f172a;
+            --radius: 0.5rem;
+        }
+
+        [data-theme="dark"] {
+            --background: #0f172a;
+            --foreground: #f8fafc;
+            --card: #1e293b;
+            --card-foreground: #f8fafc;
+            --popover: #1e293b;
+            --popover-foreground: #f8fafc;
+            --primary: #f8fafc;
+            --primary-foreground: #0f172a;
+            --secondary: #334155;
+            --secondary-foreground: #f8fafc;
+            --muted: #334155;
+            --muted-foreground: #94a3b8;
+            --accent: #334155;
+            --accent-foreground: #f8fafc;
+            --destructive: #ef4444;
+            --destructive-foreground: #f8fafc;
+            --border: #334155;
+            --input: #334155;
+            --ring: #f8fafc;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,27 +58,30 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
             line-height: 1.6;
-            color: #333;
-            background-color: #f8fafc;
+            min-height: 100vh;
         }
 
-        /* Navigation */
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
             padding: 1rem 0;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,228 +89,110 @@
 
         .logo {
             font-size: 1.5rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-weight: 700;
+            color: var(--primary);
         }
 
-        .nav-links {
+        .nav {
             display: flex;
-            list-style: none;
             gap: 2rem;
+            list-style: none;
         }
 
-        .nav-links a {
-            color: white;
+        .nav a {
             text-decoration: none;
+            color: var(--muted-foreground);
             font-weight: 500;
-            transition: opacity 0.3s;
-            cursor: pointer;
+            transition: color 0.2s;
         }
 
-        .nav-links a:hover {
-            opacity: 0.8;
+        .nav a:hover,
+        .nav a.active {
+            color: var(--foreground);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            cursor: pointer;
+            color: var(--foreground);
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent);
         }
 
         /* Main Content */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
+        .main {
+            padding: 2rem 0;
         }
 
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4rem 0;
-            text-align: center;
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--muted-foreground);
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Theme Grid */
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 3rem;
-            border-radius: 1rem;
+        }
+
+        .theme-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
 
-        .hero::before {
+        .theme-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--ring);
+        }
+
+        .theme-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-        }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin-top: 2rem;
-        }
-
-        .hero-stat {
-            text-align: center;
-        }
-
-        .hero-stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .hero-stat-label {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-
-        /* Featured Video */
-        .featured-video {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 3rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        .featured-video.show {
-            display: block;
-        }
-
-        .video-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .video-icon {
-            width: 3rem;
-            height: 3rem;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .video-content {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        .video-thumbnail {
-            width: 100%;
-            height: 200px;
-            background: #f8f9fa;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .video-thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .play-button:hover {
-            background: white;
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        .video-info h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            color: #2d3748;
-        }
-
-        .video-meta {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            color: #718096;
-        }
-
-        .video-summary {
-            color: #4a5568;
-            line-height: 1.6;
-        }
-
-        /* Theme Sections */
-        .themes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .theme-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-        }
-
-        .theme-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #10b981, #8b5cf6);
         }
 
         .theme-header {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .theme-icon {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 0.75rem;
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -270,176 +200,135 @@
             color: white;
         }
 
-        .theme-icon.opportunities { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-        .theme-icon.practices { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .theme-icon.vision { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .theme-icon.opportunities { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .theme-icon.practices { background: linear-gradient(135deg, #10b981, #059669); }
+        .theme-icon.vision { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
         .theme-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            color: #2d3748;
+            color: var(--foreground);
         }
 
         .theme-description {
-            color: #718096;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
+            color: var(--muted-foreground);
+            margin-bottom: 1rem;
+            line-height: 1.5;
         }
 
         .theme-stats {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
         }
 
         .article-count {
-            font-weight: 600;
-            color: #4a5568;
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            padding: 0.25rem 0.75rem;
+            border-radius: calc(var(--radius) / 2);
+            font-size: 0.875rem;
+            font-weight: 500;
         }
 
         .view-articles {
-            background: #667eea;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+            color: var(--primary);
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: background 0.3s;
+            font-weight: 500;
+            transition: color 0.2s;
         }
 
         .view-articles:hover {
-            background: #5a67d8;
+            color: var(--ring);
         }
 
-        /* Articles List */
-        .articles-section {
-            margin-bottom: 3rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2d3748;
-        }
-
-        .back-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
+        /* Articles Grid */
         .articles-grid {
             display: grid;
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
+        /* Article Card */
         .article-card {
-            background: white;
-            border-radius: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             overflow: hidden;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .article-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: var(--ring);
         }
 
+        /* Image Container */
         .article-image-container {
             position: relative;
             width: 100%;
             aspect-ratio: 4/3;
-            background: #f3f4f6;
             overflow: hidden;
+            background: var(--muted);
         }
 
         .article-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.3s ease;
         }
 
         .article-card:hover .article-image {
             transform: scale(1.05);
         }
 
-        .article-image-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f3f4f6;
-        }
-
-        .article-image-placeholder svg {
-            width: 80px;
-            height: 80px;
-            color: #9ca3af;
-            opacity: 0.5;
-        }
-
+        /* Source Badge */
         .source-badge {
             position: absolute;
             top: 1rem;
             left: 1rem;
-            padding: 0.375rem 0.75rem;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            border-radius: 9999px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: calc(var(--radius) / 2);
             font-size: 0.75rem;
             font-weight: 500;
-            color: #111827;
-            border: 1px solid rgba(229, 231, 235, 0.8);
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
         }
 
+        /* Article Content */
         .article-content {
             padding: 1.5rem;
         }
 
         .article-title {
             font-size: 1.25rem;
-            font-weight: 700;
-            color: #111827;
-            line-height: 1.3;
+            font-weight: 600;
+            color: var(--foreground);
             margin-bottom: 0.75rem;
-            transition: color 0.2s ease;
-        }
-
-        .article-card:hover .article-title {
-            color: #3b82f6;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .article-synopsis {
-            color: rgba(17, 24, 39, 0.9);
+            color: var(--muted-foreground);
             margin-bottom: 1rem;
             line-height: 1.6;
-            font-size: 0.9375rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .article-takeaways {
+        /* Takeaways */
+        .takeaways {
             margin-bottom: 1rem;
         }
 
@@ -448,123 +337,96 @@
             align-items: flex-start;
             gap: 0.5rem;
             margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
         }
 
         .takeaway-checkmark {
-            font-size: 1.125rem;
+            color: #10b981;
+            font-weight: bold;
             flex-shrink: 0;
             margin-top: 0.125rem;
         }
 
-        .takeaway-text {
-            font-size: 0.875rem;
-            color: rgba(17, 24, 39, 0.8);
-            line-height: 1.5;
-        }
-
+        /* Why It Matters */
         .why-it-matters {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: rgba(243, 244, 246, 0.5);
-            border-radius: 0.5rem;
-            border-left: 4px solid #3b82f6;
+            background: var(--secondary) !important;
+            border-left: 4px solid var(--primary) !important;
+            padding: 1rem !important;
+            border-radius: 0 var(--radius) var(--radius) 0 !important;
+            margin-bottom: 1rem !important;
+            display: block !important;
         }
 
         .why-it-matters-title {
-            font-size: 0.875rem;
             font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.25rem;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
         }
 
         .why-it-matters-text {
             font-size: 0.875rem;
-            color: #6b7280;
+            color: var(--muted-foreground);
             line-height: 1.5;
         }
 
-        .article-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .article-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-
-        .article-meta i {
-            font-size: 0.75rem;
-            color: #9ca3af;
-        }
-
-        .article-summary {
-            color: #374151;
-            line-height: 1.6;
-            margin-bottom: 1.25rem;
-            font-size: 0.875rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
+        /* Article Footer */
         .article-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding-top: 1rem;
-            border-top: 1px solid #f3f4f6;
+            border-top: 1px solid var(--border);
+        }
+
+        .article-date {
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
         }
 
         .article-link {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: #3b82f6;
-            font-weight: 500;
+            color: var(--primary);
             text-decoration: none;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
         .article-link:hover {
-            gap: 0.75rem;
+            color: var(--ring);
+            transform: translateX(2px);
         }
 
         .article-link-icon {
             width: 1rem;
             height: 1rem;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s;
         }
 
         .article-link:hover .article-link-icon {
-            transform: translate(0.125rem, -0.125rem);
-        }
-
-        .article-date {
-            color: #9ca3af;
-            font-size: 0.75rem;
+            transform: translateX(2px);
         }
 
         /* Loading States */
         .loading {
-            text-align: center;
-            padding: 4rem;
-            color: #666;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            color: var(--muted-foreground);
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            margin-right: 0.5rem;
         }
 
         @keyframes spin {
@@ -572,549 +434,572 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Error State */
-        .error {
-            background: #fee;
-            border: 1px solid #fcc;
-            color: #c33;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin: 2rem 0;
-            text-align: center;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-container {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .header-content {
                 flex-direction: column;
                 gap: 1rem;
             }
 
-            .nav-links {
+            .nav {
                 gap: 1rem;
             }
 
-            .hero h1 {
+            .page-title {
                 font-size: 2rem;
             }
 
-            .hero-stats {
-                flex-direction: column;
+            .articles-grid {
+                grid-template-columns: 1fr;
                 gap: 1rem;
-            }
-
-            .container {
-                padding: 1rem;
             }
 
             .themes-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .video-content {
-                grid-template-columns: 1fr;
-            }
-
-            .article-header {
-                flex-direction: column;
                 gap: 1rem;
             }
         }
 
-        /* Hidden class for navigation */
+        /* Hidden class for dynamic content */
         .hidden {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-building"></i>
-                Urban Pulse
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Urban Pulse</div>
+                <nav class="nav">
+                    <a href="#" class="nav-link active" onclick="showHome()">Home</a>
+                    <a href="#" class="nav-link" onclick="showTheme('opportunities')">Opportunities</a>
+                    <a href="#" class="nav-link" onclick="showTheme('practices')">Practices</a>
+                    <a href="#" class="nav-link" onclick="showTheme('vision')">Vision</a>
+                </nav>
+                <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
             </div>
-            <ul class="nav-links">
-                <li><a onclick="showHome()">Home</a></li>
-                <li><a onclick="showTheme('opportunities')">Opportunities</a></li>
-                <li><a onclick="showTheme('practices')">Practices</a></li>
-                <li><a onclick="showTheme('vision')">Vision</a></li>
-            </ul>
         </div>
-    </nav>
+    </header>
 
-    <!-- Main Content -->
+    <main class="main">
     <div class="container">
         <!-- Home Page -->
         <div id="home-page">
-            <div class="hero">
-                <div class="hero-content">
-                    <h1>Urban Pulse</h1>
-                    <p>Your intelligence hub for construction innovation, market opportunities, and real estate development insights</p>
-                    
-                    <div class="hero-stats">
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="total-articles">-</div>
-                            <div class="hero-stat-label">Articles</div>
-                        </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="avg-score">-</div>
-                            <div class="hero-stat-label">Avg Score</div>
-                        </div>
-                        <div class="hero-stat">
-                            <div class="hero-stat-value" id="recent-articles">-</div>
-                            <div class="hero-stat-label">Today</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Featured Video -->
-            <div id="featured-video" class="featured-video">
-                <div class="video-header">
-                    <div class="video-icon">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <h2>Featured Video</h2>
-                </div>
-                <div class="video-content">
-                    <div class="video-thumbnail">
-                        <img id="video-thumbnail" src="" alt="Video thumbnail">
-                        <div class="play-button" onclick="openVideo()">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h3 id="video-title">Video Title</h3>
-                        <div class="video-meta">
-                            <span id="video-channel">Channel</span>
-                            <span id="video-views">Views</span>
-                            <span id="video-duration">Duration</span>
-                        </div>
-                        <div class="video-summary" id="video-summary">
-                            Video summary will appear here...
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Loading latest insights...</p>
-            </div>
-
-            <div id="error" class="error hidden">
-                <p>Unable to load content. Please try again later.</p>
-            </div>
-
-            <div id="themes-container" class="hidden">
-                <div class="themes-grid" id="themes-grid">
-                    <!-- Themes will be populated here -->
-                </div>
+                <h1 class="page-title">Construction & Real Estate Intelligence</h1>
+                <p class="page-subtitle">Discover insights, opportunities, and innovations shaping the built environment</p>
+                
+                <div id="themes-grid" class="themes-grid">
+                    <!-- Theme cards will be populated by JavaScript -->
             </div>
         </div>
 
         <!-- Theme Pages -->
         <div id="theme-page" class="hidden">
-            <div class="articles-section">
-                <div class="section-header">
-                    <div>
-                        <div class="back-link" onclick="showHome()">
-                            <i class="fas fa-arrow-left"></i>
-                            Back to Home
+                <div id="theme-header">
+                    <h1 id="theme-title" class="page-title"></h1>
+                    <p id="theme-subtitle" class="page-subtitle"></p>
                         </div>
-                        <h2 class="section-title" id="theme-title">Theme Articles</h2>
+                
+                <div id="articles-grid" class="articles-grid">
+                    <!-- Articles will be populated by JavaScript -->
                     </div>
                 </div>
 
-                <div id="theme-loading" class="loading">
+            <!-- Loading State -->
+            <div id="loading" class="loading hidden">
                     <div class="spinner"></div>
-                    <p>Loading articles...</p>
+                Loading articles...
                 </div>
-
-                <div id="theme-error" class="error hidden">
-                    <p>Unable to load articles for this theme.</p>
                 </div>
-
-                <div id="articles-grid" class="articles-grid hidden">
-                    <!-- Articles will be populated here -->
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <script>
-        // API Configuration
-        const API_BASE = window.location.origin;
+        const API_BASE = 'https://newsletter-api-v2.onrender.com';
         
-        // Theme configuration
         const THEMES = {
             opportunities: {
-                name: 'Opportunities',
-                description: 'Market growth, investments, and emerging trends in construction and real estate',
-                icon: 'fas fa-chart-line',
-                color: 'opportunities'
+                name: 'Creative Opportunities',
+                description: 'Entrepreneurial success stories, wealth creation, and innovative deal structures',
+                icon: '💰',
+                color: '#3b82f6'
             },
             practices: {
-                name: 'Practices',
-                description: 'Best practices, technology, and methodologies for building and construction',
-                icon: 'fas fa-tools',
-                color: 'practices'
+                name: 'Building Practices',
+                description: 'Construction methods, productivity insights, and efficiency improvements',
+                icon: '🔧',
+                color: '#10b981'
             },
             vision: {
-                name: 'Vision',
-                description: 'Smart cities, future-of-living models, and transformative industry trends',
-                icon: 'fas fa-eye',
-                color: 'vision'
+                name: 'Smart Cities & Vision',
+                description: 'Future-focused insights on urban development and smart city technologies',
+                icon: '🔮',
+                color: '#8b5cf6'
             }
         };
 
-        // Current page state
-        let currentPage = 'home';
-        let currentTheme = null;
-        let featuredVideo = null;
+        let currentTheme = 'home';
 
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
-            loadHomePage();
-        });
-
-        // Navigation functions
-        function showHome() {
-            currentPage = 'home';
-            document.getElementById('home-page').classList.remove('hidden');
-            document.getElementById('theme-page').classList.add('hidden');
-            loadHomePage();
+        // Theme management
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
 
-        function showTheme(themeName) {
-            currentPage = 'theme';
-            currentTheme = themeName;
-            document.getElementById('home-page').classList.add('hidden');
-            document.getElementById('theme-page').classList.remove('hidden');
-            loadThemePage(themeName);
-        }
-
-        // Load home page
-        async function loadHomePage() {
-            showLoading('loading');
-            hideError('error');
-            hideContent('themes-container');
-
-            try {
-                // Load homepage data
-                const homeResponse = await fetch(`${API_BASE}/api/v4/home?limit=20`);
-                const homeData = await homeResponse.json();
-
-                // Load admin stats for hero section
-                const statsResponse = await fetch(`${API_BASE}/api/v4/admin/stats`);
-                const stats = await statsResponse.json();
-
-                // Update hero stats
-                document.getElementById('total-articles').textContent = stats.total_articles || 0;
-                document.getElementById('recent-articles').textContent = stats.recent_articles_24h || 0;
-                document.getElementById('avg-score').textContent = '7.2'; // Placeholder
-
-                // Load featured video
-                if (homeData.featured_video) {
-                    featuredVideo = homeData.featured_video;
-                    displayFeaturedVideo(featuredVideo);
-                }
-
-                // Group articles by themes
-                const themes = Object.keys(THEMES).map(themeName => {
-                    const config = THEMES[themeName];
-                    let themeArticles = [];
-                    
-                    // Filter articles by theme scores
-                    if (homeData.articles) {
-                        themeArticles = homeData.articles.filter(article => {
-                            const score = article.score[themeName] || 0;
-                            return score > 0;
-                        });
-                    }
-                    
-                    return {
-                        name: themeName,
-                        data: { articles: themeArticles },
-                        config: config
-                    };
-                });
-
-                displayThemes(themes);
-                hideLoading('loading');
-                showContent('themes-container');
-            } catch (error) {
-                console.error('Error loading themes:', error);
-                hideLoading('loading');
-                showError('error');
-            }
-        }
-
-        // Load theme page
-        async function loadThemePage(themeName) {
-            const themeConfig = THEMES[themeName];
-            
-            // Update page title
-            document.getElementById('theme-title').textContent = themeConfig.name;
-            
-            showLoading('theme-loading');
-            hideError('theme-error');
-            hideContent('articles-grid');
-
-            try {
-                // Load articles for specific theme
-                const articlesResponse = await fetch(`${API_BASE}/api/v4/${themeName}?limit=50`);
-                const articlesData = await articlesResponse.json();
-
-                if (articlesData.articles && articlesData.articles.length > 0) {
-                    displayArticles(articlesData.articles, themeName);
-                    hideLoading('theme-loading');
-                    showContent('articles-grid');
-                } else {
-                    hideLoading('theme-loading');
-                    showError('theme-error');
-                }
-            } catch (error) {
-                console.error('Error loading theme:', error);
-                hideLoading('theme-loading');
-                showError('theme-error');
-            }
-        }
-
-        // Display featured video
-        function displayFeaturedVideo(video) {
-            const videoContainer = document.getElementById('featured-video');
-            const thumbnail = document.getElementById('video-thumbnail');
-            const title = document.getElementById('video-title');
-            const channel = document.getElementById('video-channel');
-            const views = document.getElementById('video-views');
-            const duration = document.getElementById('video-duration');
-            const summary = document.getElementById('video-summary');
-
-            if (video.thumbnail_url) {
-                thumbnail.src = video.thumbnail_url;
-            }
-
-            title.textContent = video.title || 'Featured Video';
-            channel.textContent = video.channel_name || 'Unknown Channel';
-            views.textContent = video.view_count ? `${video.view_count.toLocaleString()} views` : 'Views unknown';
-            duration.textContent = video.duration ? formatDuration(video.duration) : 'Duration unknown';
-            summary.textContent = video.summary || 'No summary available.';
-
-            videoContainer.classList.add('show');
-        }
-
-        // Format video duration
-        function formatDuration(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-
-            if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            } else {
-                return `${minutes}:${secs.toString().padStart(2, '0')}`;
-            }
-        }
-
-        // Open video in new tab
-        function openVideo() {
-            if (featuredVideo && featuredVideo.url) {
-                window.open(featuredVideo.url, '_blank');
-            }
-        }
-
-        // Display themes on home page
-        function displayThemes(themes) {
-            const container = document.getElementById('themes-grid');
-            container.innerHTML = '';
-
-            themes.forEach(theme => {
-                const themeCard = document.createElement('div');
-                themeCard.className = 'theme-card';
-                
-                const articleCount = theme.data.articles ? theme.data.articles.length : 0;
-                
-                themeCard.innerHTML = `
-                    <div class="theme-header">
-                        <div class="theme-icon ${theme.name}">
-                            <i class="${theme.config.icon}"></i>
-                        </div>
-                        <h3 class="theme-title">${theme.config.name}</h3>
-                    </div>
-                    <p class="theme-description">${theme.config.description}</p>
-                    <div class="theme-stats">
-                        <span class="article-count">${articleCount} articles</span>
-                        <a class="view-articles" onclick="showTheme('${theme.name}')">
-                            View Articles
-                        </a>
-                    </div>
-                `;
-                
-                container.appendChild(themeCard);
+        // Navigation
+        function updateNavigation(activeLink) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
             });
-        }
-
-        // Display articles
-        function displayArticles(articles, themeName) {
-            const container = document.getElementById('articles-grid');
-            container.innerHTML = '';
-
-            if (articles.length === 0) {
-                container.innerHTML = '<div class="error">No articles available for this theme.</div>';
-                return;
+            if (activeLink) {
+                activeLink.classList.add('active');
             }
-
-            articles.forEach(article => {
-                const articleCard = document.createElement('div');
-                articleCard.className = `article-card ${themeName}`;
-                
-                const publishedDate = article.published_at ? 
-                    new Date(article.published_at).toLocaleDateString() : 'Unknown date';
-                
-                const totalScore = article.score.total || 0;
-                
-                // Generate image URL (try to extract from content or use placeholder)
-                const imageUrl = article.thumbnail_url || extractImageFromContent(article.content) || null;
-                
-                // Generate takeaways from summary (simple bullet points)
-                const takeaways = generateTakeaways(article.summary || article.content);
-                
-                // Generate "why it matters" from content
-                const whyItMatters = generateWhyItMatters(article.summary || article.content);
-                
-                articleCard.innerHTML = `
-                    <div class="article-image-container">
-                        ${imageUrl ? 
-                            `<img src="${imageUrl}" alt="${article.title}" class="article-image" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\"article-image-placeholder\\"><svg fill=\\"none\\" stroke=\\"currentColor\\" viewBox=\\"0 0 24 24\\"><path stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" stroke-width=\\"1.5\\" d=\\"M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z\\" /></svg></div>'">` :
-                            `<div class="article-image-placeholder">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                                </svg>
-                            </div>`
-                        }
-                        <div class="source-badge">${article.source}</div>
-                    </div>
-                    <div class="article-content">
-                        <h2 class="article-title">${article.title}</h2>
-                        <p class="article-synopsis">${article.summary || 'No summary available.'}</p>
-                        ${takeaways.length > 0 ? `
-                            <div class="article-takeaways">
-                                ${takeaways.map(takeaway => `
-                                    <div class="takeaway-item">
-                                        <span class="takeaway-checkmark">✅</span>
-                                        <p class="takeaway-text">${takeaway}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                        ${whyItMatters ? `
-                            <div class="why-it-matters">
-                                <p class="why-it-matters-title">Why it matters</p>
-                                <p class="why-it-matters-text">${whyItMatters}</p>
-                            </div>
-                        ` : ''}
-                        <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span>Read full story</span>
-                            <svg class="article-link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                        </a>
-                    </div>
-                `;
-                
-                container.appendChild(articleCard);
-            });
         }
 
-        // Helper functions for article formatting
+        // Enhanced image extraction utility
         function extractImageFromContent(content) {
             if (!content) return null;
-            const imgRegex = /<img[^>]+src="([^"]+)"/i;
-            const match = content.match(imgRegex);
-            return match ? match[1] : null;
-        }
-
-        function generateTakeaways(text) {
-            if (!text) return [];
-            // Simple extraction of key points from summary
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
-            const takeaways = [];
             
-            // Look for sentences that contain key indicators
-            const indicators = ['will', 'could', 'should', 'expected', 'projected', 'planned', 'announced', 'reported'];
+            // Create a temporary DOM element to parse HTML properly
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
             
-            for (let i = 0; i < Math.min(sentences.length, 3); i++) {
-                const sentence = sentences[i].trim();
-                if (indicators.some(indicator => sentence.toLowerCase().includes(indicator))) {
-                    takeaways.push(sentence.substring(0, 120) + (sentence.length > 120 ? '...' : ''));
+            // Try to find img tags with better parsing
+            const images = tempDiv.querySelectorAll('img');
+            
+            for (let img of images) {
+                let imageUrl = img.src || img.getAttribute('src');
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
+                }
+                
+                // Try data-src (lazy loading)
+                imageUrl = img.getAttribute('data-src');
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
+                }
+                
+                // Try data-lazy-src
+                imageUrl = img.getAttribute('data-lazy-src');
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
                 }
             }
             
-            // If no indicators found, take first few sentences
-            if (takeaways.length === 0) {
-                for (let i = 0; i < Math.min(sentences.length, 2); i++) {
-                    const sentence = sentences[i].trim();
-                    if (sentence.length > 20) {
-                        takeaways.push(sentence.substring(0, 120) + (sentence.length > 120 ? '...' : ''));
+            // Also try regex extraction as fallback for malformed HTML
+            const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+            let imgMatch = imgRegex.exec(content);
+            if (imgMatch) {
+                let imageUrl = imgMatch[1];
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
+                }
+            }
+            
+            // Try to find srcset
+            const srcsetImgs = tempDiv.querySelectorAll('img[srcset]');
+            for (let img of srcsetImgs) {
+                const srcset = img.getAttribute('srcset');
+                if (srcset) {
+                    const urls = srcset.split(',').map(src => src.trim().split(' ')[0]);
+                    for (const url of urls) {
+                        if (isValidImageUrl(url)) {
+                            const cleanUrl = cleanImageUrl(url);
+                            if (cleanUrl) return cleanUrl;
+                        }
                     }
                 }
             }
             
-            return takeaways;
-        }
-
-        function generateWhyItMatters(text) {
-            if (!text) return null;
-            
-            // Look for sentences that explain impact or significance
-            const impactWords = ['impact', 'significance', 'important', 'crucial', 'key', 'major', 'significant', 'affects', 'influences'];
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 30);
-            
-            for (const sentence of sentences) {
-                const lowerSentence = sentence.toLowerCase();
-                if (impactWords.some(word => lowerSentence.includes(word))) {
-                    return sentence.trim().substring(0, 200) + (sentence.length > 200 ? '...' : '');
+            // Try to find Open Graph meta tags in content
+            const ogImageRegex = /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/gi;
+            let ogMatch = ogImageRegex.exec(content);
+            if (ogMatch) {
+                const imageUrl = ogMatch[1];
+                if (isValidImageUrl(imageUrl)) {
+                    return cleanImageUrl(imageUrl);
                 }
             }
             
-            // Fallback: return a middle sentence if it's substantial
-            if (sentences.length > 2) {
-                const middleSentence = sentences[Math.floor(sentences.length / 2)].trim();
-                if (middleSentence.length > 50) {
-                    return middleSentence.substring(0, 200) + (middleSentence.length > 200 ? '...' : '');
+            // Try to find Twitter card meta tags
+            const twitterImageRegex = /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/gi;
+            let twitterMatch = twitterImageRegex.exec(content);
+            if (twitterMatch) {
+                const imageUrl = twitterMatch[1];
+                if (isValidImageUrl(imageUrl)) {
+                    return cleanImageUrl(imageUrl);
                 }
             }
             
             return null;
         }
 
-        // Utility functions
-        function showLoading(elementId) {
-            document.getElementById(elementId).classList.remove('hidden');
+        function isValidImageUrl(url) {
+            if (!url) return false;
+            
+            // Must be a valid image extension
+            const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+            if (!imageExtensions.test(url)) return false;
+            
+            // Exclude common non-content images
+            const excludePatterns = /logo|icon|avatar|placeholder|spacer|pixel|banner|advert|ad|social|share|button|nav|header|footer|widget/i;
+            if (excludePatterns.test(url)) return false;
+            
+            // Exclude very small images (likely icons)
+            if (url.includes('16x16') || url.includes('32x32') || url.includes('24x24')) return false;
+            
+            // Must be a proper URL
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
         }
 
-        function hideLoading(elementId) {
-            document.getElementById(elementId).classList.add('hidden');
+        function cleanImageUrl(url) {
+            if (url.startsWith('//')) {
+                return 'https:' + url;
+            }
+            if (url.startsWith('/')) {
+                return window.location.origin + url;
+            }
+            return url;
         }
 
-        function showError(elementId) {
-            document.getElementById(elementId).classList.remove('hidden');
+        function getFallbackImage(articleId, theme = 'general') {
+            const themeImages = {
+                opportunities: [
+                    'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Business building
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // City skyline
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Construction
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Architecture
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'  // Real estate
+                ],
+                practices: [
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Construction site
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Building construction
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Modern building
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Architecture
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80'  // Urban development
+                ],
+                vision: [
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Smart city
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Future buildings
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Sustainable design
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Innovation
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80'  // Technology
+                ],
+                general: [
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'
+                ]
+            };
+            
+            const images = themeImages[theme] || themeImages.general;
+            return images[articleId % images.length];
         }
 
-        function hideError(elementId) {
-            document.getElementById(elementId).classList.add('hidden');
+        // Robust image error handling with proxy fallback
+        function handleImageError(imgElement, proxyUrl, fallbackUrl) {
+            if (!imgElement.dataset.triedProxy) {
+                // Try proxy first
+                imgElement.dataset.triedProxy = 'true';
+                imgElement.src = proxyUrl;
+                console.log('Image failed, trying proxy:', proxyUrl);
+            } else if (!imgElement.dataset.triedFallback) {
+                // Try fallback
+                imgElement.dataset.triedFallback = 'true';
+                imgElement.src = fallbackUrl;
+                console.log('Proxy failed, using fallback:', fallbackUrl);
+            } else {
+                // All options exhausted
+                console.log('All image options failed for:', imgElement.alt);
+            }
         }
 
-        function showContent(elementId) {
-            document.getElementById(elementId).classList.remove('hidden');
+        // Generate takeaways from article content
+        function generateTakeaways(content, title) {
+            const takeaways = [];
+            const text = content ? content.replace(/<[^>]*>/g, '') : '';
+            
+            // Simple keyword-based takeaways
+            if (text.toLowerCase().includes('roi') || text.toLowerCase().includes('return on investment')) {
+                takeaways.push('Strong ROI potential identified');
+            }
+            if (text.toLowerCase().includes('innovation') || text.toLowerCase().includes('breakthrough')) {
+                takeaways.push('Innovation and breakthrough technology');
+            }
+            if (text.toLowerCase().includes('growth') || text.toLowerCase().includes('expansion')) {
+                takeaways.push('Growth and expansion opportunities');
+            }
+            if (text.toLowerCase().includes('efficiency') || text.toLowerCase().includes('productivity')) {
+                takeaways.push('Efficiency and productivity improvements');
+            }
+            if (text.toLowerCase().includes('sustainable') || text.toLowerCase().includes('green')) {
+                takeaways.push('Sustainable and environmentally friendly');
+            }
+            
+            return takeaways.slice(0, 3); // Limit to 3 takeaways
         }
 
-        function hideContent(elementId) {
-            document.getElementById(elementId).classList.add('hidden');
+        // Generate "why it matters" text
+        function generateWhyItMatters(content, title, theme) {
+            const text = content ? content.replace(/<[^>]*>/g, '') : '';
+            const lowerText = text.toLowerCase();
+            const lowerTitle = title.toLowerCase();
+
+            if (theme === 'opportunities') {
+                if (lowerText.includes('investment') || lowerText.includes('roi')) {
+                    return 'This represents a significant investment opportunity with potential for strong returns in the evolving real estate market.';
+                }
+                if (lowerText.includes('development') || lowerText.includes('construction')) {
+                    return 'Highlights emerging development opportunities that could reshape local markets and create value for investors.';
+                }
+                return 'Identifies key market opportunities that forward-thinking investors should consider for portfolio diversification.';
+            }
+            
+            if (theme === 'practices') {
+                if (lowerText.includes('efficiency') || lowerText.includes('productivity')) {
+                    return 'Demonstrates proven methods for improving construction efficiency and reducing project costs.';
+                }
+                if (lowerText.includes('technology') || lowerText.includes('innovation')) {
+                    return 'Showcases cutting-edge practices that are transforming how we build and manage real estate.';
+                }
+                return 'Provides actionable insights for improving construction practices and operational efficiency.';
+            }
+            
+            if (theme === 'vision') {
+                if (lowerText.includes('smart city') || lowerText.includes('technology')) {
+                    return 'Offers a glimpse into the future of urban development and smart city infrastructure.';
+                }
+                if (lowerText.includes('sustainable') || lowerText.includes('green')) {
+                    return 'Represents the future direction of sustainable urban development and environmental responsibility.';
+                }
+                return 'Provides valuable insights into emerging trends that will shape the future of real estate and urban planning.';
+            }
+            
+            return 'This insight provides valuable perspective on current trends and future opportunities in the built environment.';
         }
+
+        // Display theme cards on home page
+        async function displayThemes() {
+            const container = document.getElementById('themes-grid');
+            container.innerHTML = '';
+
+            for (const [themeKey, theme] of Object.entries(THEMES)) {
+                const themeCard = document.createElement('div');
+                themeCard.className = 'theme-card';
+                themeCard.onclick = () => showTheme(themeKey);
+                
+                // Show loading state initially
+                themeCard.innerHTML = `
+                    <div class="theme-header">
+                        <div class="theme-icon ${themeKey}">
+                            ${theme.icon}
+                        </div>
+                        <h3 class="theme-title">${theme.name}</h3>
+                    </div>
+                    <p class="theme-description">${theme.description}</p>
+                    <div class="theme-stats">
+                        <span class="article-count">Loading...</span>
+                        <a class="view-articles" onclick="event.stopPropagation(); showTheme('${themeKey}')">
+                            View Articles
+                        </a>
+                    </div>
+                `;
+                
+                container.appendChild(themeCard);
+                
+                // Fetch actual article count
+                try {
+                    const response = await fetch(`${API_BASE}/api/v4/${themeKey}?limit=50`);
+                    const data = await response.json();
+                    const articleCount = data.articles ? data.articles.length : 0;
+                    
+                    const countElement = themeCard.querySelector('.article-count');
+                    countElement.textContent = `${articleCount} articles`;
+                } catch (error) {
+                    console.error(`Error fetching ${themeKey} count:`, error);
+                    const countElement = themeCard.querySelector('.article-count');
+                    countElement.textContent = '0 articles';
+                }
+            }
+        }
+
+        // Display articles for a theme
+        async function displayArticles(theme) {
+            const container = document.getElementById('articles-grid');
+            container.innerHTML = '';
+
+            showLoading(true);
+            
+            try {
+                console.log(`Fetching articles for theme: ${theme}`);
+                const response = await fetch(`${API_BASE}/api/v4/${theme}?limit=20`);
+                console.log(`Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log(`Received data:`, data);
+                
+                if (data.articles && data.articles.length > 0) {
+                    console.log(`Creating ${data.articles.length} article cards`);
+                    data.articles.forEach((article, index) => {
+                        console.log(`Creating card ${index + 1} for article: ${article.title}`);
+                        const articleCard = createArticleCard(article, theme);
+                        container.appendChild(articleCard);
+                    });
+                } else {
+                    console.log('No articles found in response');
+                    container.innerHTML = '<p>No articles found for this theme.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching articles:', error);
+                container.innerHTML = `<p>Error loading articles: ${error.message}. Please try again later.</p>`;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Create article card
+        function createArticleCard(article, theme) {
+            try {
+                console.log(`Creating article card for: ${article.title}`);
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                
+                // Enhanced image extraction with proxy system
+                const OG_FN = `${API_BASE}/api/v4/proxy/image`;
+                const proxyImage = (url) => `${OG_FN}?image=${encodeURIComponent(url)}`;
+                const proxyFromPage = (pageUrl) => `${OG_FN}?url=${encodeURIComponent(pageUrl)}`;
+                
+                // Fallback chain to prevent loops
+                const primary = article.image_url || extractImageFromContent(article.summary || article.content) || null;
+                const pageProxy = proxyFromPage(article.url);
+                const imageProxy = primary ? proxyImage(primary) : pageProxy;
+                
+                let imageUrl = primary || pageProxy;
+                console.log(`Article ${article.id}: Primary image = ${primary}, Using proxy = ${imageUrl}`);
+            
+            // Generate takeaways and why it matters
+            const takeaways = generateTakeaways(article.summary || article.content, article.title);
+            const whyItMatters = generateWhyItMatters(article.summary || article.content, article.title, theme);
+            
+            // Format date
+            const publishedDate = article.published_at ? new Date(article.published_at).toLocaleDateString() : 'Recent';
+            
+            card.innerHTML = `
+                    <div class="article-image-container">
+                    <img src="${imageUrl}" alt="${article.title}" class="article-image" 
+                         referrerPolicy="no-referrer" loading="lazy"
+                         onerror="handleImageError(this, '${imageProxy}', '${getFallbackImage(article.id)}')">
+                        <div class="source-badge">${article.source}</div>
+                    </div>
+                    <div class="article-content">
+                    <h3 class="article-title">${article.title}</h3>
+                    <p class="article-synopsis">${article.summary ? article.summary.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : 'No summary available'}</p>
+                    
+                        ${takeaways.length > 0 ? `
+                        <div class="takeaways">
+                                ${takeaways.map(takeaway => `
+                                    <div class="takeaway-item">
+                                    <span class="takeaway-checkmark">✓</span>
+                                    <span>${takeaway}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    
+                            <div class="why-it-matters">
+                        <div class="why-it-matters-title">Why it matters</div>
+                        <div class="why-it-matters-text">${whyItMatters}</div>
+                            </div>
+                    
+                    <div class="article-footer">
+                        <span class="article-date">${publishedDate}</span>
+                        <a href="${article.url}" target="_blank" rel="noopener" class="article-link">
+                            Read more
+                            <svg class="article-link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    </div>
+                `;
+                
+                return card;
+            } catch (error) {
+                console.error('Error creating article card:', error);
+                // Return a simple error card
+                const errorCard = document.createElement('div');
+                errorCard.className = 'article-card';
+                errorCard.innerHTML = `
+                    <div class="article-content">
+                        <h3 class="article-title">Error loading article</h3>
+                        <p class="article-synopsis">There was an error displaying this article.</p>
+                    </div>
+                `;
+                return errorCard;
+            }
+        }
+
+        // Show/hide loading state
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.remove('hidden');
+            } else {
+                loading.classList.add('hidden');
+            }
+        }
+
+        // Navigation functions
+        function showHome() {
+            currentTheme = 'home';
+            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('theme-page').classList.add('hidden');
+            updateNavigation(document.querySelector('.nav-link'));
+            displayThemes();
+        }
+
+        async function showTheme(theme, targetElement = null) {
+            currentTheme = theme;
+            const themeConfig = THEMES[theme];
+            
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('theme-page').classList.remove('hidden');
+            
+            // Update theme page header
+            document.getElementById('theme-title').textContent = themeConfig.name;
+            document.getElementById('theme-subtitle').textContent = themeConfig.description;
+            
+            // Update navigation
+            updateNavigation(targetElement);
+            
+            // Display articles
+            await displayArticles(theme);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            showHome();
+        });
     </script>
 </body>
 </html>

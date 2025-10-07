@@ -25,136 +25,189 @@ class ThemeDetector:
     """Detects themes in article content using comprehensive keyword sets"""
     
     def __init__(self):
-        # Comprehensive keyword sets based on v3 system
+        # New comprehensive keyword sets focused on insights, case studies, and actionable content
         self.theme_keywords = {
-            "opportunities": {
-                # Market growth and investment
-                "market growth", "expansion", "investment", "funding", "acquisition", "merger",
-                "venture capital", "private equity", "investment opportunity", "market opportunity",
-                "emerging market", "growth market", "hot market", "booming market",
+            "creative_opportunities": {
+                # Entrepreneurial success stories and wealth creation
+                "airbnb portfolio", "bootstrap", "family office", "wealth creation", "small investor", 
+                "case study", "exit strategy", "from.*to.*", "scaled up", "grew from", "turned into",
+                "success story", "startup", "entrepreneur", "founder", "portfolio", "investment returns",
+                "roi", "return on investment", "profit", "revenue growth", "expansion", "acquisition",
+                "funding round", "venture capital", "private equity", "angel investor", "seed funding",
+                "series a", "series b", "unicorn", "valuation", "market cap", "ipo", "exit",
+                "wealth building", "financial success", "business growth", "scaling", "growth strategy",
+                "market opportunity", "emerging market", "untapped market", "blue ocean", "disruption",
                 
-                # Development and construction
-                "new project", "development", "construction starts", "permit", "zoning",
-                "groundbreaking", "ground breaking", "project announcement", "project launch",
-                "construction project", "development project", "infrastructure project",
+                # Real estate development and investment
+                "real estate development", "property development", "development project", "construction project",
+                "new development", "mixed use", "commercial development", "residential development",
+                "adaptive reuse", "redevelopment", "infill development", "transit oriented development",
+                "smart growth", "sustainable development", "green development", "leed certification",
+                "energy efficient", "net zero", "carbon neutral", "sustainable building",
                 
-                # Business opportunities
-                "business opportunity", "market opportunity", "investment opportunity",
-                "revenue opportunity", "profit opportunity", "growth opportunity",
-                "expansion opportunity", "development opportunity", "partnership opportunity",
+                # Investment and financial terms
+                "investment opportunity", "investment returns", "cash flow", "cap rate", "net operating income",
+                "property value", "appreciation", "equity", "debt", "leverage", "refinancing",
+                "1031 exchange", "opportunity zone", "tax incentive", "tax credit", "incentive program",
                 
-                # Market trends
-                "market trend", "industry trend", "emerging trend", "growing trend",
-                "market shift", "industry shift", "paradigm shift", "market transformation",
-                "industry transformation", "market disruption", "industry disruption",
+                # Development process and methodology
+                "development process", "project management", "construction management", "development strategy",
+                "market analysis", "feasibility study", "due diligence", "risk assessment", "project timeline",
+                "budget", "cost control", "value engineering", "design build", "design bid build",
+                "public private partnership", "ppp", "joint venture", "partnership", "collaboration",
                 
-                # Financial terms
-                "million", "billion", "investment", "funding", "capital", "equity",
-                "revenue", "profit", "earnings", "growth", "expansion", "acquisition",
-                
-                # Project stages
-                "approved", "permitted", "entitled", "rezoned", "funded", "financed",
-                "designed", "planned", "proposed", "announced", "launched", "started",
-                "begins", "opens", "completed", "finished", "delivered", "operational"
+                # Market trends and opportunities
+                "market trend", "industry trend", "emerging trend", "future trend", "market shift",
+                "demographic shift", "lifestyle change", "work from home", "remote work", "hybrid work",
+                "urban migration", "suburban growth", "city center", "downtown", "urban core",
+                "gentrification", "revitalization", "renewal", "transformation", "renaissance"
             },
-            
-            "practices": {
-                # Technology and innovation
-                "technology", "digital", "automation", "AI", "artificial intelligence",
-                "machine learning", "software", "app", "platform", "system", "tool",
-                "innovation", "innovative", "cutting-edge", "state-of-the-art", "advanced",
-                "digital transformation", "tech adoption", "technology implementation",
+            "smart_cities_productivity": {
+                # Human-centered design and wellness
+                "human centered design", "human-centred design", "user experience", "ux design",
+                "biophilic", "biophilic design", "nature inspired", "natural elements", "green space",
+                "wellness design", "healthy building", "well building standard", "fitwel",
+                "indoor air quality", "natural light", "daylighting", "ventilation", "thermal comfort",
+                "acoustic design", "sound design", "noise reduction", "quiet space", "peaceful",
                 
-                # Building practices
-                "best practice", "methodology", "process", "workflow", "efficiency",
-                "optimization", "improvement", "enhancement", "streamlining",
-                "construction method", "building method", "construction technique",
-                "building technique", "construction practice", "building practice",
+                # Placemaking and community impact
+                "placemaking", "place making", "public realm", "public space", "civic space",
+                "community space", "social space", "gathering space", "activation", "programming",
+                "community engagement", "stakeholder engagement", "public participation", "community input",
+                "social impact", "community impact", "neighborhood", "local community", "sense of place",
+                "place identity", "cultural identity", "local culture", "authentic", "character",
                 
-                # Sustainability
-                "sustainability", "sustainable", "green", "LEED", "energy efficiency",
-                "carbon", "carbon neutral", "net zero", "zero energy", "passive house",
-                "green building", "eco-friendly", "environmentally friendly", "green tech",
-                "renewable energy", "solar", "wind", "energy storage", "battery",
+                # Productivity and performance studies
+                "productivity study", "productivity research", "performance study", "efficiency study",
+                "workplace productivity", "office productivity", "employee productivity", "worker productivity",
+                "productivity metrics", "performance metrics", "efficiency metrics", "kpi", "key performance indicator",
+                "productivity improvement", "efficiency improvement", "performance improvement", "optimization",
+                "workplace wellness", "employee wellness", "worker wellness", "health and wellness",
+                "stress reduction", "mental health", "cognitive performance", "focus", "concentration",
                 
-                # Safety and compliance
-                "safety", "compliance", "regulation", "standard", "protocol", "guideline",
-                "safety protocol", "safety standard", "compliance standard", "safety procedure",
-                "safety measure", "safety practice", "safety requirement", "safety guideline",
+                # Urban wellness and peaceful architecture
+                "urban wellness", "city wellness", "urban health", "city health", "public health",
+                "peaceful architecture", "calming design", "serene", "tranquil", "meditation space",
+                "mindfulness", "wellness center", "health center", "medical facility", "hospital design",
+                "healing environment", "therapeutic environment", "restorative", "rejuvenating",
                 
-                # Materials and construction
-                "material", "materials", "construction material", "building material",
-                "prefab", "prefabricated", "modular", "mass timber", "cross-laminated timber",
-                "steel", "concrete", "wood", "bamboo", "composite", "fiber-reinforced",
-                "smart material", "advanced material", "innovative material", "new material"
+                # Smart city and technology integration
+                "smart city", "smart building", "smart infrastructure", "iot", "internet of things",
+                "sensors", "data collection", "analytics", "big data", "predictive analytics",
+                "artificial intelligence", "machine learning", "automation", "building automation",
+                "energy management", "smart grid", "renewable energy", "solar", "wind", "geothermal",
+                "energy storage", "battery storage", "microgrid", "distributed energy", "clean energy",
+                
+                # Accessibility and inclusive design
+                "accessibility", "accessible design", "universal design", "inclusive design",
+                "ada compliance", "barrier free", "mobility", "wheelchair accessible", "assistive technology",
+                "aging in place", "senior housing", "multigenerational", "intergenerational", "diversity",
+                "equity", "inclusion", "social equity", "environmental justice", "climate justice"
             },
-            
-            "systems": {
-                # Systems and infrastructure
-                "system", "systems", "infrastructure", "platform", "framework", "architecture",
-                "network", "database", "cloud", "server", "data center", "facility",
-                "integration", "connectivity", "interconnection", "interoperability",
-                
-                # Workflow and process
-                "workflow", "process", "processes", "automation", "standardization",
-                "streamlining", "optimization", "efficiency", "productivity", "performance",
-                "management system", "control system", "monitoring system", "tracking system",
-                
-                # Governance and policy
-                "governance", "policy", "policies", "regulation", "regulations", "compliance",
-                "audit", "standard", "standards", "guideline", "guidelines", "protocol",
-                "requirement", "requirements", "specification", "specifications",
-                
+            "policy_code_evolution": {
                 # Building codes and regulations
-                "building code", "building codes", "code compliance", "code requirement",
-                "zoning", "zoning code", "zoning regulation", "zoning requirement",
-                "permit", "permits", "permitting", "approval", "approvals", "certification",
-                "inspection", "inspections", "enforcement", "violation", "violations",
+                "mass timber code", "timber code", "wood code", "cross laminated timber", "clt",
+                "glulam", "glued laminated timber", "engineered wood", "wood construction", "timber construction",
+                "fire rating", "fire resistance", "fire safety", "fire protection", "fire suppression",
+                "sprinkler system", "fire alarm", "egress", "exit", "life safety", "building safety",
+                "building code", "construction code", "fire code", "electrical code", "plumbing code",
+                "mechanical code", "energy code", "green code", "sustainable code", "resilience code",
                 
-                # Technology systems
-                "smart building", "smart buildings", "IoT", "internet of things", "sensors",
-                "automation system", "building automation", "HVAC system", "electrical system",
-                "plumbing system", "fire safety system", "security system", "access control",
-                "energy management", "building management", "facility management"
+                # Zoning and land use
+                "zoning reform", "zoning update", "zoning change", "zoning amendment", "rezoning",
+                "upzoning", "downzoning", "zoning variance", "special permit", "conditional use",
+                "land use", "land use policy", "comprehensive plan", "master plan", "general plan",
+                "development plan", "area plan", "neighborhood plan", "transit plan", "transportation plan",
+                
+                # Incentives and policy programs
+                "incentive expansion", "tax incentive", "development incentive", "construction incentive",
+                "green incentive", "sustainability incentive", "energy incentive", "renewable incentive",
+                "solar incentive", "wind incentive", "geothermal incentive", "efficiency incentive",
+                "tax credit", "development tax credit", "historic tax credit", "low income tax credit",
+                "new markets tax credit", "opportunity zone", "enterprise zone", "empowerment zone",
+                "brownfield", "brownfield redevelopment", "contaminated site", "environmental cleanup",
+                "remediation", "environmental remediation", "site cleanup", "landfill", "superfund",
+                
+                # Building code updates and changes
+                "building code update", "code change", "code revision", "code amendment", "code modification",
+                "code update", "new code", "updated code", "revised code", "amended code",
+                "construction regulation", "building regulation", "development regulation", "permit process",
+                "approval process", "review process", "inspection", "building inspection", "code enforcement",
+                
+                # Sustainability and green building codes
+                "sustainable building code", "green building code", "energy code", "energy efficiency code",
+                "renewable energy code", "solar code", "wind code", "geothermal code", "efficiency standard",
+                "performance standard", "green standard", "sustainable standard", "resilience standard",
+                "climate adaptation", "climate mitigation", "carbon reduction", "net zero", "carbon neutral",
+                "leed", "green globes", "living building challenge", "well building standard", "fitwel",
+                
+                # Timber and wood construction updates
+                "timber skyscraper", "wood skyscraper", "tall wood", "mass timber tower", "wood tower",
+                "timber high rise", "wood high rise", "tall timber", "tall wood building", "wood building",
+                "engineered wood", "structural wood", "wood frame", "timber frame", "post and beam",
+                "heavy timber", "light frame", "platform frame", "balloon frame", "stick built",
+                "prefabricated", "prefab", "modular", "panelized", "system built", "factory built"
             },
-            
-            "vision": {
-                # Future and strategy
-                "future", "vision", "strategy", "roadmap", "planning", "forecast",
-                "prediction", "projection", "outlook", "scenario", "plan", "strategy",
-                "strategic", "strategic plan", "strategic vision", "future vision",
+            "building_practices_efficiency": {
+                # Prefabrication and modular construction
+                "prefab", "prefabricated", "prefabrication", "off site construction", "offsite construction",
+                "factory built", "manufactured", "modular", "modular construction", "modular building",
+                "panelized", "panelized construction", "system built", "volumetric", "containerized",
+                "shipping container", "container home", "tiny home", "micro housing", "accessory dwelling unit",
+                "adu", "granny flat", "in law suite", "backyard cottage", "laneway house",
                 
-                # Transformation and evolution
-                "transformation", "evolution", "paradigm shift", "next generation",
-                "revolutionary", "game-changing", "breakthrough", "innovation", "disruption",
-                "disruptive", "transformative", "evolutionary", "progressive", "advanced",
+                # Construction methodology and processes
+                "construction methodology", "construction method", "building method", "construction technique",
+                "construction process", "building process", "assembly process", "installation process",
+                "construction sequence", "construction phasing", "construction scheduling", "project scheduling",
+                "critical path", "gantt chart", "project management", "construction management", "cm",
+                "general contractor", "subcontractor", "trade contractor", "specialty contractor",
                 
-                # Industry outlook
-                "industry outlook", "market prediction", "trend analysis", "market analysis",
-                "industry analysis", "market forecast", "industry forecast", "market projection",
-                "industry projection", "market trend", "industry trend", "future trend",
+                # ROI case studies and financial performance
+                "roi case study", "return on investment", "roi", "financial performance", "cost benefit",
+                "cost effectiveness", "value engineering", "life cycle cost", "total cost of ownership",
+                "payback period", "net present value", "npv", "internal rate of return", "irr",
+                "profit margin", "gross margin", "operating margin", "ebitda", "cash flow",
+                "net operating income", "noi", "cap rate", "capitalization rate", "yield",
                 
-                # Smart cities and future living
-                "smart city", "smart cities", "urban planning", "city planning", "urban design",
-                "community", "community development", "neighborhood", "district", "zone",
-                "mixed-use", "transit-oriented", "walkable", "sustainable community",
+                # Repeatable models and standardization
+                "repeatable model", "standardized", "standardization", "prototype", "template",
+                "best practice", "proven method", "established practice", "industry standard",
+                "quality standard", "performance standard", "efficiency standard", "benchmark",
+                "benchmarking", "comparison", "competitive analysis", "market analysis",
                 
-                # Innovation and technology
-                "innovation", "innovative", "breakthrough", "revolutionary", "cutting-edge",
-                "state-of-the-art", "advanced", "next-generation", "future-ready", "future-proof",
-                "emerging technology", "new technology", "advanced technology", "innovative technology",
+                # Process improvement and optimization
+                "process improvement", "continuous improvement", "lean construction", "lean building",
+                "six sigma", "quality improvement", "efficiency improvement", "productivity improvement",
+                "optimization", "optimize", "streamline", "automation", "robotics", "ai", "artificial intelligence",
+                "machine learning", "predictive analytics", "data analytics", "performance analytics",
+                "kpi", "key performance indicator", "metrics", "measurement", "monitoring",
                 
-                # Sustainability and environment
-                "sustainable future", "green future", "carbon neutral", "net zero", "zero waste",
-                "circular economy", "sustainable development", "green development", "eco-city",
-                "biophilic design", "nature-based", "environmental", "climate", "climate change"
+                # Construction technology and innovation
+                "construction technology", "building technology", "construction innovation", "building innovation",
+                "construction tech", "proptech", "contech", "construction software", "building software",
+                "bim", "building information modeling", "cad", "computer aided design", "3d modeling",
+                "virtual reality", "vr", "augmented reality", "ar", "mixed reality", "mr",
+                "drone", "uav", "unmanned aerial vehicle", "surveying", "mapping", "scanning",
+                
+                # Quality control and assurance
+                "quality control", "quality assurance", "qa", "qc", "testing", "inspection",
+                "defect", "rework", "waste", "waste reduction", "material efficiency", "resource efficiency",
+                "sustainability", "sustainable construction", "green construction", "eco friendly",
+                "environmental impact", "carbon footprint", "embodied carbon", "operational carbon",
+                "energy efficiency", "water efficiency", "material efficiency", "waste efficiency"
             }
         }
     
     def detect_themes(self, content: str) -> Dict[str, float]:
         """Detect theme relevance scores using comprehensive keyword matching"""
         if not content:
-            return {"opportunities": 0.0, "practices": 0.0, "systems": 0.0, "vision": 0.0}
+            return {
+                "creative_opportunities": 0.0, 
+                "smart_cities_productivity": 0.0, 
+                "policy_code_evolution": 0.0, 
+                "building_practices_efficiency": 0.0
+            }
         
         content_lower = content.lower()
         theme_scores = {}
@@ -381,9 +434,17 @@ class V4Scorer:
             }
         }
         
+        # Map new categories to API-compatible names
+        api_theme_scores = {
+            "opportunities": weighted_theme_scores.get("creative_opportunities", 0.0),
+            "practices": weighted_theme_scores.get("building_practices_efficiency", 0.0),
+            "systems": weighted_theme_scores.get("policy_code_evolution", 0.0),
+            "vision": weighted_theme_scores.get("smart_cities_productivity", 0.0)
+        }
+        
         return ScoringResult(
             total_score=min(total_score, 10.0),  # Cap at 10.0
-            theme_scores=weighted_theme_scores,
+            theme_scores=api_theme_scores,
             insight_quality=weighted_insight_quality,
             narrative_signal=weighted_narrative_signal,
             source_credibility=source_credibility,
@@ -433,3 +494,4 @@ def score_article_v4(title: str, content: str, source: str, url: str) -> Scoring
 def extract_insights_v4(content: str, theme_scores: Dict[str, float]) -> List[Dict]:
     """Convenience function to extract insights"""
     return scorer.extract_insights(content, theme_scores)
+# Test deployment fix
