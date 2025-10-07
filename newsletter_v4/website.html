@@ -686,34 +686,139 @@
             const text = content ? content.replace(/<[^>]*>/g, '') : '';
             const lowerText = text.toLowerCase();
             const lowerTitle = title.toLowerCase();
+            const combinedText = lowerTitle + ' ' + lowerText;
+            
+            // Extract specific details from the article
+            const extractNumbers = (str) => {
+                const matches = str.match(/\d+(?:\.\d+)?(?:%|\$|million|billion|thousand|years?|months?|days?)\b/g);
+                return matches ? matches.slice(0, 5) : [];
+            };
+            
+            const extractLocations = (str) => {
+                const locationPatterns = [
+                    /\b(?:New York|Los Angeles|Chicago|Houston|Phoenix|Philadelphia|San Antonio|San Diego|Dallas|San Jose|Austin|Jacksonville|Fort Worth|Columbus|Charlotte|San Francisco|Indianapolis|Seattle|Denver|Washington|Boston|El Paso|Nashville|Detroit|Oklahoma City|Portland|Las Vegas|Memphis|Louisville|Baltimore|Milwaukee|Albuquerque|Tucson|Fresno|Sacramento|Mesa|Kansas City|Atlanta|Long Beach|Colorado Springs|Raleigh|Miami|Virginia Beach|Omaha|Oakland|Minneapolis|Tulsa|Arlington|Tampa|New Orleans|Wichita|Cleveland|Bakersfield|Aurora|Anaheim|Honolulu|Santa Ana|Corpus Christi|Riverside|Lexington|Stockton|Henderson|Saint Paul|St\. Louis)\b/g,
+                    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:City|County|State|Province|District)\b/g,
+                    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b(?=\s+(?:project|development|building|construction|facility|center|park|district|neighborhood|area|region))\b/g
+                ];
+                
+                let locations = [];
+                locationPatterns.forEach(pattern => {
+                    const matches = str.match(pattern);
+                    if (matches) locations = locations.concat(matches);
+                });
+                return [...new Set(locations)].slice(0, 3);
+            };
+            
+            const extractCompanies = (str) => {
+                const companyPatterns = [
+                    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:\s+(?:Inc|Corp|LLC|Ltd|Company|Group|Partners|Associates|Development|Construction|Building|Realty|Properties|Capital|Investments|Holdings|Management))\b/g,
+                    /\b[A-Z]{2,}(?:\s+[A-Z]{2,})*\b/g // Acronyms like CBRE, JLL, etc.
+                ];
+                
+                let companies = [];
+                companyPatterns.forEach(pattern => {
+                    const matches = str.match(pattern);
+                    if (matches) companies = companies.concat(matches);
+                });
+                return [...new Set(companies)].slice(0, 2);
+            };
+            
+            const extractKeyPhrases = (str) => {
+                // Extract important phrases that could become bullet points
+                const phrases = [];
+                
+                // Look for "key" or "important" phrases
+                const keyMatches = str.match(/(?:key|important|significant|major|critical|notable|prominent)\s+[^.!?]{10,60}/gi);
+                if (keyMatches) phrases.push(...keyMatches.slice(0, 2));
+                
+                // Look for benefits or outcomes
+                const benefitMatches = str.match(/(?:enables|allows|provides|offers|delivers|creates|generates|reduces|increases|improves|enhances)\s+[^.!?]{10,60}/gi);
+                if (benefitMatches) phrases.push(...benefitMatches.slice(0, 2));
+                
+                // Look for results or achievements
+                const resultMatches = str.match(/(?:achieves|accomplishes|results in|leads to|contributes to|drives)\s+[^.!?]{10,60}/gi);
+                if (resultMatches) phrases.push(...resultMatches.slice(0, 2));
+                
+                return phrases.slice(0, 3);
+            };
+            
+            const numbers = extractNumbers(combinedText);
+            const locations = extractLocations(combinedText);
+            const companies = extractCompanies(combinedText);
+            const keyPhrases = extractKeyPhrases(combinedText);
+            
+            // Generate unique bullet points based on article content
             const takeaways = [];
             
-            // AI-generated bullet points with green checkmarks
-            if (lowerText.includes('investment') || lowerText.includes('roi') || lowerText.includes('return')) {
-                takeaways.push('✅ Investment opportunity with strong growth potential');
-            }
-            if (lowerText.includes('innovation') || lowerText.includes('breakthrough') || lowerText.includes('technology')) {
-                takeaways.push('✅ Innovative approach driving industry transformation');
-            }
-            if (lowerText.includes('development') || lowerText.includes('construction') || lowerText.includes('building')) {
-                takeaways.push('✅ Development strategy creating market value');
-            }
-            if (lowerText.includes('efficiency') || lowerText.includes('productivity') || lowerText.includes('optimization')) {
-                takeaways.push('✅ Efficiency gains reducing costs and timelines');
-            }
-            if (lowerText.includes('sustainable') || lowerText.includes('green') || lowerText.includes('environmental')) {
-                takeaways.push('✅ Sustainable practices meeting future regulations');
-            }
-            if (lowerText.includes('growth') || lowerText.includes('expansion') || lowerText.includes('scale')) {
-                takeaways.push('✅ Growth trajectory positioning for market leadership');
-            }
-            if (lowerText.includes('market') || lowerText.includes('demand') || lowerText.includes('trend')) {
-                takeaways.push('✅ Market insights revealing emerging opportunities');
+            // First bullet: Focus on specific numbers/metrics if available
+            if (numbers.length > 0) {
+                const number = numbers[0];
+                if (number.includes('%')) {
+                    takeaways.push(`✅ Delivers ${number} performance improvement over traditional methods`);
+                } else if (number.includes('$')) {
+                    takeaways.push(`✅ Generates ${number} in cost savings and revenue opportunities`);
+                } else if (number.includes('year') || number.includes('month')) {
+                    takeaways.push(`✅ Achieves results in ${number}, significantly faster than industry standards`);
+                } else {
+                    takeaways.push(`✅ Demonstrates ${number} improvement in key performance metrics`);
+                }
+            } else {
+                // Fallback based on content analysis
+                if (lowerText.includes('cost') || lowerText.includes('savings') || lowerText.includes('efficient')) {
+                    takeaways.push('✅ Delivers measurable cost reduction and operational efficiency gains');
+                } else if (lowerText.includes('speed') || lowerText.includes('faster') || lowerText.includes('time')) {
+                    takeaways.push('✅ Accelerates project timelines and delivery schedules');
+                } else if (lowerText.includes('quality') || lowerText.includes('performance') || lowerText.includes('improvement')) {
+                    takeaways.push('✅ Enhances quality standards and project outcomes');
+                } else {
+                    takeaways.push('✅ Provides significant competitive advantage in the market');
+                }
             }
             
-            // Ensure we always have 3 takeaways
+            // Second bullet: Focus on location/market impact
+            if (locations.length > 0) {
+                const location = locations[0];
+                takeaways.push(`✅ Creates new opportunities in ${location} and similar markets`);
+            } else if (companies.length > 0) {
+                const company = companies[0];
+                takeaways.push(`✅ Follows proven strategies from leading firms like ${company}`);
+            } else {
+                // Fallback based on theme
+                if (lowerText.includes('investment') || lowerText.includes('development')) {
+                    takeaways.push('✅ Unlocks untapped market potential and investment opportunities');
+                } else if (lowerText.includes('construction') || lowerText.includes('building')) {
+                    takeaways.push('✅ Revolutionizes construction practices and building methodologies');
+                } else if (lowerText.includes('technology') || lowerText.includes('innovation')) {
+                    takeaways.push('✅ Introduces breakthrough technology that transforms industry standards');
+                } else {
+                    takeaways.push('✅ Establishes new benchmarks for industry performance');
+                }
+            }
+            
+            // Third bullet: Focus on key phrases or unique aspects
+            if (keyPhrases.length > 0) {
+                const phrase = keyPhrases[0].trim();
+                // Clean up and shorten the phrase
+                const cleanedPhrase = phrase.length > 60 ? phrase.substring(0, 60) + '...' : phrase;
+                takeaways.push(`✅ ${cleanedPhrase}`);
+            } else {
+                // Generate based on specific content analysis
+                if (lowerText.includes('sustainable') || lowerText.includes('green') || lowerText.includes('environmental')) {
+                    takeaways.push('✅ Addresses environmental challenges while maintaining profitability');
+                } else if (lowerText.includes('labor') || lowerText.includes('workforce') || lowerText.includes('worker')) {
+                    takeaways.push('✅ Solves critical workforce challenges and skill shortages');
+                } else if (lowerText.includes('regulatory') || lowerText.includes('code') || lowerText.includes('policy')) {
+                    takeaways.push('✅ Aligns with evolving regulatory requirements and compliance standards');
+                } else if (lowerText.includes('tenant') || lowerText.includes('occupant') || lowerText.includes('user')) {
+                    takeaways.push('✅ Enhances user experience and tenant satisfaction metrics');
+                } else {
+                    takeaways.push('✅ Positions early adopters for long-term market leadership');
+                }
+            }
+            
+            // Ensure we have exactly 3 takeaways
             while (takeaways.length < 3) {
-                takeaways.push('✅ Strategic insight for competitive advantage');
+                takeaways.push('✅ Provides strategic advantage for forward-thinking organizations');
             }
             
             return takeaways.slice(0, 3);
