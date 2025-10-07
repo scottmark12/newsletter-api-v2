@@ -662,11 +662,11 @@ async def collect_articles():
             db.add(article)
             db.flush()  # Get the ID
             
-            # Score the article with enhanced system
-            scoring_result = score_article_enhanced(
+            # Score the article with basic system
+            scoring_result = score_article_v4(
                 article_data.title,
                 article_data.content or "",
-                article_data.source,
+                article_data.summary or "",
                 article_data.url
             )
             
@@ -754,11 +754,11 @@ async def collect_corporate_articles():
             db.add(article)
             db.flush()  # Get the ID
             
-            # Score the article with enhanced system
-            scoring_result = score_article_enhanced(
+            # Score the article with basic system
+            scoring_result = score_article_v4(
                 article_data.title,
                 article_data.content or "",
-                article_data.source,
+                article_data.summary or "",
                 article_data.url
             )
             
