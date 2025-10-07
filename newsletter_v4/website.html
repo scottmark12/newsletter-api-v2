@@ -1030,14 +1030,18 @@
         // Load top articles for homepage
         async function loadHomeArticles() {
             const container = document.getElementById('home-articles-grid');
+            console.log('loadHomeArticles called, container:', container);
             container.innerHTML = '';
-
+            
             showLoading(true);
             
             try {
                 console.log('Loading top 7 articles for homepage');
+                console.log('Making API call to:', `${API_BASE}/api/v4/home?limit=7`);
                 const response = await fetch(`${API_BASE}/api/v4/home?limit=7`);
+                console.log('API response status:', response.status);
                 const data = await response.json();
+                console.log('API response data:', data);
                 
                 if (data.articles && data.articles.length > 0) {
                     console.log(`Creating ${data.articles.length} homepage article cards`);
@@ -1124,6 +1128,10 @@
         console.log('showHome function defined:', typeof showHome);
         console.log('displayArticles function defined:', typeof displayArticles);
         console.log('createArticleCard function defined:', typeof createArticleCard);
+        
+        // Simple test to see if JavaScript is working
+        console.log('JavaScript is executing!');
+        console.log('API_BASE:', API_BASE);
     </script>
 </body>
 </html><!-- Force refresh Tue Oct  7 09:24:46 EDT 2025 -->
