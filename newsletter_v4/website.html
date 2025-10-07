@@ -160,12 +160,6 @@
         }
 
         /* Theme Grid */
-        .themes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
 
         .theme-card {
             background: var(--card);
@@ -319,15 +313,6 @@
             overflow: hidden;
         }
 
-        .article-synopsis {
-            color: var(--muted-foreground);
-            margin-bottom: 1rem;
-            line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
 
         /* Takeaways */
         .takeaways {
@@ -460,10 +445,6 @@
                 gap: 1rem;
             }
 
-            .themes-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
         }
 
         /* Hidden class for dynamic content */
@@ -495,9 +476,6 @@
                 <h1 class="page-title">Construction & Real Estate Intelligence</h1>
                 <p class="page-subtitle">Discover insights, opportunities, and innovations shaping the built environment</p>
                 
-                <div id="themes-grid" class="themes-grid">
-                    <!-- Theme cards will be populated by JavaScript -->
-            </div>
         </div>
 
         <!-- Theme Pages -->
@@ -734,27 +712,40 @@
 
         // Generate takeaways from article content
         function generateTakeaways(content, title) {
-            const takeaways = [];
             const text = content ? content.replace(/<[^>]*>/g, '') : '';
+            const lowerText = text.toLowerCase();
+            const lowerTitle = title.toLowerCase();
+            const takeaways = [];
             
-            // Simple keyword-based takeaways
-            if (text.toLowerCase().includes('roi') || text.toLowerCase().includes('return on investment')) {
-                takeaways.push('Strong ROI potential identified');
+            // AI-generated bullet points with green checkmarks
+            if (lowerText.includes('investment') || lowerText.includes('roi') || lowerText.includes('return')) {
+                takeaways.push('✅ Investment opportunity with strong growth potential');
             }
-            if (text.toLowerCase().includes('innovation') || text.toLowerCase().includes('breakthrough')) {
-                takeaways.push('Innovation and breakthrough technology');
+            if (lowerText.includes('innovation') || lowerText.includes('breakthrough') || lowerText.includes('technology')) {
+                takeaways.push('✅ Innovative approach driving industry transformation');
             }
-            if (text.toLowerCase().includes('growth') || text.toLowerCase().includes('expansion')) {
-                takeaways.push('Growth and expansion opportunities');
+            if (lowerText.includes('development') || lowerText.includes('construction') || lowerText.includes('building')) {
+                takeaways.push('✅ Development strategy creating market value');
             }
-            if (text.toLowerCase().includes('efficiency') || text.toLowerCase().includes('productivity')) {
-                takeaways.push('Efficiency and productivity improvements');
+            if (lowerText.includes('efficiency') || lowerText.includes('productivity') || lowerText.includes('optimization')) {
+                takeaways.push('✅ Efficiency gains reducing costs and timelines');
             }
-            if (text.toLowerCase().includes('sustainable') || text.toLowerCase().includes('green')) {
-                takeaways.push('Sustainable and environmentally friendly');
+            if (lowerText.includes('sustainable') || lowerText.includes('green') || lowerText.includes('environmental')) {
+                takeaways.push('✅ Sustainable practices meeting future regulations');
+            }
+            if (lowerText.includes('growth') || lowerText.includes('expansion') || lowerText.includes('scale')) {
+                takeaways.push('✅ Growth trajectory positioning for market leadership');
+            }
+            if (lowerText.includes('market') || lowerText.includes('demand') || lowerText.includes('trend')) {
+                takeaways.push('✅ Market insights revealing emerging opportunities');
             }
             
-            return takeaways.slice(0, 3); // Limit to 3 takeaways
+            // Ensure we always have 3 takeaways
+            while (takeaways.length < 3) {
+                takeaways.push('✅ Strategic insight for competitive advantage');
+            }
+            
+            return takeaways.slice(0, 3);
         }
 
         // Generate "why it matters" text
@@ -765,78 +756,47 @@
 
             if (theme === 'opportunities') {
                 if (lowerText.includes('investment') || lowerText.includes('roi')) {
-                    return 'This represents a significant investment opportunity with potential for strong returns in the evolving real estate market.';
+                    return 'This breakthrough creates unprecedented wealth-building opportunities for early adopters, positioning investors to capture significant market upside as the trend accelerates.';
                 }
                 if (lowerText.includes('development') || lowerText.includes('construction')) {
-                    return 'Highlights emerging development opportunities that could reshape local markets and create value for investors.';
+                    return 'This development strategy unlocks massive growth potential in underserved markets, creating a blueprint for scalable expansion that transforms local economies.';
                 }
-                return 'Identifies key market opportunities that forward-thinking investors should consider for portfolio diversification.';
+                if (lowerText.includes('innovation') || lowerText.includes('technology')) {
+                    return 'This innovation disrupts traditional models and opens new revenue streams, giving forward-thinking companies a competitive edge in an evolving marketplace.';
+                }
+                return 'This opportunity represents a paradigm shift that will create winners and losers - those who act now will capture disproportionate value as the market transforms.';
             }
             
             if (theme === 'practices') {
                 if (lowerText.includes('efficiency') || lowerText.includes('productivity')) {
-                    return 'Demonstrates proven methods for improving construction efficiency and reducing project costs.';
+                    return 'This practice delivers immediate cost savings while building long-term competitive advantages, enabling companies to scale profitably in competitive markets.';
                 }
                 if (lowerText.includes('technology') || lowerText.includes('innovation')) {
-                    return 'Showcases cutting-edge practices that are transforming how we build and manage real estate.';
+                    return 'This breakthrough methodology changes the game entirely, offering companies a path to rapid growth and market dominance through superior execution.';
                 }
-                return 'Provides actionable insights for improving construction practices and operational efficiency.';
+                if (lowerText.includes('sustainable') || lowerText.includes('green')) {
+                    return 'This sustainable approach positions companies for regulatory compliance and consumer preference shifts, creating lasting competitive advantages.';
+                }
+                return 'This proven method enables exponential growth through improved operations, giving practitioners a clear path to market leadership and increased profitability.';
             }
             
             if (theme === 'vision') {
                 if (lowerText.includes('smart city') || lowerText.includes('technology')) {
-                    return 'Offers a glimpse into the future of urban development and smart city infrastructure.';
+                    return 'This vision represents the future of urban development, creating massive investment opportunities for those who understand the transformation ahead.';
                 }
                 if (lowerText.includes('sustainable') || lowerText.includes('green')) {
-                    return 'Represents the future direction of sustainable urban development and environmental responsibility.';
+                    return 'This sustainable vision aligns with inevitable regulatory changes and consumer demands, positioning early adopters for long-term growth and success.';
                 }
-                return 'Provides valuable insights into emerging trends that will shape the future of real estate and urban planning.';
+                if (lowerText.includes('future') || lowerText.includes('trend')) {
+                    return 'This emerging trend will reshape entire industries, creating winners who position themselves now and losers who fail to adapt to the coming changes.';
+                }
+                return 'This forward-looking insight reveals the next wave of growth opportunities, giving strategic thinkers a roadmap for capitalizing on industry transformation.';
             }
             
-            return 'This insight provides valuable perspective on current trends and future opportunities in the built environment.';
+            return 'This development signals a major shift in the industry, creating opportunities for growth and change that will separate market leaders from followers.';
         }
 
         // Display theme cards on home page
-        async function displayThemes() {
-            const container = document.getElementById('themes-grid');
-            container.innerHTML = '';
-
-            for (const [themeKey, theme] of Object.entries(THEMES)) {
-                const themeCard = document.createElement('div');
-                themeCard.className = 'theme-card';
-                themeCard.onclick = () => showTheme(themeKey);
-                
-                // Show loading state initially
-                themeCard.innerHTML = `
-                    <div class="theme-header">
-                        <div class="theme-icon ${themeKey}">
-                            ${theme.icon}
-                        </div>
-                        <h3 class="theme-title">${theme.name}</h3>
-                    </div>
-                    <p class="theme-description">${theme.description}</p>
-                    <div class="theme-stats">
-                        <span class="article-count">Loading...</span>
-                    </div>
-                `;
-                
-                container.appendChild(themeCard);
-                
-                // Fetch actual article count
-                try {
-                    const response = await fetch(`${API_BASE}/api/v4/${themeKey}?limit=50`);
-                    const data = await response.json();
-                    const articleCount = data.articles ? data.articles.length : 0;
-                    
-                    const countElement = themeCard.querySelector('.article-count');
-                    countElement.textContent = `${articleCount} articles`;
-                } catch (error) {
-                    console.error(`Error fetching ${themeKey} count:`, error);
-                    const countElement = themeCard.querySelector('.article-count');
-                    countElement.textContent = '0 articles';
-                }
-            }
-        }
 
         // Display articles for a theme
         async function displayArticles(theme) {
@@ -912,7 +872,6 @@
                     </div>
                     <div class="article-content">
                     <h3 class="article-title">${article.title}</h3>
-                    <p class="article-synopsis">${article.summary ? article.summary.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : 'No summary available'}</p>
                     
                         ${takeaways.length > 0 ? `
                         <div class="takeaways">
@@ -975,7 +934,6 @@
             document.getElementById('theme-page').classList.add('hidden');
             // Remove active class from all nav links when on home
             updateNavigation(null);
-            displayThemes();
         }
 
         async function showTheme(theme, targetElement = null) {
