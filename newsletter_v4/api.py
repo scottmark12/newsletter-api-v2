@@ -588,12 +588,8 @@ async def collect_articles():
             if existing:
                 continue
             
-            # Extract image from article URL
-            image_url = None
-            try:
-                image_url = await extract_article_image(article_data.url)
-            except Exception as e:
-                print(f"Failed to extract image from {article_data.url}: {e}")
+            # Set placeholder image - will extract real images after scoring
+            image_url = get_fallback_image(len(articles) + stored_count)
             
             # Create new article
             article = Article(
@@ -815,6 +811,63 @@ async def clear_all_articles():
             "message": "All articles and scores cleared from database",
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v4/admin/extract-images")
+async def extract_images_for_displayed_articles():
+    """Extract images for articles that are displayed on the website"""
+    try:
+        db = SessionLocal()
+        
+        # Get articles that are displayed on the website (high scoring articles)
+        articles = db.query(Article).join(ArticleScore).filter(
+            or_(
+                ArticleScore.total_score >= 0.2,
+                ArticleScore.opportunities_score >= 0.3,
+                ArticleScore.practices_score >= 0.3,
+                ArticleScore.vision_score >= 0.3
+            )
+        ).all()
+        
+        extracted_count = 0
+        failed_count = 0
+        
+        for article in articles:
+            # Skip if already has a real image (not fallback)
+            if article.image_url and not article.image_url.startswith('https://images.unsplash.com'):
+                continue
+                
+            try:
+                # Extract image from article URL
+                image_url = await extract_article_image(article.url)
+                if image_url:
+                    article.image_url = image_url
+                    extracted_count += 1
+                    print(f"Extracted image for: {article.title[:50]}...")
+                else:
+                    # Use fallback image
+                    article.image_url = get_fallback_image(article.id)
+                    print(f"Using fallback for: {article.title[:50]}...")
+                    
+            except Exception as e:
+                print(f"Failed to extract image from {article.url}: {e}")
+                article.image_url = get_fallback_image(article.id)
+                failed_count += 1
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": f"Image extraction completed",
+            "articles_processed": len(articles),
+            "images_extracted": extracted_count,
+            "fallbacks_used": failed_count,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
