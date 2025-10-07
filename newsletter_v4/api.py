@@ -404,6 +404,14 @@ async def get_home_page(
     
     article_list = []
     for article, score in articles:
+        # Parse takeaways from JSON
+        takeaways = []
+        if article.takeaways:
+            try:
+                takeaways = json.loads(article.takeaways) if isinstance(article.takeaways, str) else article.takeaways
+            except:
+                takeaways = []
+        
         article_list.append({
             "id": article.id,
             "title": article.title,
@@ -412,6 +420,8 @@ async def get_home_page(
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "image_url": article.image_url or get_fallback_image(article.id),
+            "why_it_matters": article.why_it_matters or "This development represents a significant opportunity in the construction and real estate industry.",
+            "takeaways": takeaways,
             "score": {
                 "total": score.total_score,
                 "opportunities": score.opportunities_score,
