@@ -131,6 +131,7 @@ async def get_opportunities(
             "summary": article.summary,
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
+            "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "opportunities": score.opportunities_score,
                 "systems": score.systems_score,  # Show systems score too
@@ -296,6 +297,7 @@ async def get_vision(
             "summary": article.summary,
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
+            "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "vision": score.vision_score,
                 "total": score.total_score
