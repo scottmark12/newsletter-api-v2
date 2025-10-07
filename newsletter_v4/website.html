@@ -243,16 +243,6 @@
             font-weight: 500;
         }
 
-        .view-articles {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .view-articles:hover {
-            color: var(--ring);
-        }
 
         /* Articles Grid */
         .articles-grid {
@@ -494,7 +484,6 @@
                     <a href="#" class="nav-link" onclick="showTheme('practices')">Practices</a>
                     <a href="#" class="nav-link" onclick="showTheme('vision')">Vision</a>
                 </nav>
-                <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
             </div>
         </div>
     </header>
@@ -828,9 +817,6 @@
                     <p class="theme-description">${theme.description}</p>
                     <div class="theme-stats">
                         <span class="article-count">Loading...</span>
-                        <a class="view-articles" onclick="event.stopPropagation(); showTheme('${themeKey}')">
-                            View Articles
-                        </a>
                     </div>
                 `;
                 
