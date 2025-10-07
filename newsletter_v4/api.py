@@ -1170,6 +1170,59 @@ async def serve_dashboard():
     except Exception as e:
         return f"Error loading dashboard: {str(e)}"
 
+@app.post("/api/v4/admin/migrate-add-content-fields")
+async def migrate_add_content_fields():
+    """Add why_it_matters and takeaways columns to articles_v4 table"""
+    try:
+        db = SessionLocal()
+        
+        # Check if columns already exist
+        result = db.execute(text("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'articles_v4' 
+            AND column_name IN ('why_it_matters', 'takeaways')
+        """))
+        
+        existing_columns = [row[0] for row in result.fetchall()]
+        
+        if 'why_it_matters' in existing_columns and 'takeaways' in existing_columns:
+            db.close()
+            return {
+                "ok": True,
+                "message": "Content fields already exist",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        
+        # Add missing columns
+        if 'why_it_matters' not in existing_columns:
+            db.execute(text("""
+                ALTER TABLE articles_v4 
+                ADD COLUMN why_it_matters TEXT
+            """))
+            
+        if 'takeaways' not in existing_columns:
+            db.execute(text("""
+                ALTER TABLE articles_v4 
+                ADD COLUMN takeaways JSON
+            """))
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": "Successfully added content fields to articles_v4 table",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
 @app.post("/api/v4/admin/generate-content")
 async def generate_content_for_articles(
     limit: int = Query(50, ge=1, le=500, description="Number of articles to process"),

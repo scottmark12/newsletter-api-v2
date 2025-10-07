@@ -34,6 +34,8 @@ class Article(Base):
     # Content analysis
     themes = Column(JSON)  # List of detected themes
     keywords = Column(JSON)  # List of extracted keywords
+    why_it_matters = Column(Text)  # AI-generated "Why it Matters" content
+    takeaways = Column(JSON)  # AI-generated bullet points
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
