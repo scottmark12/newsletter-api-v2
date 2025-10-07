@@ -20,6 +20,7 @@ from .enhanced_scoring import score_article_enhanced
 from .data_collectors import collect_all_articles
 from .video_processor import find_construction_videos, process_youtube_video
 from .image_extractor import extract_article_image, get_fallback_image
+from .openai_generator import get_openai_generator
 from bs4 import BeautifulSoup
 
 # Initialize configuration
@@ -1168,6 +1169,93 @@ async def serve_dashboard():
             return f.read()
     except Exception as e:
         return f"Error loading dashboard: {str(e)}"
+
+@app.post("/api/v4/admin/generate-content")
+async def generate_content_for_articles(
+    limit: int = Query(50, ge=1, le=500, description="Number of articles to process"),
+    hours: int = Query(168, ge=1, le=720, description="Only articles from last N hours"),
+    db: Session = Depends(get_db)
+):
+    """Generate unique 'Why it matters' and takeaways for articles using OpenAI"""
+    try:
+        # Get OpenAI generator
+        openai_generator = get_openai_generator()
+        if not openai_generator:
+            return {
+                "ok": False,
+                "error": "OpenAI API key not configured",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        
+        # Calculate cutoff time for recent articles
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+        
+        # Get articles that need content generation
+        articles = db.query(Article, ArticleScore).join(
+            ArticleScore, Article.id == ArticleScore.article_id
+        ).filter(
+            and_(
+                Article.published_at >= cutoff_time,
+                or_(
+                    Article.why_it_matters.is_(None),
+                    Article.takeaways.is_(None)
+                )
+            )
+        ).limit(limit).all()
+        
+        processed_count = 0
+        error_count = 0
+        
+        for article, score in articles:
+            try:
+                # Get theme scores from the scoring result
+                theme_scores = {
+                    "opportunities": score.opportunities_score,
+                    "practices": score.practices_score,
+                    "vision": score.vision_score
+                }
+                
+                # Generate content using OpenAI
+                generated_content = openai_generator.generate_article_content(
+                    title=article.title,
+                    content=article.content or "",
+                    summary=article.summary or "",
+                    theme_scores=theme_scores
+                )
+                
+                # Update article with generated content
+                article.why_it_matters = generated_content["why_it_matters"]
+                article.takeaways = json.dumps(generated_content["takeaways"])
+                
+                processed_count += 1
+                
+                # Commit every 10 articles to avoid long transactions
+                if processed_count % 10 == 0:
+                    db.commit()
+                    
+            except Exception as e:
+                print(f"Error processing article {article.id}: {e}")
+                error_count += 1
+                continue
+        
+        # Final commit
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": f"Successfully generated content for {processed_count} articles",
+            "processed": processed_count,
+            "errors": error_count,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
 
 if __name__ == "__main__":
