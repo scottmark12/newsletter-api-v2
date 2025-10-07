@@ -873,6 +873,51 @@ async def extract_images_for_displayed_articles():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/v4/admin/force-extract-images")
+async def force_extract_images_for_fallback_articles():
+    """Force re-extraction of images for articles currently using fallback images"""
+    try:
+        db = SessionLocal()
+        
+        # Get articles that are using fallback images (Unsplash URLs)
+        articles = db.query(Article).filter(
+            Article.image_url.like('https://images.unsplash.com%')
+        ).all()
+        
+        extracted_count = 0
+        failed_count = 0
+        
+        for article in articles:
+            try:
+                # Extract image from article URL
+                image_url = await extract_article_image(article.url)
+                if image_url:
+                    article.image_url = image_url
+                    extracted_count += 1
+                    print(f"Force extracted image for: {article.title[:50]}... -> {image_url[:80]}...")
+                else:
+                    print(f"No image found for: {article.title[:50]}...")
+                    failed_count += 1
+                    
+            except Exception as e:
+                print(f"Failed to extract image from {article.url}: {e}")
+                failed_count += 1
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "ok": True,
+            "message": f"Force image extraction completed",
+            "articles_processed": len(articles),
+            "images_extracted": extracted_count,
+            "failed_extractions": failed_count,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/v4/admin/score")
 async def run_scoring():
