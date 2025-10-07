@@ -328,12 +328,6 @@
             color: var(--muted-foreground);
         }
 
-        .takeaway-checkmark {
-            color: #10b981;
-            font-weight: bold;
-            flex-shrink: 0;
-            margin-top: 0.125rem;
-        }
 
         /* Why It Matters */
         .why-it-matters {
@@ -753,47 +747,97 @@
             const text = content ? content.replace(/<[^>]*>/g, '') : '';
             const lowerText = text.toLowerCase();
             const lowerTitle = title.toLowerCase();
+            const combinedText = lowerTitle + ' ' + lowerText;
 
+            // Mass Timber / Wood Construction
+            if (combinedText.includes('mass timber') || combinedText.includes('wood construction') || combinedText.includes('timber skyscraper')) {
+                return 'Mass timber represents a fundamental shift in building codes that enables dramatically lower construction costs while creating unique, sustainable skyscrapers - this could revolutionize urban development economics and make high-rise construction viable in smaller markets.';
+            }
+
+            // Prefab/Modular Construction
+            if (combinedText.includes('prefab') || combinedText.includes('modular') || combinedText.includes('off-site construction')) {
+                return 'Prefabrication is solving the labor shortage crisis while delivering 30-50% faster completion times and consistent quality - early adopters are capturing market share as traditional construction struggles with skilled worker availability.';
+            }
+
+            // Smart Cities / Technology
+            if (combinedText.includes('smart city') || combinedText.includes('iot') || combinedText.includes('sensor') || combinedText.includes('connected')) {
+                return 'Smart city infrastructure creates new revenue streams for property owners through data monetization and operational efficiency - buildings that integrate these technologies will command premium rents and attract high-value tenants.';
+            }
+
+            // Green/Sustainable Building
+            if (combinedText.includes('green building') || combinedText.includes('leed') || combinedText.includes('net zero') || combinedText.includes('carbon neutral')) {
+                return 'Green building standards are becoming mandatory in major markets, creating a competitive advantage for developers who master sustainable construction now - properties with superior environmental credentials will maintain higher valuations as regulations tighten.';
+            }
+
+            // Real Estate Investment/Development
+            if (combinedText.includes('investment') || combinedText.includes('development') || combinedText.includes('acquisition')) {
+                return 'This investment strategy capitalizes on demographic shifts and market inefficiencies that traditional investors are missing - the early mover advantage here could generate outsized returns as the trend becomes mainstream.';
+            }
+
+            // Construction Technology
+            if (combinedText.includes('construction tech') || combinedText.includes('building technology') || combinedText.includes('automation')) {
+                return 'Construction technology adoption is accelerating as labor costs rise - companies implementing these solutions now will dominate their markets as competitors struggle with outdated methods and shrinking profit margins.';
+            }
+
+            // Zoning/Land Use
+            if (combinedText.includes('zoning') || combinedText.includes('land use') || combinedText.includes('density') || combinedText.includes('adus')) {
+                return 'Zoning reforms are unlocking development potential in previously constrained markets - savvy developers who understand these changes can acquire undervalued properties and dramatically increase their development potential.';
+            }
+
+            // Affordable Housing
+            if (combinedText.includes('affordable housing') || combinedText.includes('low-income') || combinedText.includes('workforce housing')) {
+                return 'Affordable housing development offers stable, government-backed returns while solving critical social needs - this sector provides recession-resistant income streams that institutional investors are increasingly targeting.';
+            }
+
+            // Industrial/Logistics
+            if (combinedText.includes('industrial') || combinedText.includes('warehouse') || combinedText.includes('logistics') || combinedText.includes('distribution')) {
+                return 'E-commerce growth is driving unprecedented demand for industrial space, creating opportunities to develop last-mile facilities that command premium rents from logistics companies desperate for strategically located properties.';
+            }
+
+            // Multifamily/Apartments
+            if (combinedText.includes('multifamily') || combinedText.includes('apartment') || combinedText.includes('rental housing')) {
+                return 'Demographic trends favor rental housing as homeownership becomes less accessible - multifamily investments in growing markets offer stable cash flow with potential for significant appreciation as demand outpaces supply.';
+            }
+
+            // Office/Commercial
+            if (combinedText.includes('office') || combinedText.includes('commercial') || combinedText.includes('retail')) {
+                return 'The office market is undergoing fundamental transformation as hybrid work models reshape space requirements - flexible, amenity-rich properties will thrive while outdated buildings face obsolescence and declining values.';
+            }
+
+            // Return on Investment specific
+            if (combinedText.includes('roi') || combinedText.includes('return on investment') || combinedText.includes('cash flow')) {
+                return 'This investment approach generates superior returns through operational efficiency and market positioning - the combination of reduced costs and increased revenue creates a compounding advantage that grows over time.';
+            }
+
+            // Innovation/Technology
+            if (combinedText.includes('innovation') || combinedText.includes('breakthrough') || combinedText.includes('disruptive')) {
+                return 'This innovation creates new market categories and competitive moats - first movers who master these technologies will establish market leadership positions that competitors cannot easily replicate.';
+            }
+
+            // Efficiency/Productivity
+            if (combinedText.includes('efficiency') || combinedText.includes('productivity') || combinedText.includes('optimization')) {
+                return 'Operational efficiency improvements compound over time, creating sustainable competitive advantages - companies that master these practices will consistently outperform competitors and capture market share.';
+            }
+
+            // Growth/Expansion
+            if (combinedText.includes('growth') || combinedText.includes('expansion') || combinedText.includes('scale')) {
+                return 'This growth strategy leverages market opportunities that most competitors are overlooking - the combination of market timing and execution excellence creates exponential value creation potential.';
+            }
+
+            // Default fallback based on theme
             if (theme === 'opportunities') {
-                if (lowerText.includes('investment') || lowerText.includes('roi')) {
-                    return 'This breakthrough creates unprecedented wealth-building opportunities for early adopters, positioning investors to capture significant market upside as the trend accelerates.';
-                }
-                if (lowerText.includes('development') || lowerText.includes('construction')) {
-                    return 'This development strategy unlocks massive growth potential in underserved markets, creating a blueprint for scalable expansion that transforms local economies.';
-                }
-                if (lowerText.includes('innovation') || lowerText.includes('technology')) {
-                    return 'This innovation disrupts traditional models and opens new revenue streams, giving forward-thinking companies a competitive edge in an evolving marketplace.';
-                }
-                return 'This opportunity represents a paradigm shift that will create winners and losers - those who act now will capture disproportionate value as the market transforms.';
+                return 'This opportunity represents a market inefficiency that creates wealth-building potential for those who understand the underlying trends - early recognition and action here could generate significant competitive advantages.';
             }
             
             if (theme === 'practices') {
-                if (lowerText.includes('efficiency') || lowerText.includes('productivity')) {
-                    return 'This practice delivers immediate cost savings while building long-term competitive advantages, enabling companies to scale profitably in competitive markets.';
-                }
-                if (lowerText.includes('technology') || lowerText.includes('innovation')) {
-                    return 'This breakthrough methodology changes the game entirely, offering companies a path to rapid growth and market dominance through superior execution.';
-                }
-                if (lowerText.includes('sustainable') || lowerText.includes('green')) {
-                    return 'This sustainable approach positions companies for regulatory compliance and consumer preference shifts, creating lasting competitive advantages.';
-                }
-                return 'This proven method enables exponential growth through improved operations, giving practitioners a clear path to market leadership and increased profitability.';
+                return 'This methodology delivers measurable improvements that compound over time - companies implementing these practices will build sustainable competitive advantages that drive long-term growth and profitability.';
             }
             
             if (theme === 'vision') {
-                if (lowerText.includes('smart city') || lowerText.includes('technology')) {
-                    return 'This vision represents the future of urban development, creating massive investment opportunities for those who understand the transformation ahead.';
-                }
-                if (lowerText.includes('sustainable') || lowerText.includes('green')) {
-                    return 'This sustainable vision aligns with inevitable regulatory changes and consumer demands, positioning early adopters for long-term growth and success.';
-                }
-                if (lowerText.includes('future') || lowerText.includes('trend')) {
-                    return 'This emerging trend will reshape entire industries, creating winners who position themselves now and losers who fail to adapt to the coming changes.';
-                }
-                return 'This forward-looking insight reveals the next wave of growth opportunities, giving strategic thinkers a roadmap for capitalizing on industry transformation.';
+                return 'This trend represents the future direction of the industry - understanding and positioning for these changes now will determine which companies thrive versus those that become obsolete.';
             }
             
-            return 'This development signals a major shift in the industry, creating opportunities for growth and change that will separate market leaders from followers.';
+            return 'This development signals important industry changes that will create winners and losers - strategic positioning now will determine long-term success.';
         }
 
         // Display theme cards on home page
@@ -877,7 +921,6 @@
                         <div class="takeaways">
                                 ${takeaways.map(takeaway => `
                                     <div class="takeaway-item">
-                                    <span class="takeaway-checkmark">✓</span>
                                     <span>${takeaway}</span>
                                     </div>
                                 `).join('')}
