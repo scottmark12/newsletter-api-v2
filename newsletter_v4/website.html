@@ -829,20 +829,31 @@
             showLoading(true);
             
             try {
+                console.log(`Fetching articles for theme: ${theme}`);
                 const response = await fetch(`${API_BASE}/api/v4/${theme}?limit=20`);
+                console.log(`Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log(`Received data:`, data);
                 
                 if (data.articles && data.articles.length > 0) {
-                    data.articles.forEach(article => {
+                    console.log(`Creating ${data.articles.length} article cards`);
+                    data.articles.forEach((article, index) => {
+                        console.log(`Creating card ${index + 1} for article: ${article.title}`);
                         const articleCard = createArticleCard(article, theme);
                         container.appendChild(articleCard);
                     });
                 } else {
+                    console.log('No articles found in response');
                     container.innerHTML = '<p>No articles found for this theme.</p>';
                 }
             } catch (error) {
                 console.error('Error fetching articles:', error);
-                container.innerHTML = '<p>Error loading articles. Please try again later.</p>';
+                container.innerHTML = `<p>Error loading articles: ${error.message}. Please try again later.</p>`;
             } finally {
                 showLoading(false);
             }
@@ -850,21 +861,23 @@
 
         // Create article card
         function createArticleCard(article, theme) {
-            const card = document.createElement('div');
-            card.className = 'article-card';
-            
-            // Extract image with better fallback system
-            let imageUrl = article.image_url;
-            console.log(`Article ${article.id}: API image_url = ${imageUrl}`);
-            
-            if (!imageUrl) {
-                imageUrl = extractImageFromContent(article.summary || article.content);
-                console.log(`Article ${article.id}: Extracted from content = ${imageUrl}`);
-            }
-            if (!imageUrl) {
-                imageUrl = getFallbackImage(article.id, theme);
-                console.log(`Article ${article.id}: Using fallback = ${imageUrl}`);
-            }
+            try {
+                console.log(`Creating article card for: ${article.title}`);
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                
+                // Extract image with better fallback system
+                let imageUrl = article.image_url;
+                console.log(`Article ${article.id}: API image_url = ${imageUrl}`);
+                
+                if (!imageUrl) {
+                    imageUrl = extractImageFromContent(article.summary || article.content);
+                    console.log(`Article ${article.id}: Extracted from content = ${imageUrl}`);
+                }
+                if (!imageUrl) {
+                    imageUrl = getFallbackImage(article.id, theme);
+                    console.log(`Article ${article.id}: Using fallback = ${imageUrl}`);
+                }
             
             // Generate takeaways and why it matters
             const takeaways = generateTakeaways(article.summary || article.content, article.title);
@@ -911,7 +924,20 @@
                     </div>
                 `;
                 
-            return card;
+                return card;
+            } catch (error) {
+                console.error('Error creating article card:', error);
+                // Return a simple error card
+                const errorCard = document.createElement('div');
+                errorCard.className = 'article-card';
+                errorCard.innerHTML = `
+                    <div class="article-content">
+                        <h3 class="article-title">Error loading article</h3>
+                        <p class="article-synopsis">There was an error displaying this article.</p>
+                    </div>
+                `;
+                return errorCard;
+            }
         }
 
         // Show/hide loading state
@@ -933,7 +959,7 @@
             displayThemes();
         }
 
-        async function showTheme(theme) {
+        async function showTheme(theme, targetElement = null) {
             currentTheme = theme;
             const themeConfig = THEMES[theme];
             
@@ -945,7 +971,7 @@
             document.getElementById('theme-subtitle').textContent = themeConfig.description;
             
             // Update navigation
-            updateNavigation(event.target);
+            updateNavigation(targetElement);
             
             // Display articles
             await displayArticles(theme);
