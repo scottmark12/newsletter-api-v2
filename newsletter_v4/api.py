@@ -1019,7 +1019,7 @@ async def proxy_image(
         async with aiohttp.ClientSession() as session:
             async with session.get(image, timeout=15, headers={
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
-                'Referer': urlparse(image).origin if image.startswith('http') else '',
+                'Referer': f"{urlparse(image).scheme}://{urlparse(image).netloc}" if image.startswith('http') else '',
                 'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8'
             }) as response:
                 if response.status == 200:
