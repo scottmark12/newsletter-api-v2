@@ -105,7 +105,7 @@ class RSSCollector:
                         title=title,
                         url=url,
                         content=content,
-                        summary=content[:500] + "..." if len(content) > 500 else content,
+                        summary=content[:2000] + "..." if len(content) > 2000 else content,
                         source=source,
                         author=author,
                         published_at=published_at,
@@ -290,7 +290,7 @@ class WebScraper:
                     title=title,
                     url=url,
                     content=content,
-                    summary=content[:500] + "..." if len(content) > 500 else content,
+                    summary=content[:2000] + "..." if len(content) > 2000 else content,
                     source=source,
                     author=author,
                     published_at=datetime.now(timezone.utc)
