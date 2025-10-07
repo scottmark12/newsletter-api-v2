@@ -142,7 +142,6 @@ async def get_opportunities(
             "image_url": article.image_url or get_fallback_image(article.id),
             "score": {
                 "opportunities": score.opportunities_score,
-                "systems": score.systems_score,  # Show systems score too
                 "total": score.total_score
             },
             "themes": article.themes
@@ -270,8 +269,7 @@ async def get_systems_codes(
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "score": {
-                "systems": score.systems_score,
-                "opportunities": score.opportunities_score,  # Show both scores
+                "opportunities": score.opportunities_score,
                 "total": score.total_score
             },
             "themes": article.themes
@@ -343,7 +341,6 @@ async def get_top_stories(
                 "total": score.total_score,
                 "opportunities": score.opportunities_score,
                 "practices": score.practices_score,
-                "systems": score.systems_score,
                 "vision": score.vision_score
             },
             "themes": article.themes
@@ -388,7 +385,6 @@ async def get_home_page(
                 "total": score.total_score,
                 "opportunities": score.opportunities_score,
                 "practices": score.practices_score,
-                "systems": score.systems_score,
                 "vision": score.vision_score
             },
             "themes": article.themes
@@ -629,7 +625,6 @@ async def collect_articles():
                 total_score=scoring_result.total_score,
                 opportunities_score=scoring_result.theme_scores.get("opportunities", 0),
                 practices_score=scoring_result.theme_scores.get("practices", 0),
-                systems_score=scoring_result.theme_scores.get("systems", 0),
                 vision_score=scoring_result.theme_scores.get("vision", 0),
                 insight_quality_score=scoring_result.insight_quality,
                 narrative_signal_score=scoring_result.narrative_signal,
@@ -954,7 +949,6 @@ async def run_scoring():
                 total_score=scoring_result.total_score,
                 opportunities_score=scoring_result.theme_scores.get("opportunities", 0),
                 practices_score=scoring_result.theme_scores.get("practices", 0),
-                systems_score=scoring_result.theme_scores.get("systems", 0),
                 vision_score=scoring_result.theme_scores.get("vision", 0),
                 insight_quality_score=scoring_result.insight_quality,
                 narrative_signal_score=scoring_result.narrative_signal,
