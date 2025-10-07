@@ -25,7 +25,7 @@ class OpenAIContentGenerator:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4-turbo-preview",
                 messages=[
                     {
                         "role": "system",
@@ -57,18 +57,17 @@ class OpenAIContentGenerator:
             bullets = []
             for line in content.split('\n'):
                 line = line.strip()
-                if line and not line.startswith('✅'):
-                    # Add checkmark if missing
-                    if line.startswith('-') or line.startswith('•'):
+                if line:
+                    # Remove common bullet markers
+                    if line.startswith('-') or line.startswith('•') or line.startswith('*'):
                         line = line[1:].strip()
-                    line = f"✅ {line}"
-                elif line.startswith('✅'):
-                    pass  # Already has checkmark
-                else:
-                    continue
                     
-                if line and len(line) > 10:  # Only include substantial bullets
-                    bullets.append(line)
+                    # Ensure checkmark is present
+                    if not line.startswith('✅'):
+                        line = f"✅ {line}"
+                    
+                    if len(line) > 15:  # Only include substantial bullets
+                        bullets.append(line)
             
             # Ensure we have exactly 3 bullets
             while len(bullets) < 3 and len(bullets) > 0:
