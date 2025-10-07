@@ -692,59 +692,7 @@
             }
         }
 
-        // Generate 3 condensed bullet points summarizing the article
-        function generateTakeaways(content, title) {
-            const text = content ? content.replace(/<[^>]*>/g, '') : '';
-            
-            // Simple AI-like summarization by extracting key sentences
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
-            
-            // Look for sentences with key indicators
-            const keyIndicators = [
-                'roi', 'return', 'profit', 'revenue', 'cost', 'savings', 'investment',
-                'development', 'construction', 'building', 'project', 'market',
-                'innovation', 'technology', 'efficiency', 'productivity', 'growth',
-                'first', 'only', 'unprecedented', 'breakthrough', 'new', 'improved'
-            ];
-            
-            const scoredSentences = sentences.map(sentence => {
-                const lowerSentence = sentence.toLowerCase();
-                let score = 0;
-                keyIndicators.forEach(indicator => {
-                    if (lowerSentence.includes(indicator)) score += 1;
-                });
-                // Bonus for numbers and specific data
-                if (/\$|\d+%|\d+(?:\.\d+)?\s*(?:million|billion|thousand)/i.test(sentence)) score += 2;
-                return { sentence: sentence.trim(), score };
-            });
-            
-            // Get top 3 sentences
-            const topSentences = scoredSentences
-                .filter(s => s.score > 0)
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 3)
-                .map(s => s.sentence);
-            
-            // If we don't have enough scored sentences, fill with general ones
-            while (topSentences.length < 3) {
-                const remainingSentences = sentences.filter(s => !topSentences.includes(s.trim()));
-                if (remainingSentences.length > 0) {
-                    topSentences.push(remainingSentences[topSentences.length].trim());
-                } else {
-                    break;
-                }
-            }
-            
-            // Format as bullet points
-            return topSentences.slice(0, 3).map(sentence => {
-                // Clean up the sentence
-                let cleaned = sentence.trim();
-                if (cleaned.length > 80) {
-                    cleaned = cleaned.substring(0, 77) + '...';
-                }
-                return `✅ ${cleaned}`;
-            });
-        }
+        // Note: generateTakeaways function removed - now using database-generated content
 
         // Generate unique "why it matters" text for each article
         function generateWhyItMatters(content, title, theme) {
@@ -954,9 +902,9 @@
                 let imageUrl = primary || pageProxy;
                 console.log(`Article ${article.id}: Primary image = ${primary}, Using proxy = ${imageUrl}`);
             
-            // Generate takeaways and why it matters
-            const takeaways = generateTakeaways(article.summary || article.content, article.title);
-            const whyItMatters = generateWhyItMatters(article.summary || article.content, article.title, theme);
+            // Use pre-generated content from API
+            const takeaways = article.takeaways || [];
+            const whyItMatters = article.why_it_matters || "This development represents a significant opportunity in the construction and real estate industry.";
             
             // Format date
             const publishedDate = article.published_at ? new Date(article.published_at).toLocaleDateString() : 'Recent';

@@ -133,6 +133,14 @@ async def get_opportunities(
     
     result = []
     for article, score in articles:
+        # Parse takeaways from JSON
+        takeaways = []
+        if article.takeaways:
+            try:
+                takeaways = json.loads(article.takeaways) if isinstance(article.takeaways, str) else article.takeaways
+            except:
+                takeaways = []
+        
         result.append({
             "id": article.id,
             "title": article.title,
@@ -141,6 +149,8 @@ async def get_opportunities(
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "image_url": article.image_url or get_fallback_image(article.id),
+            "why_it_matters": article.why_it_matters or "This development represents a significant opportunity in the construction and real estate industry.",
+            "takeaways": takeaways,
             "score": {
                 "opportunities": score.opportunities_score,
                 "total": score.total_score
@@ -181,6 +191,14 @@ async def get_practices(
     
     result = []
     for article, score in articles:
+        # Parse takeaways from JSON
+        takeaways = []
+        if article.takeaways:
+            try:
+                takeaways = json.loads(article.takeaways) if isinstance(article.takeaways, str) else article.takeaways
+            except:
+                takeaways = []
+        
         result.append({
             "id": article.id,
             "title": article.title,
@@ -189,6 +207,8 @@ async def get_practices(
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "image_url": article.image_url or get_fallback_image(article.id),
+            "why_it_matters": article.why_it_matters or "This development represents a significant opportunity in the construction and real estate industry.",
+            "takeaways": takeaways,
             "score": {
                 "practices": score.practices_score,
                 "total": score.total_score
@@ -295,6 +315,14 @@ async def get_vision(
     
     result = []
     for article, score in articles:
+        # Parse takeaways from JSON
+        takeaways = []
+        if article.takeaways:
+            try:
+                takeaways = json.loads(article.takeaways) if isinstance(article.takeaways, str) else article.takeaways
+            except:
+                takeaways = []
+        
         result.append({
             "id": article.id,
             "title": article.title,
@@ -303,6 +331,8 @@ async def get_vision(
             "source": article.source,
             "published_at": article.published_at.isoformat() if article.published_at else None,
             "image_url": article.image_url or get_fallback_image(article.id),
+            "why_it_matters": article.why_it_matters or "This development represents a significant opportunity in the construction and real estate industry.",
+            "takeaways": takeaways,
             "score": {
                 "vision": score.vision_score,
                 "total": score.total_score
