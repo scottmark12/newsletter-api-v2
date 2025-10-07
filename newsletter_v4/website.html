@@ -350,11 +350,12 @@
 
         /* Why It Matters */
         .why-it-matters {
-            background: var(--secondary);
-            border-left: 4px solid var(--primary);
-            padding: 1rem;
-            border-radius: 0 var(--radius) var(--radius) 0;
-            margin-bottom: 1rem;
+            background: var(--secondary) !important;
+            border-left: 4px solid var(--primary) !important;
+            padding: 1rem !important;
+            border-radius: 0 var(--radius) var(--radius) 0 !important;
+            margin-bottom: 1rem !important;
+            display: block !important;
         }
 
         .why-it-matters-title {
@@ -486,35 +487,35 @@
     </header>
 
     <main class="main">
-        <div class="container">
-            <!-- Home Page -->
-            <div id="home-page">
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page">
                 <h1 class="page-title">Construction & Real Estate Intelligence</h1>
                 <p class="page-subtitle">Discover insights, opportunities, and innovations shaping the built environment</p>
                 
                 <div id="themes-grid" class="themes-grid">
                     <!-- Theme cards will be populated by JavaScript -->
-                </div>
             </div>
+        </div>
 
-            <!-- Theme Pages -->
-            <div id="theme-page" class="hidden">
+        <!-- Theme Pages -->
+        <div id="theme-page" class="hidden">
                 <div id="theme-header">
                     <h1 id="theme-title" class="page-title"></h1>
                     <p id="theme-subtitle" class="page-subtitle"></p>
-                </div>
+                        </div>
                 
                 <div id="articles-grid" class="articles-grid">
                     <!-- Articles will be populated by JavaScript -->
+                    </div>
                 </div>
-            </div>
 
             <!-- Loading State -->
             <div id="loading" class="loading hidden">
-                <div class="spinner"></div>
+                    <div class="spinner"></div>
                 Loading articles...
-            </div>
-        </div>
+                </div>
+                </div>
     </main>
 
     <script>
@@ -560,41 +561,109 @@
             }
         }
 
-        // Image extraction utility
+        // Enhanced image extraction utility
         function extractImageFromContent(content) {
             if (!content) return null;
             
-            // Try to find img tags first
-            const imgRegex = /<img[^>]+src="([^"]+)"/gi;
-            let match = imgRegex.exec(content);
-            if (match) {
-                let imageUrl = match[1];
+            // Create a temporary DOM element to parse HTML properly
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            
+            // Try to find img tags with better parsing
+            const images = tempDiv.querySelectorAll('img');
+            
+            for (let img of images) {
+                let imageUrl = img.src || img.getAttribute('src');
                 if (imageUrl && isValidImageUrl(imageUrl)) {
-                    return cleanImageUrl(imageUrl);
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
+                }
+                
+                // Try data-src (lazy loading)
+                imageUrl = img.getAttribute('data-src');
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
+                }
+                
+                // Try data-lazy-src
+                imageUrl = img.getAttribute('data-lazy-src');
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
                 }
             }
-
+            
+            // Also try regex extraction as fallback for malformed HTML
+            const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+            let imgMatch = imgRegex.exec(content);
+            if (imgMatch) {
+                let imageUrl = imgMatch[1];
+                if (imageUrl && isValidImageUrl(imageUrl)) {
+                    const cleanUrl = cleanImageUrl(imageUrl);
+                    if (cleanUrl) return cleanUrl;
+                }
+            }
+            
             // Try to find srcset
-            const srcsetRegex = /<img[^>]+srcset="([^"]+)"/gi;
-            match = srcsetRegex.exec(content);
-            if (match) {
-                const srcset = match[1];
-                const urls = srcset.split(',').map(src => src.trim().split(' ')[0]);
-                for (const url of urls) {
-                    if (isValidImageUrl(url)) {
-                        return cleanImageUrl(url);
+            const srcsetImgs = tempDiv.querySelectorAll('img[srcset]');
+            for (let img of srcsetImgs) {
+                const srcset = img.getAttribute('srcset');
+                if (srcset) {
+                    const urls = srcset.split(',').map(src => src.trim().split(' ')[0]);
+                    for (const url of urls) {
+                        if (isValidImageUrl(url)) {
+                            const cleanUrl = cleanImageUrl(url);
+                            if (cleanUrl) return cleanUrl;
+                        }
                     }
                 }
             }
-
+            
+            // Try to find Open Graph meta tags in content
+            const ogImageRegex = /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/gi;
+            let ogMatch = ogImageRegex.exec(content);
+            if (ogMatch) {
+                const imageUrl = ogMatch[1];
+                if (isValidImageUrl(imageUrl)) {
+                    return cleanImageUrl(imageUrl);
+                }
+            }
+            
+            // Try to find Twitter card meta tags
+            const twitterImageRegex = /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/gi;
+            let twitterMatch = twitterImageRegex.exec(content);
+            if (twitterMatch) {
+                const imageUrl = twitterMatch[1];
+                if (isValidImageUrl(imageUrl)) {
+                    return cleanImageUrl(imageUrl);
+                }
+            }
+            
             return null;
         }
 
         function isValidImageUrl(url) {
             if (!url) return false;
+            
+            // Must be a valid image extension
             const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
-            const excludePatterns = /logo|icon|avatar|placeholder|spacer|pixel|banner|advert|ad/i;
-            return imageExtensions.test(url) && !excludePatterns.test(url);
+            if (!imageExtensions.test(url)) return false;
+            
+            // Exclude common non-content images
+            const excludePatterns = /logo|icon|avatar|placeholder|spacer|pixel|banner|advert|ad|social|share|button|nav|header|footer|widget/i;
+            if (excludePatterns.test(url)) return false;
+            
+            // Exclude very small images (likely icons)
+            if (url.includes('16x16') || url.includes('32x32') || url.includes('24x24')) return false;
+            
+            // Must be a proper URL
+            try {
+                new URL(url);
+                return true;
+            } catch {
+                return false;
+            }
         }
 
         function cleanImageUrl(url) {
@@ -607,15 +676,58 @@
             return url;
         }
 
-        function getFallbackImage(articleId) {
-            const fallbackImages = [
-                'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
-                'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
-                'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
-                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
-                'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'
-            ];
-            return fallbackImages[articleId % fallbackImages.length];
+        function getFallbackImage(articleId, theme = 'general') {
+            const themeImages = {
+                opportunities: [
+                    'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Business building
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // City skyline
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Construction
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Architecture
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'  // Real estate
+                ],
+                practices: [
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Construction site
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Building construction
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Modern building
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Architecture
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80'  // Urban development
+                ],
+                vision: [
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Smart city
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Future buildings
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Sustainable design
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80', // Innovation
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80'  // Technology
+                ],
+                general: [
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center&auto=format&q=80',
+                    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center&auto=format&q=80'
+                ]
+            };
+            
+            const images = themeImages[theme] || themeImages.general;
+            return images[articleId % images.length];
+        }
+
+        // Robust image error handling with proxy fallback
+        function handleImageError(imgElement, proxyUrl, fallbackUrl) {
+            if (!imgElement.dataset.triedProxy) {
+                // Try proxy first
+                imgElement.dataset.triedProxy = 'true';
+                imgElement.src = proxyUrl;
+                console.log('Image failed, trying proxy:', proxyUrl);
+            } else if (!imgElement.dataset.triedFallback) {
+                // Try fallback
+                imgElement.dataset.triedFallback = 'true';
+                imgElement.src = fallbackUrl;
+                console.log('Proxy failed, using fallback:', fallbackUrl);
+            } else {
+                // All options exhausted
+                console.log('All image options failed for:', imgElement.alt);
+            }
         }
 
         // Generate takeaways from article content
@@ -731,24 +843,35 @@
         async function displayArticles(theme) {
             const container = document.getElementById('articles-grid');
             container.innerHTML = '';
-            
+
             showLoading(true);
             
             try {
+                console.log(`Fetching articles for theme: ${theme}`);
                 const response = await fetch(`${API_BASE}/api/v4/${theme}?limit=20`);
+                console.log(`Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log(`Received data:`, data);
                 
                 if (data.articles && data.articles.length > 0) {
-                    data.articles.forEach(article => {
+                    console.log(`Creating ${data.articles.length} article cards`);
+                    data.articles.forEach((article, index) => {
+                        console.log(`Creating card ${index + 1} for article: ${article.title}`);
                         const articleCard = createArticleCard(article, theme);
                         container.appendChild(articleCard);
                     });
                 } else {
+                    console.log('No articles found in response');
                     container.innerHTML = '<p>No articles found for this theme.</p>';
                 }
             } catch (error) {
                 console.error('Error fetching articles:', error);
-                container.innerHTML = '<p>Error loading articles. Please try again later.</p>';
+                container.innerHTML = `<p>Error loading articles: ${error.message}. Please try again later.</p>`;
             } finally {
                 showLoading(false);
             }
@@ -756,17 +879,23 @@
 
         // Create article card
         function createArticleCard(article, theme) {
-            const card = document.createElement('div');
-            card.className = 'article-card';
-            
-            // Extract image
-            let imageUrl = article.image_url;
-            if (!imageUrl) {
-                imageUrl = extractImageFromContent(article.summary || article.content);
-            }
-            if (!imageUrl) {
-                imageUrl = getFallbackImage(article.id);
-            }
+            try {
+                console.log(`Creating article card for: ${article.title}`);
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                
+                // Enhanced image extraction with proxy system
+                const OG_FN = `${API_BASE}/api/v4/proxy/image`;
+                const proxyImage = (url) => `${OG_FN}?image=${encodeURIComponent(url)}`;
+                const proxyFromPage = (pageUrl) => `${OG_FN}?url=${encodeURIComponent(pageUrl)}`;
+                
+                // Fallback chain to prevent loops
+                const primary = article.image_url || extractImageFromContent(article.summary || article.content) || null;
+                const pageProxy = proxyFromPage(article.url);
+                const imageProxy = primary ? proxyImage(primary) : pageProxy;
+                
+                let imageUrl = primary || pageProxy;
+                console.log(`Article ${article.id}: Primary image = ${primary}, Using proxy = ${imageUrl}`);
             
             // Generate takeaways and why it matters
             const takeaways = generateTakeaways(article.summary || article.content, article.title);
@@ -776,30 +905,31 @@
             const publishedDate = article.published_at ? new Date(article.published_at).toLocaleDateString() : 'Recent';
             
             card.innerHTML = `
-                <div class="article-image-container">
+                    <div class="article-image-container">
                     <img src="${imageUrl}" alt="${article.title}" class="article-image" 
-                         onerror="this.src='${getFallbackImage(article.id)}'">
-                    <div class="source-badge">${article.source}</div>
-                </div>
-                <div class="article-content">
+                         referrerPolicy="no-referrer" loading="lazy"
+                         onerror="handleImageError(this, '${imageProxy}', '${getFallbackImage(article.id)}')">
+                        <div class="source-badge">${article.source}</div>
+                    </div>
+                    <div class="article-content">
                     <h3 class="article-title">${article.title}</h3>
                     <p class="article-synopsis">${article.summary ? article.summary.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : 'No summary available'}</p>
                     
-                    ${takeaways.length > 0 ? `
+                        ${takeaways.length > 0 ? `
                         <div class="takeaways">
-                            ${takeaways.map(takeaway => `
-                                <div class="takeaway-item">
+                                ${takeaways.map(takeaway => `
+                                    <div class="takeaway-item">
                                     <span class="takeaway-checkmark">✓</span>
                                     <span>${takeaway}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
                     
-                    <div class="why-it-matters">
+                            <div class="why-it-matters">
                         <div class="why-it-matters-title">Why it matters</div>
                         <div class="why-it-matters-text">${whyItMatters}</div>
-                    </div>
+                            </div>
                     
                     <div class="article-footer">
                         <span class="article-date">${publishedDate}</span>
@@ -810,10 +940,23 @@
                             </svg>
                         </a>
                     </div>
-                </div>
-            `;
-            
-            return card;
+                    </div>
+                `;
+                
+                return card;
+            } catch (error) {
+                console.error('Error creating article card:', error);
+                // Return a simple error card
+                const errorCard = document.createElement('div');
+                errorCard.className = 'article-card';
+                errorCard.innerHTML = `
+                    <div class="article-content">
+                        <h3 class="article-title">Error loading article</h3>
+                        <p class="article-synopsis">There was an error displaying this article.</p>
+                    </div>
+                `;
+                return errorCard;
+            }
         }
 
         // Show/hide loading state
@@ -835,7 +978,7 @@
             displayThemes();
         }
 
-        async function showTheme(theme) {
+        async function showTheme(theme, targetElement = null) {
             currentTheme = theme;
             const themeConfig = THEMES[theme];
             
@@ -847,7 +990,7 @@
             document.getElementById('theme-subtitle').textContent = themeConfig.description;
             
             // Update navigation
-            updateNavigation(event.target);
+            updateNavigation(targetElement);
             
             // Display articles
             await displayArticles(theme);

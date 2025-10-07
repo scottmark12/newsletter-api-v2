@@ -20,6 +20,7 @@ from .enhanced_scoring import score_article_enhanced
 from .data_collectors import collect_all_articles
 from .video_processor import find_construction_videos, process_youtube_video
 from .image_extractor import extract_article_image, get_fallback_image
+from bs4 import BeautifulSoup
 
 # Initialize configuration
 config = get_config()
@@ -966,6 +967,79 @@ async def get_admin_stats(db: Session = Depends(get_db)):
         "recent_articles_24h": recent_articles,
         "scoring_coverage": f"{(scored_articles / total_articles * 100):.1f}%" if total_articles > 0 else "0%"
     }
+
+
+# ============================================================================
+# IMAGE PROXY ENDPOINT
+# ============================================================================
+
+@app.get("/api/v4/proxy/image")
+async def proxy_image(
+    image: str = Query(..., description="Image URL to proxy"),
+    url: str = Query(None, description="Article URL to extract image from")
+):
+    """
+    Proxy images to handle CORS and hotlink protection
+    """
+    import aiohttp
+    from urllib.parse import urlparse, urljoin
+    
+    try:
+        # If URL is provided, extract image from the page first
+        if url:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=10, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36'
+                }) as response:
+                    if response.status == 200:
+                        html = await response.text()
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(html, 'lxml')
+                        
+                        # Try to find Open Graph image first
+                        og_image = soup.find('meta', property='og:image')
+                        if og_image and og_image.get('content'):
+                            image = og_image['content']
+                        else:
+                            # Try to find first suitable content image
+                            for img in soup.find_all('img', src=True):
+                                src = img['src']
+                                if not any(x in src.lower() for x in ['logo', 'icon', 'avatar', 'placeholder', 'spacer']):
+                                    image = src
+                                    break
+        
+        # Normalize relative URLs
+        if image and not image.startswith(('http://', 'https://')):
+            if url:
+                image = urljoin(url, image)
+            else:
+                raise HTTPException(status_code=400, detail="Invalid image URL")
+        
+        # Fetch the image with proper headers
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image, timeout=15, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+                'Referer': urlparse(image).origin if image.startswith('http') else '',
+                'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8'
+            }) as response:
+                if response.status == 200:
+                    from fastapi.responses import Response
+                    content = await response.read()
+                    content_type = response.headers.get('content-type', 'image/jpeg')
+                    
+                    return Response(
+                        content=content,
+                        media_type=content_type,
+                        headers={
+                            'Cache-Control': 'public, max-age=3600',
+                            'Access-Control-Allow-Origin': '*'
+                        }
+                    )
+                else:
+                    raise HTTPException(status_code=response.status, detail=f"Failed to fetch image: {response.status}")
+                    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error proxying image: {str(e)}")
 
 
 # ============================================================================
