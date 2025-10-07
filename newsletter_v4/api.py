@@ -38,7 +38,7 @@ create_tables()
 app = FastAPI(
     title=config.api.title,
     description=config.api.description,
-    version=config.api.version,
+    version="v4.2.0",  # Force deployment update
     debug=config.api.debug
 )
 
