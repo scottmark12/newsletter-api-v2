@@ -254,6 +254,7 @@
             overflow: hidden;
             transition: all 0.3s ease;
             position: relative;
+            cursor: pointer;
         }
 
         .article-card:hover {
@@ -366,30 +367,6 @@
             font-size: 0.875rem;
         }
 
-        .article-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .article-link:hover {
-            color: var(--ring);
-            transform: translateX(2px);
-        }
-
-        .article-link-icon {
-            width: 1rem;
-            height: 1rem;
-            transition: transform 0.2s;
-        }
-
-        .article-link:hover .article-link-icon {
-            transform: translateX(2px);
-        }
 
         /* Loading States */
         .loading {
@@ -934,15 +911,15 @@
                     
                     <div class="article-footer">
                         <span class="article-date">${publishedDate}</span>
-                        <a href="${article.url}" target="_blank" rel="noopener" class="article-link">
-                            Read more
-                            <svg class="article-link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                            </svg>
-                        </a>
                     </div>
                     </div>
                 `;
+                
+                // Add click event listener to open article
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.open(article.url, '_blank', 'noopener,noreferrer');
+                });
                 
                 return card;
             } catch (error) {
@@ -953,7 +930,7 @@
                 errorCard.innerHTML = `
                     <div class="article-content">
                         <h3 class="article-title">Error loading article</h3>
-                        <p class="article-synopsis">There was an error displaying this article.</p>
+                        <p>There was an error displaying this article.</p>
                     </div>
                 `;
                 return errorCard;
