@@ -236,12 +236,16 @@ class ImageExtractor:
             if len(url) < 20:
                 continue
             
-            # Lovable's skip patterns (more comprehensive)
+            # Lovable's skip patterns (more comprehensive but specific)
             skip_patterns = [
                 'sprite', 'logo', 'icon', 'spacer', 'pixel', '1x1',
-                'avatar', 'profile', 'thumbnail', 'placeholder', 
-                'banner', 'advertisement', 'ads', 'favicon'
+                'avatar', 'profile', 'placeholder', 
+                'banner', 'advertisement', 'favicon'
             ]
+            
+            # More specific thumbnail filtering - only skip actual thumbnails, not medium/large images
+            if '/thumbnail/' in url.lower() or url.lower().endswith('thumbnail'):
+                continue
             
             if any(pattern in url.lower() for pattern in skip_patterns):
                 continue
