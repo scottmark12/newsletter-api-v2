@@ -1231,6 +1231,37 @@ async def generate_content_for_articles(
 ):
     """Generate unique 'Why it matters' and takeaways for articles using OpenAI"""
     try:
+        # First, ensure the database columns exist
+        try:
+            # Check if columns exist
+            result = db.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'articles_v4' 
+                AND column_name IN ('why_it_matters', 'takeaways')
+            """))
+            
+            existing_columns = [row[0] for row in result.fetchall()]
+            
+            # Add missing columns if they don't exist
+            if 'why_it_matters' not in existing_columns:
+                db.execute(text("""
+                    ALTER TABLE articles_v4 
+                    ADD COLUMN why_it_matters TEXT
+                """))
+                
+            if 'takeaways' not in existing_columns:
+                db.execute(text("""
+                    ALTER TABLE articles_v4 
+                    ADD COLUMN takeaways JSON
+                """))
+            
+            db.commit()
+            
+        except Exception as e:
+            print(f"Warning: Could not add columns (they may already exist): {e}")
+            db.rollback()
+        
         # Get OpenAI generator
         openai_generator = get_openai_generator()
         if not openai_generator:
