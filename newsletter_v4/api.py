@@ -73,6 +73,20 @@ async def root():
         "message": "v4 API successfully deployed!"
     }
 
+@app.get("/logo.png")
+async def serve_logo():
+    """Serve the logo image"""
+    from fastapi.responses import FileResponse
+    import os
+    
+    # Try to serve the logo from the static directory
+    logo_path = "logo.png"
+    if os.path.exists(logo_path):
+        return FileResponse(logo_path, media_type="image/png")
+    else:
+        # Fallback to a placeholder if logo doesn't exist
+        return {"error": "Logo not found"}
+
 
 @app.get("/health")
 async def health_check():

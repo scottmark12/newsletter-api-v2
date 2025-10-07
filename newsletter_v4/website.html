@@ -88,23 +88,20 @@
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
             text-decoration: none;
             cursor: pointer;
             transition: opacity 0.2s;
             display: flex;
             align-items: center;
-            height: 40px;
+            height: 80px;
         }
 
         .logo:hover {
             opacity: 0.8;
         }
 
-        .logo svg {
-            height: 40px;
+        .logo-image {
+            height: 80px;
             width: auto;
         }
 
@@ -490,14 +487,7 @@
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo" onclick="showHome()">
-                    <svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- House roof graphic -->
-                        <path d="M15 8 L20 3 L25 8 L25 12 L15 12 Z" fill="currentColor" opacity="0.9"/>
-                        <!-- BUILT text -->
-                        <text x="30" y="20" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="currentColor">BUILT</text>
-                        <!-- BY MARK SCOTT text -->
-                        <text x="30" y="32" font-family="Inter, sans-serif" font-size="8" font-weight="400" fill="currentColor" opacity="0.8">BY MARK SCOTT</text>
-                    </svg>
+                    <img src="/logo.png" alt="BUILT BY MARK SCOTT" class="logo-image">
                 </a>
                 <nav class="nav">
                     <a href="#" class="nav-link" onclick="showTheme('opportunities')">Opportunities</a>
