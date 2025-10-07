@@ -73,48 +73,109 @@ class ImageExtractor:
             return None
     
     async def _extract_best_image(self, html_content: str, base_url: str) -> Optional[str]:
-        """Extract the best image from HTML content"""
+        """Extract the best image from HTML content using Lovable's improved strategy"""
         images = []
         
-        # Strategy 1: Open Graph images (most reliable)
-        og_images = self._extract_open_graph_images(html_content, base_url)
-        images.extend(og_images)
+        # Strategy 1: JSON-LD structured data (highest priority - like Lovable)
+        jsonld_images = self._extract_jsonld_images(html_content, base_url)
+        images.extend(jsonld_images)
         
-        # Strategy 2: Article/hero images
+        # Strategy 2: Comprehensive meta tags (like Lovable)
+        meta_images = self._extract_comprehensive_meta_images(html_content, base_url)
+        images.extend(meta_images)
+        
+        # Strategy 3: Article/hero images with better detection
         hero_images = self._extract_hero_images(html_content, base_url)
         images.extend(hero_images)
         
-        # Strategy 3: First large content image
+        # Strategy 4: Content images
         content_images = self._extract_content_images(html_content, base_url)
         images.extend(content_images)
         
-        # Filter and score images
-        valid_images = self._filter_valid_images(images)
+        # Filter and score images using Lovable's smart selection
+        valid_images = self._filter_and_rank_images(images)
         
         if not valid_images:
             return None
         
-        # Return the best image (first valid one)
+        # Return the best image using Lovable's ranking
         return valid_images[0]['url']
     
-    def _extract_open_graph_images(self, html_content: str, base_url: str) -> List[dict]:
-        """Extract Open Graph images"""
+    def _extract_jsonld_images(self, html_content: str, base_url: str) -> List[dict]:
+        """Extract images from JSON-LD structured data (like Lovable)"""
         images = []
         
-        # Look for og:image meta tags
-        og_patterns = [
+        # Find JSON-LD scripts
+        script_pattern = r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>([\s\S]*?)</script>'
+        matches = re.findall(script_pattern, html_content, re.IGNORECASE)
+        
+        for json_text in matches:
+            try:
+                import json as json_lib
+                data = json_lib.loads(json_text.strip())
+                
+                # Recursively collect image URLs from JSON-LD
+                def collect_images(node):
+                    if not node:
+                        return
+                    if isinstance(node, str):
+                        if node.startswith('http') and any(ext in node.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
+                            image_url = urljoin(base_url, node)
+                            images.append({
+                                'url': image_url,
+                                'type': 'jsonld',
+                                'priority': 1,  # Highest priority like Lovable
+                                'context': 'structured_data'
+                            })
+                        return
+                    if isinstance(node, list):
+                        for item in node:
+                            collect_images(item)
+                        return
+                    if isinstance(node, dict):
+                        # Look for common image fields
+                        for key in ['image', 'thumbnailUrl', 'logo', 'contentUrl']:
+                            if key in node:
+                                collect_images(node[key])
+                        # Special handling for NewsArticle/Article
+                        if node.get('@type') in ['NewsArticle', 'Article'] and 'image' in node:
+                            collect_images(node['image'])
+                        # Recursively check all values
+                        for value in node.values():
+                            collect_images(value)
+                
+                collect_images(data)
+                
+            except Exception as e:
+                logger.debug(f"Failed to parse JSON-LD: {e}")
+                continue
+        
+        return images
+    
+    def _extract_comprehensive_meta_images(self, html_content: str, base_url: str) -> List[dict]:
+        """Extract images using comprehensive meta tag patterns (like Lovable)"""
+        images = []
+        
+        # Lovable's comprehensive meta patterns
+        meta_patterns = [
+            r'<meta[^>]+property=["\']og:image:secure_url["\'][^>]+content=["\']([^"\']+)["\'][^>]*>',
             r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\'][^>]*>',
-            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\'][^>]*>',
+            r'<meta[^>]+name=["\']og:image["\'][^>]+content=["\']([^"\']+)["\'][^>]*>',
+            r'<meta[^>]+name=["\']twitter:image:src["\'][^>]+content=["\']([^"\']+)["\'][^>]*>',
+            r'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\']([^"\']+)["\'][^>]*>',
+            r'<link[^>]+rel=["\']image_src["\'][^>]+href=["\']([^"\']+)["\'][^>]*>',
+            r'<meta[^>]+itemprop=["\']image["\'][^>]+content=["\']([^"\']+)["\'][^>]*>',
         ]
         
-        for pattern in og_patterns:
+        for pattern in meta_patterns:
             matches = re.findall(pattern, html_content, re.IGNORECASE)
             for match in matches:
                 image_url = urljoin(base_url, match)
                 images.append({
                     'url': image_url,
-                    'type': 'og',
-                    'priority': 1
+                    'type': 'meta',
+                    'priority': 2,
+                    'context': 'meta_tag'
                 })
         
         return images
@@ -164,8 +225,8 @@ class ImageExtractor:
         
         return images
     
-    def _filter_valid_images(self, images: List[dict]) -> List[dict]:
-        """Filter and score images"""
+    def _filter_and_rank_images(self, images: List[dict]) -> List[dict]:
+        """Filter and rank images using Lovable's smart selection approach"""
         valid_images = []
         
         for image in images:
@@ -175,36 +236,55 @@ class ImageExtractor:
             if len(url) < 20:
                 continue
             
-            # Skip common non-content images
+            # Lovable's skip patterns (more comprehensive)
             skip_patterns = [
-                'logo', 'icon', 'avatar', 'profile', 'thumbnail',
-                'placeholder', 'spacer', 'pixel', 'banner', 'advertisement',
-                'ads', 'favicon', 'social', 'share', 'button'
+                'sprite', 'logo', 'icon', 'spacer', 'pixel', '1x1',
+                'avatar', 'profile', 'thumbnail', 'placeholder', 
+                'banner', 'advertisement', 'ads', 'favicon'
             ]
             
             if any(pattern in url.lower() for pattern in skip_patterns):
                 continue
             
             # Must have image extension or be from known image domains
-            image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
-            image_domains = ['images.', 'img.', 'cdn.', 'media.', 'static.']
+            image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif']
+            image_domains = ['images.', 'img.', 'cdn.', 'media.', 'static.', 'assets.']
             
             has_extension = any(ext in url.lower() for ext in image_extensions)
             has_domain = any(domain in url.lower() for domain in image_domains)
             
             if has_extension or has_domain:
-                # Prefer larger images (common size indicators)
-                size_score = 0
-                if any(size in url for size in ['800', '1200', '1600', '1920', 'large', 'full']):
-                    size_score = 1
-                elif any(size in url for size in ['600', 'medium']):
-                    size_score = 0.5
+                # Lovable's smart ranking system
+                ranking_score = 0
                 
-                image['size_score'] = size_score
+                # Prefer images with featured keywords (like Lovable)
+                featured_keywords = ['hero', 'featured', 'lead', 'main', 'social', 'share', 'og']
+                if any(keyword in url.lower() for keyword in featured_keywords):
+                    ranking_score += 2
+                
+                # Prefer larger images
+                if any(size in url for size in ['1920', '1600', '1200', '800']):
+                    ranking_score += 1.5
+                elif any(size in url for size in ['600', 'large', 'full']):
+                    ranking_score += 1
+                elif any(size in url for size in ['400', 'medium']):
+                    ranking_score += 0.5
+                
+                # Prefer CDN and media domains
+                if any(domain in url.lower() for domain in ['cdn.', 'media.', 'images.']):
+                    ranking_score += 0.5
+                
+                # Boost JSON-LD and meta tag images
+                if image.get('type') == 'jsonld':
+                    ranking_score += 1
+                elif image.get('type') == 'meta':
+                    ranking_score += 0.5
+                
+                image['ranking_score'] = ranking_score
                 valid_images.append(image)
         
-        # Sort by priority and size score
-        valid_images.sort(key=lambda x: (x['priority'], -x.get('size_score', 0)))
+        # Sort by priority first, then by ranking score (like Lovable)
+        valid_images.sort(key=lambda x: (x['priority'], -x.get('ranking_score', 0)))
         
         return valid_images
 
