@@ -1382,6 +1382,54 @@ async def generate_content_for_articles(
         }
 
 
+@app.post("/api/v4/admin/cleanup-old-articles")
+async def cleanup_old_articles(
+    days: int = Query(7, ge=1, le=30, description="Delete articles older than N days"),
+    db: Session = Depends(get_db)
+):
+    """Clean up articles older than specified days"""
+    try:
+        # Calculate cutoff date
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
+        
+        # Find articles older than cutoff
+        old_articles = db.query(Article).filter(
+            Article.published_at < cutoff_date
+        ).all()
+        
+        cleaned_count = 0
+        
+        for article in old_articles:
+            # Delete associated scores first (foreign key constraint)
+            db.query(ArticleScore).filter(ArticleScore.article_id == article.id).delete()
+            
+            # Delete associated insights
+            db.query(ArticleInsight).filter(ArticleInsight.article_id == article.id).delete()
+            
+            # Delete the article
+            db.delete(article)
+            cleaned_count += 1
+        
+        # Commit all deletions
+        db.commit()
+        
+        return {
+            "ok": True,
+            "message": f"Successfully cleaned up {cleaned_count} articles older than {days} days",
+            "cleaned_count": cleaned_count,
+            "cutoff_date": cutoff_date.isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        db.rollback()
+        return {
+            "ok": False,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

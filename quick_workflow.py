@@ -86,8 +86,22 @@ def run_quick_workflow():
     except Exception as e:
         print(f"❌ Photo extraction error: {e}")
     
-    # Step 6: Get final stats
-    print("📊 Step 6: Getting final stats...")
+    time.sleep(5)
+    
+    # Step 6: Clean up old articles (older than a week)
+    print("🧹 Step 6: Cleaning up articles older than a week...")
+    try:
+        response = requests.post(f"{API_BASE}/api/v4/admin/cleanup-old-articles", timeout=60)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"✅ Cleaned up {data.get('cleaned_count', 0)} old articles")
+        else:
+            print(f"❌ Cleanup failed: {response.status_code}")
+    except Exception as e:
+        print(f"❌ Cleanup error: {e}")
+    
+    # Step 7: Get final stats
+    print("📊 Step 7: Getting final stats...")
     try:
         response = requests.get(f"{API_BASE}/api/v4/admin/stats", timeout=30)
         if response.status_code == 200:

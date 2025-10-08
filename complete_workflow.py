@@ -138,6 +138,25 @@ def create_summaries() -> int:
         log_step("SUMMARIES", f"Summary creation error: {e}")
         return 0
 
+def cleanup_old_articles() -> int:
+    """Clean up articles older than a week"""
+    log_step("CLEANUP", "Cleaning up articles older than a week...")
+    try:
+        # We'll need to add a cleanup endpoint to the API
+        # For now, we'll create a simple cleanup function
+        response = requests.post(f"{API_BASE}/api/v4/admin/cleanup-old-articles", timeout=60)
+        if response.status_code == 200:
+            data = response.json()
+            cleaned = data.get("cleaned_count", 0)
+            log_step("CLEANUP", f"Successfully cleaned up {cleaned} old articles")
+            return cleaned
+        else:
+            log_step("CLEANUP", f"Cleanup failed: {response.status_code}")
+            return 0
+    except Exception as e:
+        log_step("CLEANUP", f"Cleanup error: {e}")
+        return 0
+
 def refresh_site_data() -> bool:
     """Refresh the site data to account for new rankings"""
     log_step("REFRESH", "Refreshing site data with new rankings...")
@@ -230,7 +249,11 @@ def main():
     log_step("PHOTOS", "Extracting photos and images...")
     photo_results = pull_photos()
     
-    # Step 7: Refresh site data with new rankings
+    # Step 7: Clean up old articles (older than a week)
+    log_step("CLEANUP", "Cleaning up articles older than a week...")
+    cleanup_results = cleanup_old_articles()
+    
+    # Step 8: Refresh site data with new rankings
     log_step("REFRESH", "Refreshing site data with new rankings...")
     refresh_results = refresh_site_data()
     
@@ -248,6 +271,7 @@ def main():
     print(f"Articles Rejected: {score_results['rejected']}")
     print(f"Summaries Created: {summary_results}")
     print(f"Photos Extracted: {photo_results}")
+    print(f"Old Articles Cleaned: {cleanup_results}")
     print(f"Site Data Refreshed: {'✅' if refresh_results else '❌'}")
     print(f"End Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
     print("=" * 80)
